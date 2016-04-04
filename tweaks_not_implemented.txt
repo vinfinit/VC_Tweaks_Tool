@@ -1,0 +1,76 @@
+############################################
+# GENERAL TWEAKS NOT INCLUDED AND WHY
+############################################
+# TWEAK: WIFE AS COMPANION
+# not implemented. Currently bugged.
+
+# TWEAK: ADD MORRIGAN BACK
+# not implemented. Requires external tool. See thread for more info
+
+# TWEAK: CHANGE COMPANIONS EFFECT ON EACH OTHER
+# not implemented. See tweaks for COMPANIONS to stop them from leaving.
+
+# TWEAK: MANAGE VILLAGE GARRISONS
+# not implemented
+
+# TWEAK: BREAK OFF FROM A RAID (PLAYER CAN RUN AWAY)
+# not implemented
+
+# TWEAK: BRING YOUR HORSE TO SIEGES
+# not implemented
+
+# TWEAK: RELATION LOSS FROM SIEGES
+# not implemented. Game was rebalanced since this tweaked was posted. Now you only lose a few points with the center on siege start.
+
+# TWEAK: TROOPS GET MORE XP FROM COMBAT
+# not implemented. See thread for more info on how to edit the file module.ini
+
+# TWEAK : LANDING POINT GENERATION BUTTON
+# NOT IMPLEMENTED. ONLY NEEDED FOR OLD VERSIONS OF THE GAME.
+
+# TWEAK: CHANGE FREQUENCY OF LANDING-POINT GENERATION
+# NOT IMPLEMENTED. ONLY NEEDED FOR OLD VERSIONS OF THE GAME.
+
+# TWEAK: STEAL CROWN FROM KINGS
+# not implemented. See Tweak that lets you see inventory from any lord in the game if you really want this.
+
+# TWEAK: GIVE AWAY YOUR FIEFS IF YOU ARE A VASSAL
+# not implemented. See thread for more info. Requires external tool.
+
+# TWEAK: FORTS/TOWNS WITHOUT A LORD STILL GENERATE GARRISON
+# not implemented. Already part of VC RE, as centers get troops without a lord at a slower pace
+
+# TWEAK: ENTERPRISE RELATION REQUIREMENTS
+# not implemented
+
+# TWEAK: RECRUIT TROOPS FROM YOUR REFUGE CAPTAIN
+# not implemented
+
+# TWEAK: CHEAT MENU EXPANDED TO SHOW YOUR NEW ITEMS
+# not implemented
+
+# TWEAK: TRAINER CAN UPGRADE ANY TROOP, NOT JUST TIER 1 TO 3
+# not implemented
+
+# TWEAK: NO ITEM/MONEY LOSS ON DEFEAT
+# not implemented
+
+# TWEAK: LEADERSHIP SKILL EFFECT ON TROOP WAGES
+# not implemented. VC RE has a option for easy wages on the OPTIONS MENU
+
+# TWEAK: RUBIK'S POLITICAL MAP FOR VC BY KALARHAN
+# NO IMPLEMENTED. THIS IS A ADD-ON FEATURE. SEE FORUM FOR MORE INFO.
+
+# TWEAK: REPLACE TOURNAMENT SPEAR
+# not implemented. VC RE already replaced the old spear
+
+# TWEAK: PICTISH TATTOES BONUS
+# Included 5 more to the list. No action required.
+
+############################################
+# VISUAL/AUDIO
+############################################
+
+# NOT IMPLEMENTED. SEE THREAD FOR MORE INFO.
+# This tweaks are not related to coding changes (modules)
+# but to adding new textures, sounds files, etc

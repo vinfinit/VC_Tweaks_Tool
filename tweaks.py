@@ -1,0 +1,361 @@
+# TWEAKS FOR VC: DO IT YOURSELF!
+# Forum: https://forums.taleworlds.com/index.php/topic,323613.0.html
+# For more info check the forum thread above and @kraggrim work on tweaks
+# Modules version: 2.023
+
+#-------------------------------------------------------------------------
+# INSTRUCTIONS:
+# 1) see file README.PDF
+
+#-------------------------------------------------------------------------
+# => LIST OF TWEAKS: 
+
+############################################
+# PARTY/ARMY
+############################################
+
+# TWEAK 1: MORALE MODIFICATION
+TWEAK_BASE_MORALE = 50	# 0-100
+						# Base morale is the target value, you gain bonus and penalties from skills, army composition, etc
+						# It takes time to morale to change, and the final value is limited between 0 and 100
+						# Default: 50
+
+# TWEAK 2: FOOD CONSUMPTION FOR YOUR ARMY
+TWEAK_EAT_EVERY_X_HOURS = 12	# How often will troops consume food in hours. Default: 12
+TWEAK_EAT_HOW_MUCH = 3			# How many troops you feed with 1 unit. Default: 3
+
+############################################
+# COMPANIONS AND WIFE
+############################################
+
+# TWEAK 1: STOP MORRIGAN FROM LEAVING
+TWEAK_MORRIGAN_WONT_LEAVE = 0	# 0: she will leave your party
+								# 1: she will stay with you after the storyline is over
+								# Default: 0
+
+# TWEAK 2: COMPANION CONVERSATION ON CAMP % ADJUSTMENT
+TWEAK_CONVERSATION_CAMP = 20 	# 0-100% chance of firing a conversation if one is available. Default: 20
+
+# TWEAK 3: STOP THEM FROM LEAVING
+TWEAK_STOP_COMPANIONS_LEAVING = 0 	# 0: can leave, 1: won't leave. Default: 0
+
+# TWEAK 4: FORCE LADY TOO ACCEPT MARRIAGE PROPOSAL (ONCE YOU HAVE ENOUGH +RELATIONS)
+TWEAK_FORCE_LADY_MARRIAGE = 0 		# 0: vanilla, 1: ignores personality and random chance, forcing a YES. Default: 0
+
+############################################
+# VILLAGES/FORTS/TOWNS
+############################################
+
+# TWEAK 1: VILLAGE RECRUITS FROM CURRENT FACTION
+TWEAK_VILLAGE_RECRUITS_FROM_CURRENT_FACTION = 0 	# 0: original faction, 1: current faction. Default: 0
+
+# TWEAK 2: VILLAGE QUANTITY OF RECRUITS AVAILABLE
+TWEAK_NUM_RECRUITS_AVAILABLE = 0 	# Adds this as a bonus to the amount of recruits in a village. Default: 0
+
+# TWEAK 3: FORT/TOWN RECRUITS FROM CURRENT FACTION
+TWEAK_CENTERS_RECRUIT_FROM_CURRENT_FACTION = 0	# 0: original faction
+												# 1: current faction. This means you will get recruits from your culture in any town/fort you own.
+												# Default: 0
+
+# TWEAK 4: BUILDING TIME
+TWEAK_BUILDING_TIME_EXTRA_DAYS = 5	# How many days it will take AT LEAST. Example: a school
+									# Use negative values if you want reduce it further, or make it instant (takes only 1 day)
+									# Default: 5
+
+# TWEAK 5: LOOT MONEY AND GOOD FROM VILLAGES
+TWEAK_LOOT_MONEY_FROM_VILLAGE = 20 	# Magic number used to calculate loot. Increase it if you want more cash. Equation: (prosperity + this) * 5. Default: 20
+TWEAK_LOOT_GOOD_FROM_VILLAGE = 0 	# Increase this if you want more goods. Example: rich village is 22. Default: 0
+
+# TWEAK 6: MINIMUM AMOUNT TROOPS TO LOOT/ENSLAVE/CONVERT
+TWEAK_MIN_TROOPS_TO_LOOT_VILLAGE = 20 	# How many troops you need to loot/enslave/steal cattle. Default: 20
+TWEAK_MIN_TROOPS_TO_FORCE_CONVERT_VILLAGE = 100 	# How many troops you need to have the option to force convert the religion of a village. Default: 100
+
+# TWEAK 7: REPLACE DEFENDERS ON A VILLAGE ATTACK
+TWEAK_REPLACE_DEFENDERS_ON_VILLAGE_ATTACK = 0 	# 0: villagers, 1: use faction troops. Default: 0
+TWEAK_REPLACE_DEFENDERS_ON_VILLAGE_ATTACK_NUM_TROOPS = 50 	# Average number of troops. Only used if above is set to 1. Default: 50
+
+############################################
+# BATTLES
+############################################
+
+# TWEAK 1: LOW-LEVEL TROOPS RUN AWAY MORE EASILY
+TWEAK_LOW_LEVEL_UNITS_ARE_COWARDS = 0 	# 0: vanilla (all troops get extra courage)
+										# 1: Will make low level units (level 1 to 19) run away more often in battles (ROUT)
+										#    Higher level troops work as vanilla
+										# Default: 0 
+
+# TWEAK 2: ESCAPE CHANCE FOR ENEMY LORDS
+TWEAK_ESCAPE_CHANCE_ENEMY_LORDS = 65 	# 0-100 chance of escaping after a battle. Default: 65
+
+# TWEAK 3: REINFORCEMENTS WAVES (NORMAL BATTLE)
+TWEAK_STANDARD_BATTLE_ATTACKER_REINFORCEMENT_WAVES = 2 	# Default: 2.
+TWEAK_STANDARD_BATTLE_DEFENDER_REINFORCEMENT_WAVES = 2 	# Default: 2. Seems can sometimes be increased by 1 automatically under some circumstances?
+
+# TWEAK 4: JOIN EITHER SIDE
+TWEAK_JOIN_EITHER_SIDE_BATTLE = 0	# 0: only if friendly
+									# 1: any side (can even betray a friend/ally)
+									# Default: 0
+
+############################################
+# SIEGES
+############################################
+
+# TWEAK 1: BATTLE CONTINUATION IF YOU ARE WOUNDED
+TWEAK_BATTLE_CONTINUATION_AFTER_KO = 0 	# 0: battle over, 1: battle wont stop. Set it to 1 if you want the battle to continue if you are wounded (KO). Default: 0
+
+# TWEAK 2: HOW MANY TROOPS ARE REQUIRED TO BESIEGE FORT/TOWN
+TWEAK_HOW_MANY_TROOPS_TO_BESIEGE = 20 	# You need more than this to be allowed to besiege a center. Default: 20
+
+# TWEAK 3: CHANGE AI REQUIRED STRENGHT BEFORE THEY DECIDE TO ATTACK
+TWEAK_AI_REQUIRED_STRENGHT_TO_ATTACK_SIEGE = 250 	# Changing it to 100 should mean they'll attack when they have roughly equal strength,
+													# or it can be increased for them to need more. Default: 250
+
+# TWEAK 4: REINFORCEMENT WAVES (SIEGE)
+TWEAK_SIEGE_ATTACKER_REINFORCEMENT_WAVES = 5 	# Default: 5
+TWEAK_SIEGE_DEFENDER_REINFORCEMENT_WAVES = 7 	# Default: 7
+
+############################################
+# LORDS
+############################################
+
+# TWEAK 1: RELATION LOSS ON ATTACKING ENEMY/NEUTRAL LORDS
+TWEAK_RELATION_LOSS_IF_ATTACKING_ENEMY_LORD = -10	# Default: -10
+TWEAK_RELATION_LOSS_IF_ATTACKING_NEUTRAL_LORD = -30	# Default: -30
+
+# TWEAK 2: FORCE RECRUIT LORDS TO YOUR FACTION (IF AVAILABLE)
+TWEAK_FORCE_RECRUIT_LORDS = 0	# 0: vanilla
+								# 1: lord will say YES. Important: Lord must be willing to
+								#    hear the offer (depends on his relation with player and king).
+								# Default: 0
+
+# TWEAK 3: GIVE TROOPS TO ANY LORD
+TWEAK_GIVE_TROOPS_TO_ANY_LORD = 0	# 0: only lords of your faction (if you are a king)
+									# 1: any lord in the world. 
+									# Default: 0
+
+# TWEAK 4: MODIFY ANY LORD EQUIPMENT
+TWEAK_CAN_MODIFY_ANY_LORD_GEAR = 0	# 0: No, 1: Yes. Default: 0
+
+# TWEAK 5: RELATION LOSS IF YOU REFUSE A QUEST
+TWEAK_LORD_REFUGE_QUEST_RELATION_PENALTY = -5	# Refusing a quest hurts your relation with the lord. Set this to how much you want to lose.
+												# Default: -5
+
+############################################
+# KINGDOM/FIEF MANAGMENT
+############################################
+
+# TWEAK 1: STOP OTHER KINGDOMS DECLARING WAR IF YOU ARE TOO STRONG
+TWEAK_STOP_AI_DECLARING_WAR_IF_YOU_ARE_TOO_STRONG = 0	# 0: vanilla, AI will declare war as usual
+														# 1: stops random wars against strongest nation with the message
+														# XXXX is alarmed by the growing power of YYYYY.
+														# Default: 0
+
+# TWEAK 2: RELATION DROP WHEN GIVING FIEFS
+TWEAK_RELATION_DROP_ON_GIVING_FIEFS = -5	# -5 to 0
+											# Some nobles dislike when you give fiefs to others and you lose relation with them
+											# Increase this value if you want reduce the penalty
+											# Default: -5
+
+# TWEAK 3: PLAYER FORT/TOWNS AUTO GENERATE GARRISON
+TWEAK_PLAYER_CENTERS_GENERATE_GARRISON = 0	# 0: no (vanilla), 1: yes
+											# IMPORTANT: this will remove prisoners from your center (sell them) to pay for recruits
+											# Default: 0
+
+# TWEAK 4: REFUGE GARRISON LIMIT 
+TWEAK_REFUGE_GARRISON_LIMIT = 50	# How many troops you can garrison on your refuge. 
+								  	# This value is the limit before upgrades. Each upgrade allows for more troops (70 and 200)
+								  	# Increase if you want more troops there
+								  	# Default: 50
+
+############################################
+# KINGDOM/FIEF FINANCE AND BUDGET
+############################################
+
+# TWEAK 1: TAX INEFFIENCY
+TWEAK_CENTERS_YOU_CAN_OWN_BEFORE_CORRUPTION = 4	# Base points (town=2points) in Normal difficulty. -2 if hard, +2 if easy. Increase this number if you want more centers. Default: 4
+TWEAK_CORRUPTION_TAX_LOSS = 8	# Base 8% in Normal difficulty. +2 if hard, -2 if easy. Default: 8
+
+# TWEAK 2: BASE INCOME FROM CENTERS (VILLAGES/FORTS/TOWNS)
+TWEAK_BASE_INCOME_VILLAGE = 1700	# Default: 1700
+TWEAK_BASE_INCOME_FORT = 2200		# Default: 2200
+TWEAK_BASE_INCOME_TOWN = 3600		# Default: 3600
+
+# TWEAK 3: MERCENARY CONTRACT PAY INCREASED (PLAYER)
+TWEAK_MERCENARY_CONTRACT_PAY_INCREASED_4X = 0	# 0-1. 0: vanilla, 1: four times the payment. Default: 0
+
+############################################
+# REPORTS
+############################################
+
+# TWEAK 1: COMPANION REPORTS ALL OF THEM AND LOCATION
+TWEAK_SHOW_COMPANIONS_EXTRA_INFO = 0	# 0: vanilla, 1: shows more info. For Sandbox only. Default: 0
+
+############################################
+# EVENTS
+############################################
+
+# TWEAK 1: YOUR TROOPS CAN STEAL VALUABLES/ALCOHOL
+TWEAK_STOP_TROOPS_STEALING_FROM_CAMP = 0	# 0: they can steal, 1: won't steal. Default: 0
+
+# TWEAK 2: WIFE CHEATING
+TWEAK_STOP_WIFE_CHEATING = 0 		# 0: can cheat, 1: won't cheat if you speak with her often. Default: 0
+TWEAK_STOP_WIFE_CHEATING_DAYS = 30 	# How many days she will wait for you before thinking about cheating. Default: 30
+
+# TWEAK 3: DISABLE ADVENTURER FEATURE (EX-COMPANIONS)
+TWEAK_DISABLE_ADVENTURERS = 0	# 0: enable, 1: turn it off. Default: 0
+
+# TWEAK 4: CHANCE OF REBELLION
+TWEAK_REBELLION_DISABLE = 0 	# 0: Destroyed factions may return (rebel)
+							 	# 1: no rebellions ever
+							 	# Default: 0
+
+# TWEAK 5: MARSHAL CAN TAKE TROOPS FROM YOUR CENTERS
+TWEAK_DISABLE_MARSHAL_CAN_LEVY_YOUR_TROOPS = 0 	# 0: feature on. Marshal will take troops from your center if town is poor or he has few soldiers
+												# 1: feature off. Marshal won't ever steal your troops
+												# Default: 0
+
+############################################
+# MERCHANTS
+############################################
+
+# TWEAK 1: CHANGE QUALITY OF GOODS OFFERED
+TWEAK_MERCHANT_QUALITY_OF_GOODS = 150 	# 0-1000. Chance of getting high quality goods. Default: 150
+
+# TWEAK 2: CHANGE HOW MUCH MONEY THEY GET EACH WEEK
+TWEAK_MERCHANT_MIN_CASH = 1000 	# 0-10000. Merchant should have at least that much in cash. Default: 1000
+TWEAK_MERCHANT_MAX_CASH = 4000 	# 1-10000. Choose a value higher than previous line. Default: 4000
+
+# TWEAK 3: RESTOCK MORE FREQUENTLY
+TWEAK_HOW_MANY_DAYS_TO_REFRESH_MERCHANT_GOODS = 7 	# 1-30. How long (in days) you need to wait for that merchant to get new goods/inventory. Default: 7
+
+############################################
+# BANDITS
+############################################
+
+# TWEAK 1: HOW MANY TROOPS YOU TAKE ON A LAIR ASSAULT
+TWEAK_AMOUNT_TROOPS_ON_LAIR_ATTACK = 7 	# How many of your troops go with you. Default: 7
+
+# TWEAK 2: REPUTATION/MORALE LOSS ON HIRING BANDITS
+TWEAK_HIRE_BANDITS_REPUTATION_LOSS=	-2	# Honor/reputation loss. Default: -2
+TWEAK_HIRE_BANDITS_MORALE_LOSS =	-4	# Morale loss. Default: -4
+										# Important: each group of bandits has different values.
+										# Raiders lose -8 honor and morale, which means they will take those values
+										# and decrease them by -6 and -4 
+
+# TWEAK 3: MONEY ON BANDIT CAMP MERCHANT
+TWEAK_BANDIT_CAMP_MONEY_FOR_TRADE = 8000	# How much cash the bandit merchant must have at least. Default: 8000 
+
+# TWEAK 4: BANDIT LAIRS ARE VISIBLE
+TWEAK_BANDIT_LAIR_VISIBLE_FROM_DISTANCE = 6	# How far away you can be before you discover a bandit camp
+											# Distance in km. Increase it if you want to make it easier to find them
+											# Default: 6
+
+# TWEAK 5: VIKING BANDITS CAN BE HIRED
+TWEAK_HIRE_EXTRA_BANDIT_TYPES = 0	# 0: normal game, 1: Can hire more bandits types. Default: 0
+
+############################################
+# RELIGION/MONASTERIES
+############################################
+
+# TWEAK 1: FREQUENC OF RELIGIOUS EVENTS
+TWEAK_FREQUENCY_RELIGION_AFFECTING_RELATIONS = 8	# How often (in hours) the game calculates effects from religion, which can increase or decrease your relation
+												  	# with other factions. Increase this if you want to make them less often. Huge numbers will disable this feature
+												  	# Default: 8
+
+# TWEAK 2: MONASTERY PILLAGING DECREASES RELATION ON LOCAL AREA
+TWEAK_MONASTERY_ATTACK_DECREASES_LOCAL_RELATIONS = -5	# Nearby faction(s) will lose relation with you.
+														# Increase this if you are using the above tweak to balance things. Default: -5
+
+# TWEAK 3: MIN TROOPS TO PILLAGE A MONASTERY
+TWEAK_MONASTERY_ATTACK_HOW_MANY_TROOPS_YOU_NEED = 15	# How many soldiers you need at least before attacking a monastery. Default: 15
+
+# TWEAK 4: MONEY FROM PILLAGING A MONASTERY
+TWEAK_MONASTERY_LOOTED_MONEY = 0	# Increase this value if you want more cash from monasteries. It will be between this and double.
+									# Example: set to 0 to use vanilla calculations, based of your loot skill
+								  	# Set to 1000 to get between 1000 and 2000 coins
+								  	# Set to 15000 to get between 15000 and 30000 coins
+								  	# Default: 0
+
+# TWEAK 5: DISABLE ALERT "VILLAGE IS BEING RAIDED"
+TWEAK_DISABLE_ALERT_CENTER_ATTACKED = 0 	# 0: shows it, 1: Turns off the popups. Default: 0
+
+############################################
+# SHIPS/SAILING
+############################################
+
+# TWEAK 1: CHANCE OF CAPTURING A SHIP
+TWEAK_CHANCE_CAPTURING_SHIP = 10		# 1-100. Chance in % of capturing a ship after sea battle. Default: 10
+TWEAK_CAPTURED_SHIP_CONDITION_MIN = 5	# 1-100. Lower value means the ship will be more damaged. Default: 5
+TWEAK_CAPTURED_SHIP_CONDITION_MAX = 15	# 1-100. Higher values means the ship can be less damaged. Default: 15
+
+# TWEAK 2: MORALE LOSS FROM SAILING AND NIGHT TRAVEL
+TWEAK_MORALE_LOSS_SEA_TRAVEL = -1	# -10 TO 0. How many morale points you lose by long sea travels and at night. Default: -1
+
+# TWEAK 3: BUSSE TROOP CAPACITY AND SPEED
+TWEAK_BUSSE_MAX_SPEED = 16	# Speed for this type of ship. Affects world travel (to a cap) and battle. Default: 16
+TWEAK_BUSSE_MAX_CREW = 90	# How many soldiers can fit in the ship. It changes the price too. Don't go too crazy :D.
+						 	# Increasing capacity can lead to troops drowning when you go into battle.
+						  	# Default: 90
+
+# TWEAK 4: SHIP BUILDING MATERIALS
+TWEAK_BUILD_SHIP_TAKES_NO_MATERIALS = 0	# 0: need materials, 1: no materials. Default: 0
+
+# TWEAK 5: SHIP BUILDING AVAILABLE TO OTHER CULTURES/FACTIONS
+TWEAK_ONLY_NORSE_CAN_BUILD_SHIP = 1 	# 0: any town, 1: only in a Norse town. Default: 1
+
+############################################
+# PRISONERS
+############################################
+
+# TWEAK 1: MONEY AND MORALE LOSS ON HIRING
+TWEAK_HIRE_PRISONERS_WITHOUT_COSTS = 0		# 0: vanilla (costs morale and cash), 1: free. Default: 0
+
+# TWEAK 2: WAITING PERIOD TO HIRE
+TWEAK_HIRE_PRISONERS_WAITING_PERIOD = 24	# How many hours until you can hire more. Default: 24
+
+# TWEAK 3: PRISONER CAPACITY CHANGE
+TWEAK_PRISONER_CAPACITY_BONUS = 0			# Allows you to have this many extra prisoners (besides the vanilla ammount). Default: 0
+
+
+############################################
+# MISCELLANEOUS
+############################################
+
+# TWEAK 1: REDUCE GARRISON LIMITS FROM ALL TOWNS AND FORTS
+										# On vanilla towns have a higher limit than forts, and both are a function of 
+										# player level (higher level allows for more troops)
+										# and prosperity of the center (how rich).
+										# Max is 650 (forts) and 850 (towns).
+										# This tweak will change the limit, and town/forts with too many troops
+										# will lose them over time (for all factions)
+TWEAK_GARRISON_LIMIT_FOR_FORTS = 650	# Default: 650
+TWEAK_GARRISON_LIMIT_FOR_TOWNS = 850 	# Default: 850
+
+# TWEAK 2: DISABLE STAT-LOSS AFTER 757 DAYS
+TWEAK_DISABLE_STATS_LOSS_757DAYS = 0	# 0: enable, 1: disable (won't happen). Default: 0
+
+# TWEAK 3: REMOVE GRADUAL RENOWN DETERIORATION
+TWEAK_RENOWN_LOSS_EVERY_WEEK = 200	# Every week you lose some renown if higher than this number. 200 = 0.5%. Increase to reduce this effect. Default: 200
+
+# TWEAK 4: TROLL AXE REQUIREMENTS
+TWEAK_TROLL_AXE_STR_REQ = 21	# How much STR you need to use this weapon. Default: 21
+
+# TWEAK 5: GORE OPTIONS FOR DECAPITATION: YOU NEED TO ENABLE THIS ON GAME OPTIONS
+TWEAK_DECAPITATION_PLAYER_CHANCE = 0	# Extra bonus/penalty for the probability (% chance) of your attacks doing a decapitation. 
+										# Player has a higher chance than npcs/bots. This tweak allows you to modify it further.
+										# Example: if player has 50% chance, and you set it to -30, then your new chance is 20%
+										# Default: 0
+TWEAK_DECAPITATION_NPCS_CHANCE = 0 		# Extra bonus/penalty for the probability (% chance) of a decapitation attack. 
+										# Default: 0
+
+# TWEAK 6: BRING YOUR HORSE INTO TOWNS
+TWEAK_USE_HORSE_ON_TOWNS = 0	# 0: vanilla
+								# 1: always (unless sneaking in)
+								# Default: 0
+
+
+
+
+
+
+
