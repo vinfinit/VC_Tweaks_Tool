@@ -1,4 +1,10 @@
 ############################################
+# REMOVED WITH VC 2.025
+############################################
+# TWEAK 2: WIFE CHEATING
+# feature removed from the game, so no need to tweak it
+
+############################################
 # GENERAL TWEAKS NOT INCLUDED AND WHY
 ############################################
 # TWEAK: WIFE AS COMPANION

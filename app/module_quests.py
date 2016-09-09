@@ -288,7 +288,7 @@ quests = [
   ), #possibly replaces rescue lord
 
  ("destroy_bandit_lair", "Destroy Bandit Lair", qf_random_quest,
-  "{s9} of {s4} asked you to discover a {s6} and destroy it."
+  "{s9} of {s4} asked you to discover the {s6} in the area and destroy it."
   ), 
   ##########mainquest quest  
 #mainquest chief #marcado en script "abort_quest"

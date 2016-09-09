@@ -1621,3 +1621,6 @@ g_multiplayer_poll_cooldown
 continue_storyline
 g_player_party_morale_modifier_religion
 g_siege_tribute_paid
+g_talk_troop_faction_kingdom_relation
+ambiance_channel
+vc_next_quest

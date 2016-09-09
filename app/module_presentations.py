@@ -97,7 +97,9 @@ presentations = [
             (str_store_string, s1, "@{reg1}.{reg2}"),
           (try_end),
           
-          (create_text_overlay, "$g_presentation_credits_obj_1", "@{s1} ", tf_center_justify|tf_double_space|tf_vertical_align_center),
+          (str_store_string, s2, "str_modifications"),
+          (str_store_string, s1, "@{s1} {s2}"),
+          (create_text_overlay, "$g_presentation_credits_obj_1", "@{s1}", tf_center_justify|tf_double_space|tf_vertical_align_center),
           (overlay_set_color, "$g_presentation_credits_obj_1", 0x000000),
           #(overlay_set_color, "$g_presentation_credits_obj_1", 0xFF0000),#We could make the version number red if it is edited and not clean any more
           
@@ -110,8 +112,8 @@ presentations = [
           #Stop all sounds (VC-3218)
           (stop_all_sounds, 1),
           
-          (position_set_x, pos1, 920),
-          (position_set_y, pos1, 50),
+          (position_set_x, pos1, 570),
+          (position_set_y, pos1, 175),
           (overlay_set_position, "$g_presentation_credits_obj_1", pos1),
           
           #####OPEN BETA INFO
@@ -8645,8 +8647,6 @@ presentations = [
           (else_try),
             (eq, ":object", "$g_presentation_obj_name_kingdom_2"),
             (faction_set_name, "fac_player_supporters_faction", s7),
-            #(faction_set_color, "fac_player_supporters_faction", 0xFF0000), #E12126
-            (faction_set_color, "fac_player_supporters_faction", 0xE12126), #E12126
             (assign, "$players_kingdom_name_set", 1),
             (presentation_set_duration, 0),
             #added v-2637
@@ -18350,12 +18350,12 @@ presentations = [
           (overlay_set_position, "$g_presentation_obj_4", pos1),
           #Troop tree info
           (create_game_button_overlay,"$g_presentation_obj_5","@Troop Tree",tf_center_justify),
-          (position_set_x, pos1, 660),
+          (position_set_x, pos1, 500),
           (position_set_y, pos1, 700),
           (overlay_set_position, "$g_presentation_obj_5", pos1),
           #Second Outfit
           (create_game_button_overlay,"$g_presentation_obj_6","@Second Outfit",tf_center_justify),
-          (position_set_x, pos1, 340),
+          (position_set_x, pos1, 180),
           (position_set_y, pos1, 700),
           (overlay_set_position, "$g_presentation_obj_6", pos1),
           #Read Book
@@ -18370,9 +18370,14 @@ presentations = [
           (overlay_set_position, "$g_presentation_obj_8", pos1),
           #Recruit prisoners
           (create_game_button_overlay,"$g_presentation_obj_9","@Recruit Prisoners",tf_center_justify),
-          (position_set_x, pos1, 500),
+          (position_set_x, pos1, 340),
           (position_set_y, pos1, 700),
           (overlay_set_position, "$g_presentation_obj_9", pos1),
+          #Pick faction color
+          (create_game_button_overlay,"$g_presentation_obj_10","@Map Colour",tf_center_justify),
+          (position_set_x, pos1, 660),
+          (position_set_y, pos1, 700),
+          (overlay_set_position, "$g_presentation_obj_10", pos1),
           #Take a action
           (create_game_button_overlay,"$g_presentation_obj_12","@Options",tf_center_justify),
           (position_set_x, pos1, 340),
@@ -18661,6 +18666,12 @@ presentations = [
             (start_presentation,"prsnt_camp_screen_main"),
             (display_message,"@No one is interested this time.",0xFFFFAAAA), #chief anadido
           (try_end),
+        (else_try),
+          (eq,"$g_presentation_obj_10",":object"), #Map Colour
+          (str_clear,s1),
+          (assign,"$temp",0),
+          (assign,"$g_presentations_next_presentation",-1),
+          (start_presentation, "prsnt_colour_kingdom"),
         (else_try),
           (eq,"$g_presentation_obj_12",":object"), #take a action (options)
           (str_clear,s1),
@@ -20507,7 +20518,7 @@ presentations = [
             (display_message,"@You cannot do this now.",0xFFFFAAAA), #chief anadido
           (try_end),
         (else_try),
-          (eq,"$g_presentation_obj_11",":object"), #kingdom rename
+          (eq,"$g_presentation_obj_11",":object"), #kingdom color
           (str_clear,s1),
           (assign,"$temp",0),
           (assign,"$g_presentations_next_presentation",-1),
@@ -20650,13 +20661,11 @@ presentations = [
         (else_try),
           (eq, ":object", "$g_presentation_obj_name_kingdom_2"),
           (party_set_name, "$current_town", s7),
-          (party_set_slot, 0, 1, 1),
           (presentation_set_duration, 0),
         (else_try),
           (store_add, ":overlay", "$g_presentation_obj_name_kingdom_2", 1),
           (eq, ":overlay", ":object"),
           (party_set_name, "$current_town", s5),
-          (party_set_slot, 0, 1, 0),
           (presentation_set_duration, 0),
         (try_end),
     ]),
@@ -21680,8 +21689,7 @@ presentations = [
           (rest_for_hours, 24 * 7, 40, 0), #rest while no attackable x20 speed
           (assign, "$sabe_leer", 1),
           (troop_remove_gold, "trp_player", 4000),
-          ##		 (presentation_set_duration, 0),
-          ##                 (change_screen_map),
+          (assign, "$read_game_no", -1),  #signal learning
         (end_try),
         (presentation_set_duration, 0),
         
@@ -21978,7 +21986,7 @@ presentations = [
           (eq, TWEAK_CENTERS_RECRUIT_FROM_CURRENT_FACTION, 1),
           (store_faction_of_party, ":center_culture",  "$current_town"),
         (try_end),
-        
+
         (troop_get_slot, ":player_renown", "trp_player", slot_troop_renown), #renown
         (party_get_slot, ":center_relation", "$current_town", slot_center_player_relation),
         (party_get_slot, ":faith", "$current_town", slot_center_faithratio),
@@ -22123,15 +22131,15 @@ presentations = [
           #(str_store_string, s19, "@Also"),
           #(set_background_mesh, "mesh_pic_recruits"),
           # mnu_recruit_volunteers ends
-        (else_try),
-          (str_store_string, s18, "@You need to get the permission of the lord of this place to recruit here."),
-          #(str_store_string, s19, "@But"),
-          (party_get_slot, ":center_culture", "$current_town", slot_center_culture),
-          (faction_get_slot, ":volunteer_troop", ":center_culture", slot_faction_tier_2_troop),
-          (assign, ":volunteer_amount", 0),
-          (assign, reg7, 0),#
-          (assign, reg5, 1),#
-          (assign, ":block_recruiting", 1),
+        # (else_try),
+          # (str_store_string, s18, "@You need to get the permission of the lord of this place to recruit here."),
+          # #(str_store_string, s19, "@But"),
+          # (party_get_slot, ":center_culture", "$current_town", slot_center_culture),
+          # (faction_get_slot, ":volunteer_troop", ":center_culture", slot_faction_tier_2_troop),
+          # (assign, ":volunteer_amount", 0),
+          # (assign, reg7, 0),#
+          # (assign, reg5, 1),#
+          # (assign, ":block_recruiting", 1),
         (end_try),
         
         # (try_begin),		# change s18 if there are mercs in the tavern
@@ -22268,6 +22276,9 @@ presentations = [
         (store_trigger_param_1, ":object"),
         
         (try_begin),
+          (eq, ":object", "$vc_submenu_recruits_1"), #no men
+          (party_set_slot, "$current_town", recruit_permission_need, 3), #no recruit possibility x time
+        (else_try),
           (eq, ":object", "$vc_submenu_recruits_2"), #no men
           (party_set_slot, "$current_town", recruit_permission_need, 3), #no recruit possibility x time
         (else_try),
@@ -22303,7 +22314,6 @@ presentations = [
           # (change_screen_map_conversation, ":mercenary_troop"),
           # #new end
         (try_end),
-        #(assign, "$temp2", 0),
         (assign, "$temp", 0),
         (assign, "$vc_menu_active", "prsnt_vc_menu"),
         (start_presentation, "$vc_menu_active"),
@@ -28361,12 +28371,12 @@ presentations = [
                 (str_store_party_name, s2, reg12),
                 (try_begin),
                   (eq, ":troop_id", "trp_npc7"), # dwyney goes to Ancient Stones
-                  (str_store_string, s1, "@{s1}^^At: Ancient Stones"), 
+                  (str_store_string, s1, "@{s1}^^At: Ancient Stones"),
                 (else_try),
                   (eq, ":troop_id", "trp_npc1"), # caio goes to the Roman Wall=Hadrian Wall
-                  (str_store_string, s1, "@{s1}^^At: Hadrian Wall"), 
+                  (str_store_string, s1, "@{s1}^^At: Hadrian Wall"),
                 (else_try),
-                  (str_store_string, s1, "@{s1}^^At: {s2}"), 
+                  (str_store_string, s1, "@{s1}^^At: {s2}"),
                 (try_end),
               (try_end),
             (try_end),

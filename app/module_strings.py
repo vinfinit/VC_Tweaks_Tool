@@ -3074,7 +3074,7 @@ Location^Geschichtspark Barnau^^Logotype^Jason Brown^^Cover Art^Piotr Fox Wysock
   ("s15_is_at_war_with_s16_", "{s15} is at war with {s16}. "),
   ("in_the_short_term_s15_has_a_truce_with_s16_as_a_matter_of_general_policy_", "In the short term, {s15} has a truce with {s16}. As a matter of general policy, "),
   ("in_the_short_term_s15_was_recently_provoked_by_s16_and_is_under_pressure_to_declare_war_as_a_matter_of_general_policy_", "In the short term, {s15} was recently provoked by {s16}, and is under pressure to declare war. As a matter of general policy, "),
-  ("envoymodified_diplomacy_score_honor_plus_relation_plus_envoy_persuasion_=_reg4", "{!}Envoy-modified diplomacy score (honor plus relation plus envoy persuasion) = {reg4}"),
+  ("envoymodified_diplomacy_score_honor_plus_relation_plus_envoy_persuasion_=_reg4", "{!}Envoy-modified diplomacy score (honor plus relation plus envoy persuasion) for {s4} = {reg4}"),
   ("s12s15_cannot_negotiate_with_s16_as_to_do_so_would_undermine_reg4herhis_own_claim_to_the_throne_this_civil_war_must_almost_certainly_end_with_the_defeat_of_one_side_or_another", "{s12}{s15} cannot negotiate with {s16}, as to do so would undermine {reg4?her:his} own claim to the throne. This civil war must almost certainly end with the defeat of one side or another."),
   ("s12s15_considers_s16_to_be_dangerous_and_untrustworthy_and_shehe_wants_to_bring_s16_down", "{s12}{s15} considers {s16} to be dangerous and untrustworthy, and {reg4?she:he} wants to bring {s16} down."),
   ("s12s15_is_anxious_to_reclaim_old_lands_such_as_s18_now_held_by_s16", "{s12}{s15} is anxious to reclaim old lands such as {s18}, now held by {s16}."),
@@ -3253,7 +3253,7 @@ Location^Geschichtspark Barnau^^Logotype^Jason Brown^^Cover Art^Piotr Fox Wysock
   ("the_guards_glare_at_you_and_you_know_better_than_to_ask_permission_to_enter_however_as_you_walk_back_towards_your_lodgings_an_elderly_lady_dressed_in_black_approaches_you_i_am_s11s_nurse_she_whispers_urgently_wait_for_a_while_by_the_spring_outside_the_walls_i_will_smuggle_her_ladyship_out_to_meet_you_dressed_in_the_guise_of_a_shepherdess_but_i_beg_you_for_all_of_our_sakes_be_discrete", "The guards glare at you, and you know better than to ask permission to enter. However, as you walk back towards your lodgings, an elderly lady dressed in black approaches you. 'I am {s11}'s nurse,' she whispers urgently. 'Wait for a while by the spring outside the walls. I will smuggle her ladyship out to meet you, dressed in the guise of a shepherdess. But I beg you, for all of our sakes, be discreet!"),
   ("the_guards_glare_at_you_and_you_know_better_than_to_ask_permission_to_enter_however_as_you_walk_back_towards_your_lodgings_an_elderly_lady_dressed_in_black_approaches_you_i_am_s11s_nurse_she_whispers_urgently_her_ladyship_asks_me_to_say_that_yearns_to_see_you_but_that_you_should_bide_your_time_a_bit_her_ladyship_says_that_to_arrange_a_clandestine_meeting_so_soon_after_your_last_encounter_would_be_too_dangerous", "The guards glare at you, and you know better than to ask permission to enter. However, as you walk back towards your lodgings, an elderly lady dressed in black approaches you.^'I am {s11}'s nurse,' she whispers urgently. 'Her ladyship asks me to say that she yearns to see you, but that you should bide your time a bit. Her ladyship says that to arrange a clandestine meeting so soon after your last encounter would be too dangerous.'"),
   ("the_guards_glare_at_you_and_you_know_better_than_to_ask_permission_to_enter", "The guards glare at you, and you know better than to ask permission to enter."),
-  ("s3_commander_of_party_reg4_which_is_not_his_troop_leaded_party_reg5", "{!}{s3} commander of party #{reg4} which is not his troop leaded party {reg5}"),
+  ("s3_commander_of_party_reg4_which_is_not_his_troop_leaded_party_reg5", "{!}{s3} commander of party #{reg4}, template {reg6}, which is not his troop leaded party {reg5}"),
   ("party_with_commander_mismatch__check_log_for_details_", "Party with commander mismatch - check log for details "),
   ("s4_adds_wealth_has_reg4_wealth_accumulated", "{!}{s4} adds wealth, has {reg4} wealth accumulated"),
   ("doing_political_calculations_for_s9", "Doing political calculations for {s9}"),
@@ -3647,12 +3647,12 @@ Location^Geschichtspark Barnau^^Logotype^Jason Brown^^Cover Art^Piotr Fox Wysock
   ("faction_title_male_5", "Dryhten {s0}"),
 #britons
   ("faction_title_male_6", "Ri {s0}"),
-  ("faction_title_female_player", "Gundelic {s0}"),
+  ("faction_title_female_player", "Guledic {s0}"),
   ("faction_title_female_1", "Tiern {s0}"),
 #irish and pictish
   ("faction_title_female_2", "Ruire {s0}"),
-  ("faction_title_female_3", "Ard Tiarna {s0}"),
-  ("faction_title_female_4", "Tiarna {s0}"),
+  ("faction_title_female_3", "Tiarna {s0}"),
+  ("faction_title_female_4", "Mael {s0}"),
 #other
   ("faction_title_female_5", "Dux {s0}"),
   ("faction_title_female_6", "Warlord {s0}"),
@@ -4832,5 +4832,6 @@ from there the 'Game concepts' button."),
   
   ("weapon_break", "Damageable Equipment:"),
   ("no_suit_religion", "You can't possibly think of marrying into my family since you do not even believe in the same gods! Convert first, then we may discuss this topic again."),
+  ("modifications", " Modified"),
   
 ]

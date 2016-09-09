@@ -672,8 +672,8 @@ parties = [
  ("landing_point2"   ,"{!}landing point2",icon_landing_point|pf_disabled|pf_is_static|pf_no_label|pf_hide_defenders, no_menu, pt_none, fac_neutral,0,ai_bhvr_hold,0,(0., 0),[]),
  ("the_fleet"   ,"The Fleet",icon_ships_7|pf_disabled|pf_is_static|pf_is_ship|pf_hide_defenders|pf_always_visible, no_menu, pt_none, fac_neutral,0,0,0,(0., 0),[(trp_elite_viking, 2000,0)]),
  ("transporter"   ,"Transporter",icon_ships_2|pf_is_ship|pf_disabled|pf_hide_defenders|pf_always_visible, no_menu, pt_none, fac_neutral,0,0,0,(0,0),[(trp_regular_sailors, 5,0)]),
- ("troop_camp_1"   ,"Troop Quarters",icon_camp|pf_is_static|pf_disabled|pf_always_visible, no_menu, pt_none, fac_neutral,0,0,0,(0,0),[]),
- ("troop_camp_2"   ,"Troop Quarters",icon_camp|pf_is_static|pf_disabled|pf_always_visible, no_menu, pt_none, fac_neutral,0,0,0,(0,0),[]),
+ ("troop_camp_1"   ,"Troop Quarters",icon_camp|pf_is_static|pf_disabled|pf_always_visible, no_menu, pt_none, fac_player_supporters_faction,0,0,0,(0,0),[]),
+ ("troop_camp_2"   ,"Troop Quarters",icon_camp|pf_is_static|pf_disabled|pf_always_visible, no_menu, pt_none, fac_player_supporters_faction,0,0,0,(0,0),[]),
 ### ) PHAIAK end
  # add extra towns before this point 
   ("spawn_points_end"                  ,"{!}last_spawn_point",    pf_disabled|pf_is_static, no_menu, pt_none, fac_commoners,0,ai_bhvr_hold,0,(0., 0),[(trp_looter,15,0)]),

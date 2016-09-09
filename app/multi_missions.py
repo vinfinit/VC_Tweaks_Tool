@@ -680,12 +680,16 @@ dedal_sp_triggers = [
 ###AMBIENT SOUNDS SP
 ambient_scene_play_loop = (ti_after_mission_start, 0, 0,[],[
     (neg|game_in_multiplayer_mode),
-    (call_script,"script_sp_scene_play_ambient_loop",0)])
+    (call_script,"script_sp_scene_play_ambient_loop",0),
+    (store_last_sound_channel, "$ambiance_channel"),
+    ])
 ambient_scene_play_random_sound = (3, 0, 0,[],[
     (neg|game_in_multiplayer_mode),
     (call_script,"script_sp_scene_play_random_ambient_sound",0)])
 ambient_tavern_play_loop = (ti_after_mission_start, 0, 0,[],[
-    (play_sound,"snd_ambient_tavern_loop")])
+    (play_sound,"snd_ambient_tavern_loop"),
+    (store_last_sound_channel, "$ambiance_channel"),
+    ])
 ambient_tavern_play_random_sound = (5, 0, 0,[],[
     (store_random_in_range,":r",0,10),(lt,":r",2),
     (play_sound,"snd_ambient_random_tavern")])
@@ -695,6 +699,20 @@ ambient_set_agents_for_sounds = (0, 8, ti_once, [],[
 ambient_agent_play_sound = (4, 0, 0, [],[
     (neg|game_in_multiplayer_mode),
     (call_script,"script_sp_agent_play_sound")])
+ambient_end_sound = (ti_tab_pressed, 0, 0, [
+    (stop_all_sounds),	#store_last_sound_channel is failing
+    (ge, "$ambiance_channel", 0),
+  ],[
+    (stop_sound_channel, "$ambiance_channel"),
+    (assign, "$ambiance_channel", -1),
+  ])
+ambient_mp_end_sound = (ti_on_player_exit, 0, 0, [
+    (stop_all_sounds),	#store_last_sound_channel is failing
+    (ge, "$ambiance_channel", 0),
+  ],[
+    (stop_sound_channel, "$ambiance_channel"),
+    (assign, "$ambiance_channel", -1),
+  ])
 
 
 ###WEATHER
@@ -801,6 +819,7 @@ storm_ambient_light = (0, 0, ti_once, #ambient light for storms
 weather_and_sounds = [
   init_weather_and_sounds,
   play_random_ambient_sound,
+  ambient_mp_end_sound,
   storm_ambient_light,	#phaiak
   thunder_init,
   thunder_1,
@@ -1341,7 +1360,7 @@ multi_missions = [
               #(prop_instance_stop_sound, ":ship_instance"),
               #(prop_instance_play_sound, ":ship_instance", "snd_ship_drive"),
               (try_begin),
-                (gt,"$ship_sound_channel",0),
+                (ge,"$ship_sound_channel",0),
                 (stop_sound_channel,"$ship_sound_channel"),
               (try_end),
               (play_sound,"snd_ship_sailing_loop"),
@@ -1353,7 +1372,7 @@ multi_missions = [
               # (prop_instance_stop_sound, ":ship_instance"),
               # (prop_instance_play_sound, ":ship_instance", "snd_ship_stay"),
               (try_begin),
-                (gt,"$ship_sound_channel",0),
+                (ge,"$ship_sound_channel",0),
                 (stop_sound_channel,"$ship_sound_channel"),
               (try_end),
               (play_sound,"snd_ship_static_loop"),
@@ -2095,7 +2114,7 @@ multi_missions = [
             #ship sound
             (eq,"$coastal_battle",0),
             (try_begin),
-              (gt,"$ship_sound_channel",0),
+              (ge,"$ship_sound_channel",0),
               (stop_sound_channel,"$ship_sound_channel"),
             (try_end),
             (play_sound,"snd_ship_static_loop"),
@@ -4225,7 +4244,7 @@ multi_missions = [
               #(prop_instance_stop_sound, ":ship_instance"),
               #(prop_instance_play_sound, ":ship_instance", "snd_ship_drive"),
               (try_begin),
-                (gt,"$ship_sound_channel",0),
+                (ge,"$ship_sound_channel",0),
                 (stop_sound_channel,"$ship_sound_channel"),
               (try_end),
               (play_sound,"snd_ship_sailing_loop"),
@@ -4237,7 +4256,7 @@ multi_missions = [
               # (prop_instance_stop_sound, ":ship_instance"),
               # (prop_instance_play_sound, ":ship_instance", "snd_ship_stay"),
               (try_begin),
-                (gt,"$ship_sound_channel",0),
+                (ge,"$ship_sound_channel",0),
                 (stop_sound_channel,"$ship_sound_channel"),
               (try_end),
               (play_sound,"snd_ship_static_loop"),
@@ -4907,7 +4926,7 @@ multi_missions = [
             #ship sound
             (eq,"$coastal_battle",0),
             (try_begin),
-              (gt,"$ship_sound_channel",0),
+              (ge,"$ship_sound_channel",0),
               (stop_sound_channel,"$ship_sound_channel"),
             (try_end),
             (play_sound,"snd_ship_static_loop"),

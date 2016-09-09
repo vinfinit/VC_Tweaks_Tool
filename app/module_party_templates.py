@@ -186,7 +186,7 @@ party_templates = [
   ("epic_fleet","Epic Viking Fleet",icon_ship|pf_is_ship|carries_goods(2),0,fac_outlaws,raider_personality,[(trp_elite_viking,200,300)]),
   ("port","port",icon_landing_point|pf_is_static|pf_always_visible|pf_show_faction|pf_label_large|pf_hide_defenders,0, 0, 0,[]),
   ("ferry_port","port",icon_landing_point|pf_no_label|pf_is_static|pf_hide_defenders,0, 0, 0,[]),
-  ("landet_ships","your ships",icon_ship_on_land|pf_is_static|pf_always_visible|pf_hide_defenders|pf_is_ship|pf_label_large,0, 0, 0,[]),
+  ("landet_ships","your ships",icon_ship_on_land|pf_is_static|pf_always_visible|pf_hide_defenders|pf_is_ship|pf_label_large,0, fac_player_supporters_faction, 0,[]),
   ("fisher_ship","Fisher",icon_merchants_1|carries_goods(2)|pf_is_ship|pf_civilian,0,fac_innocents,merchant_personality,[(trp_fisher,3,10)]),
   ("traveller_ship","Traveller",icon_merchants_1|carries_goods(4)|pf_is_ship|pf_auto_remove_in_town|pf_civilian,0,fac_commoners,merchant_personality,[(trp_regular_sailors,6,90)]),
   ("slave_trader_ship","Slave Trader",icon_merchants_1|carries_goods(3)|pf_is_ship|pf_auto_remove_in_town|pf_civilian,0,fac_manhunters,merchant_personality,[(trp_slaver_chief,1,2), (trp_slave_crusher,0,12), (trp_slave_hunter,0,24), (trp_slave_driver,4,48),]),

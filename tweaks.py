@@ -96,6 +96,13 @@ TWEAK_JOIN_EITHER_SIDE_BATTLE = 0	# 0: only if friendly
 									# 1: any side (can even betray a friend/ally)
 									# Default: 0
 
+# TWEAK 5: MORALE FROM SHARING LOOT AFTER BATTLE
+TWEAK_MORALE_LOOT_BONUS_CALC		= 230	# Magic number for how much morale you gain from sharing loot. Decrease this will give you more.
+											# Think like this: 230 coins = 1 morale point
+											# Default: 230
+TWEAK_MORALE_CLAIMING_LOOT_PENALTY = -40 	# Claim loot first option. Can result on positive or negative morale change, depends on how much you take
+											# Penalty can be between -1 and -40 morale. Change this value to any negative value to limit the worst case.
+											# Default: -40. (worst case you lose -40 morale)
 ############################################
 # SIEGES
 ############################################
@@ -198,8 +205,7 @@ TWEAK_SHOW_COMPANIONS_EXTRA_INFO = 0	# 0: vanilla, 1: shows more info. For Sandb
 TWEAK_STOP_TROOPS_STEALING_FROM_CAMP = 0	# 0: they can steal, 1: won't steal. Default: 0
 
 # TWEAK 2: WIFE CHEATING
-TWEAK_STOP_WIFE_CHEATING = 0 		# 0: can cheat, 1: won't cheat if you speak with her often. Default: 0
-TWEAK_STOP_WIFE_CHEATING_DAYS = 30 	# How many days she will wait for you before thinking about cheating. Default: 30
+# removed with VC 2.025
 
 # TWEAK 3: DISABLE ADVENTURER FEATURE (EX-COMPANIONS)
 TWEAK_DISABLE_ADVENTURERS = 0	# 0: enable, 1: turn it off. Default: 0
@@ -353,9 +359,11 @@ TWEAK_USE_HORSE_ON_TOWNS = 0	# 0: vanilla
 								# 1: always (unless sneaking in)
 								# Default: 0
 
-
-
-
+# TWEAK 7: BRING YOUR HORSE INTO TOWNS
+TWEAK_TOURNAMENT_BET = 1		# Multiples the tournament bets value. Increase it will result on higher bets. Use integer values like 1, 5, 20.
+								# 1 -> 100, 50, 20, 10, 5.
+								# 5 -> 500, 250, 100, 50, 25
+								# Default: 1
 
 
 

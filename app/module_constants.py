@@ -13,7 +13,7 @@ from tweaks import *
 ##############################################################
 
 warband_version = 1168  #matching what is in module.ini
-vc_version = 2023
+vc_version = 2025
 
 ########################################################
 ##  ITEM SLOTS             #############################
@@ -980,12 +980,11 @@ slot_troop_trainer_opponent_troop            = 35
 slot_troop_trainer_training_difficulty       = 36
 slot_troop_trainer_training_fight_won        = 37
 
-
-slot_lady_used_tournament					= 40
-slot_troop_lover							= 41
-slot_troop_lover_attempt			= 42
-slot_troop_lover_found				= 43
-slot_troop_temp							= 44
+slot_lady_used_tournament      = 40
+# slot_troop_lover               = 41
+# slot_troop_lover_attempt       = 42
+# slot_troop_lover_found         = 43
+slot_troop_temp                = 44
 slot_troop_current_rumor       = 45
 slot_troop_temp_slot           = 46
 slot_troop_promised_fief       = 47
@@ -1200,7 +1199,7 @@ tro_failed_to_support_colleague            = 2
 #It is a key political concept because it provides incentive for much of the political activity. For example, Lord Red Senior is worried that his rival, Lord Blue Senior, is going to get a fied which Lord Red wants. So, Lord Red turns to his protege, Lord Orange Junior, to attack Lord Blue in public. The fief goes to Lord Red instead of Lord Blue, and Lord Red helps Lord Orange at a later date.
 
 
-slot_troop_will_join_prison_break = 158
+slot_troop_will_join_prison_break = 158 #deprecated
 
 #Flirting chief companeros
 slot_troop_flirted_with           = 159	#Flirting chief companeros
@@ -2659,7 +2658,7 @@ factionorders_fyrd     = 423
 
 #para negativos equipamiento chief habilidades
 desnudos_begin = "itm_pictish_painted1"
-desnudos_end = "itm_picts_hoodtunic_11" 
+desnudos_end = "itm_picts_hoodtunic_11"
 armadura_pesada_begin = "itm_mail_shirt"
 armadura_pesada_end = "itm_burlap_tunic" 
 armadura_pesada2_begin = "itm_addon_mail4"
@@ -2817,24 +2816,25 @@ option_3 = 0x004
 option_4 = 0x008
 option_5 = 0x010
 option_6 = 0x020
-lord_option_recruit   = 0x040
+lord_option_recruit   = 0x040 #no longer used
 lord_option_private   = 0x080
 lord_option_task      = 0x100
 lord_option_vassalage = 0x200
 
 #Bit switches for global $first_time for keeping track of what has been done at least once in a given game
-first_time_death_camera    = 0x001
-first_time_strategy_camera = 0x002
-first_time_game_rules      = 0x004
-first_time_doccinga        = 0x008
-first_time_check_lairs     = 0x010	#remove extra lairs VC 1.04 beta
-first_time_check_l_lairs   = 0x020	#remove all looter lairs VC 1.04 beta
-first_time_check_l2_lairs  = 0x040	#try again
-first_time_load_main_party = 0x080  #this used in reverse
-first_time_cam_battle      = 0x100
-first_time_hold_F1         = 0x200
-first_time_formations      = 0x400
-first_time_food_store      = 0x800	#change food system after VC 2.0
+first_time_death_camera    = 0x0001
+first_time_strategy_camera = 0x0002
+first_time_game_rules      = 0x0004
+first_time_doccinga        = 0x0008
+first_time_check_lairs     = 0x0010	#remove extra lairs VC 1.04 beta
+first_time_check_l_lairs   = 0x0020	#remove all looter lairs VC 1.04 beta
+first_time_check_l2_lairs  = 0x0040	#try again
+first_time_load_main_party = 0x0080  #this used in reverse
+first_time_cam_battle      = 0x0100
+first_time_hold_F1         = 0x0200
+first_time_formations      = 0x0400
+first_time_food_store      = 0x0800	#change food system after VC 2.0
+first_time_fix_centers     = 0x1000	#VC-3241
 
 #shader
 shader_snow_line	= 230

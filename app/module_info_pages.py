@@ -117,7 +117,7 @@ There is one special sail which is reserved for the ships of the player. It can 
 Once you have a ship, the shipwright will interact with you in a different way and won't hesitate to offer advice. \
 Shipwrights also offer to custom build ships. Better ships may require special materials that you will need \
 to obtain and bring with you. Better ships also require more time for their construction and the more talented shipwrights in Norse ports. \
-Ships you have built can be named freely in the ship customization menu.^\
+The first seven ships you have built can be named freely in the ship customization menu.^\
 "),
  ("wounds","Wounds", "The player may receive specific, debilitating wounds in battle. Physicians in larger towns will treat these wounds for a price, after which they will heal within a few days. Any negative effects will then be removed. If wound is not treated after some time, it will change to a scar, and the negative effects will then be permanent."),
 ("traits","Traits", "When you reach level 13, you can get one of these traits depending on your skill choices:^^\

@@ -1607,7 +1607,7 @@ triggers = [
       ),
       
       #Process morale and determine personality clashes
-      (0, 0, 29,
+      (24.5, 0, 0,
         [],
         [
           
@@ -1645,7 +1645,7 @@ triggers = [
           (try_end),
           #
           
-          
+          (assign, "$npc_to_rejoin_party", 0),
           (try_for_range, ":npc", companions_begin, companions_end),
             ###Reset meeting variables
             (try_begin),
@@ -1775,11 +1775,22 @@ triggers = [
                 (assign, "$npc_with_political_grievance", ":npc"),
               (try_end),
               
-              #main party does not have troop, and the troop is a companion
+            #main party does not have troop
             (else_try),
-              (neg|main_party_has_troop, ":npc"),
               (eq, ":occupation", slto_player_companion),
               (neg|troop_slot_ge, ":npc", slot_troop_prisoner_of_party, 0),
+              
+              #mission obsolete (see companion_embassy_results)
+              (troop_get_slot, ":mission_object", ":npc", slot_troop_mission_object),
+              (try_begin),
+                (troop_slot_eq, ":npc", slot_troop_current_mission, npc_mission_pledge_vassal), #only mission now without a "already done" section in companion_embassy_results
+                (check_quest_active, "qst_join_faction"),
+                (faction_get_slot, ":object_lord", ":mission_object", slot_faction_leader),
+                (quest_slot_eq, "qst_join_faction", slot_quest_giver_troop, ":object_lord"),
+                #we don't test actually joining the kingdom because script_player_join_kingdom will disable all missions
+                (troop_set_slot, ":npc", slot_troop_current_mission, npc_mission_rejoin_when_possible),
+                (troop_set_slot, ":npc", slot_troop_days_on_mission, 0),
+              (try_end),
               
               (troop_get_slot, ":days_on_mission", ":npc", slot_troop_days_on_mission),
               (try_begin),
@@ -1787,12 +1798,14 @@ triggers = [
                 (val_sub, ":days_on_mission", 1),
                 (troop_set_slot, ":npc", slot_troop_days_on_mission, ":days_on_mission"),
               (else_try),
+                (troop_slot_eq, ":npc", slot_troop_current_mission, npc_mission_rejoin_when_possible),
+                (try_begin),
+                  (eq, "$npc_to_rejoin_party", 0),  #don't override diplomatic missions
+                  (hero_can_join, "p_main_party"),
+                  (assign, "$npc_to_rejoin_party", ":npc"),
+                (try_end),
+              (else_try),
                 (troop_slot_ge, ":npc", slot_troop_current_mission, 1),
-                #If the hero can join
-                (this_or_next|neg|troop_slot_eq, ":npc", slot_troop_current_mission, npc_mission_rejoin_when_possible),
-                # (hero_can_join, ":npc"),	MOTO error! This explains why companions sometimes never come back from mission...
-                (hero_can_join, "p_main_party"),
-                
                 (assign, "$npc_to_rejoin_party", ":npc"),
               (try_end),
             (try_end),
@@ -2232,6 +2245,7 @@ triggers = [
                   (tutorial_box, "str_your_scouts_are_exploring_enemy_territory", "@Scouts"),
                   (display_message, "str_your_scouts_are_exploring_enemy_territory", 0x00FF00),
                 (else_try),
+                  (this_or_next|eq, "$g_player_icon_state", pis_ship),
                   (ge, ":random_chance", 40), #no problems no advises
                 (else_try),
                   #disaster high chance
@@ -2251,18 +2265,20 @@ triggers = [
           (try_end),
       ]),
       #######  ######### troops rebelion with low morale chief party rebelion
-      (0, 0, 26, #each 24 hours 10% change to internal battle with rebels troops. A new leader want to rise. Really low ratio, but possible to happen.
+      (26, 0, 0, #each day 10% change to internal battle with rebels troops. A new leader want to rise. Really low ratio, but possible to happen.
         [(map_free), #en mapa
+          (eq, "$g_infinite_camping", 0),
+          (eq, "$g_player_is_captive", 0),
+          
           (party_get_current_terrain, ":cur_terrain", "p_main_party"),
           (neq,":cur_terrain",rt_water),
           (neq,":cur_terrain",rt_bridge),
           (neq,":cur_terrain",rt_river),
+          
           (party_get_morale, ":cur_morale", "p_main_party"),
+          (this_or_next|eq, "$cheat_mode", 1),
           (lt, ":cur_morale", 36), #36 or less morale.
           
-          (eq, "$g_player_is_captive", 0),
-        ],
-        [
           (party_get_num_companion_stacks, ":num_stacks","p_main_party"),
           (assign, ":num_men", 0),
           (try_for_range, ":i_stack", 0, ":num_stacks"),
@@ -2270,29 +2286,29 @@ triggers = [
             (val_add, ":num_men", ":stack_size"),
           (try_end),
           
+          (call_script, "script_game_get_party_companion_limit"),
+          (val_div, reg0, 2), #player can "manage" half the limit (see script_texto_partysize_morale)
+          
+          (this_or_next|eq, "$cheat_mode", 1),
+          (ge, ":num_men", reg0),
+        ],
+        [
+          (store_random_in_range, ":random_chance", 0, 100), #differents options
           (try_begin),
-            (ge, ":num_men", 40), #  40, less than 40 men are controllable, in adition, we save this for veteran players only
-            
-            (store_random_in_range, ":random_chance", 0, 100), #differents options
-            (try_begin),
-              
-              (party_get_num_companion_stacks, ":num_stacks","p_main_party"),
-              (assign, ":num_men", 0),
-              (try_for_range, ":i_stack", 0, ":num_stacks"),
-                (party_stack_get_size, ":stack_size","p_main_party",":i_stack"),
-                (val_add, ":num_men", ":stack_size"),
-              (try_end),
-              (ge, ":num_men", 40), # if men = or less than 30, no scouts
-              
-              (ge, ":random_chance", 90), #Duel!!! 10%
-              (assign, "$choose_duel_troop", 0), #duel troops troops rebelion party rebelion
-              (jump_to_menu, "mnu_duel_troop_rebelion"),
-            (else_try),
-              (ge, ":random_chance", 65), #advise
-              (tutorial_box, "str_you_hear_rumors_of_discontent_among_your_men", "@Morale"),
-              (display_message, "str_you_hear_rumors_of_discontent_among_your_men", 0xFF0000),
-            (else_try), #nothing
-            (try_end),
+            (eq, "$cheat_mode", 1),
+            (val_div, ":random_chance", 2),
+            (val_add, ":random_chance", 65),
+          (try_end),
+          (party_get_morale, ":cur_morale", "p_main_party"),
+          (val_sub, ":random_chance", ":cur_morale"),
+          (try_begin),
+            (ge, ":random_chance", 40), #Duel!!! 10%
+            (assign, "$choose_duel_troop", 0), #duel troops troops rebelion party rebelion
+            (jump_to_menu, "mnu_duel_troop_rebelion"),
+          (else_try),
+            (ge, ":random_chance", 15), #advise
+            (tutorial_box, "str_you_hear_rumors_of_discontent_among_your_men", "@Morale"),
+            (display_message, "str_you_hear_rumors_of_discontent_among_your_men", 0xFF0000),
           (try_end),
       ]),
       #######

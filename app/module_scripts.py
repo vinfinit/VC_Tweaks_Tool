@@ -66,6 +66,7 @@ edited_native_scripts = [
       (assign, "$g_random_eventnorepit", 0),  #no repit some random events
       (assign, "$g_no_some_options", 0),  #usable, always finish in 0
       (assign, "$FormAI_autorotate", 1),
+      (assign, "$current_color", 0xE12126),
       
       ##difficult settings
       (assign, "$difficulty_type", camp_d1),
@@ -220,8 +221,6 @@ edited_native_scripts = [
         (troop_set_slot, ":npc", slot_troop_prisoner_of_party, -1),
         (troop_set_slot, ":npc", slot_lady_last_suitor, -1),
         (troop_set_slot, ":npc", slot_troop_stance_on_faction_issue, -1),
-        (troop_set_slot, ":npc", slot_troop_lover, -1),
-        (troop_set_slot, ":npc", slot_troop_lover_found, 0),
         (troop_set_slot, ":npc", slot_troop_refused, 0),
         (troop_set_slot, ":npc", slot_troop_tortured, 0),
         (troop_set_slot, ":npc", slot_troop_robbed, 0),
@@ -5069,9 +5068,9 @@ edited_native_scripts = [
         (party_get_slot, ":multiplier", "$g_encountered_party", ":item_slot_no"),
         (try_begin),
           (eq, ":return_mode", 0),
-          (val_sub, ":multiplier", 18), #above values, compensating for this being a relatively greater percentage
+          (val_sub, ":multiplier", 21), #above values, compensating for this being a relatively greater percentage
         (else_try),
-          (val_sub, ":multiplier", 12),
+          (val_sub, ":multiplier", 14),
         (try_end),
         
         # (store_item_value, ":item_value", ":item_kind_id"),
@@ -17236,6 +17235,7 @@ edited_native_scripts = [
           #Chief add more vision with scouts send scouts ok
         (else_try), #
           (eq, ":skill_no", "skl_spotting"),
+          (this_or_next|eq, "$g_player_icon_state", pis_ship),
           (eq, "$send_scouts", 1), #scouts ok
           (val_add, ":modifier_value", 4), # 4  This do spotting/scouts important. Max skill 14, 10 norma + 4 scouts
         (else_try),
@@ -19414,6 +19414,10 @@ edited_native_scripts = [
         (eq, "$g_move_heroes", 1),
         (party_prisoner_stack_get_size, ":stack_size",":source_party",":stack_no"),
         (party_add_prisoners, ":target_party", ":stack_troop", ":stack_size"),
+        
+        (ge, ":target_party", centers_begin), #target party can take prisoners?
+        (troop_is_hero, ":stack_troop"),
+        (troop_set_slot, ":stack_troop", slot_troop_prisoner_of_party, ":target_party"),
       (try_end),
   ]),
   
@@ -21554,56 +21558,6 @@ edited_native_scripts = [
     [
       (store_script_param_1, ":giver_troop"),
       
-      (store_character_level, ":player_level", "trp_player"),
-      (store_troop_faction, ":giver_faction_no", ":giver_troop"),
-      
-      (troop_get_slot, ":giver_party_no", ":giver_troop", slot_troop_leaded_party),
-      (troop_get_slot, ":giver_reputation", ":giver_troop", slot_lord_reputation_type),
-      
-      (assign, ":giver_center_no", -1),
-      (try_begin),
-        (gt, ":giver_party_no", 0),
-        (party_get_attached_to, ":giver_center_no", ":giver_party_no"),
-      (else_try),
-        (is_between, "$g_encountered_party", centers_begin, centers_end),
-        (assign, ":giver_center_no", "$g_encountered_party"),
-      (try_end),
-      
-      (try_begin),
-        (troop_slot_eq, ":giver_troop", slot_troop_occupation, slto_kingdom_hero),
-        (try_begin),
-          (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-          (ge, "$g_talk_troop_faction_relation", 0),
-          (assign, ":quests_begin", lord_quests_begin),
-          (assign, ":quests_end", lord_quests_end),
-          (assign, ":quests_begin_2", lord_quests_begin_2),
-          (assign, ":quests_end_2", lord_quests_end_2),
-        (else_try),
-          (assign, ":quests_begin", enemy_lord_quests_begin),
-          (assign, ":quests_end", enemy_lord_quests_end),
-          (assign, ":quests_begin_2", 0),
-          (assign, ":quests_end_2", 0),
-        (try_end),
-      (else_try),
-        (is_between, ":giver_troop", village_elders_begin, village_elders_end),
-        (assign, ":quests_begin", village_elder_quests_begin),
-        (assign, ":quests_end", village_elder_quests_end),
-        (assign, ":quests_begin_2", village_elder_quests_begin_2),
-        (assign, ":quests_end_2", village_elder_quests_end_2),
-      (else_try),
-        (this_or_next|is_between, ":giver_troop", mayors_begin, mayors_end),
-        (is_between, ":giver_troop", "trp_castle_1_seneschal","trp_town_1_arena_master"),
-        (assign, ":quests_begin", mayor_quests_begin),
-        (assign, ":quests_end", mayor_quests_end),
-        (assign, ":quests_begin_2", mayor_quests_begin_2),
-        (assign, ":quests_end_2", mayor_quests_end_2),
-      (else_try),
-        (assign, ":quests_begin", lady_quests_begin),
-        (assign, ":quests_end", lady_quests_end),
-        (assign, ":quests_begin_2", lady_quests_begin_2),
-        (assign, ":quests_end_2", lady_quests_end_2),
-      (try_end),
-      
       (assign, ":result", -1),
       (assign, ":quest_target_troop", -1),
       (assign, ":quest_target_center", -1),
@@ -21692,7 +21646,61 @@ edited_native_scripts = [
       (try_begin),
         (eq, ":result", -1),
         
-        (try_for_range, ":unused", 0, 20), #Repeat trial twenty times
+        (store_character_level, ":player_level", "trp_player"),
+        (store_troop_faction, ":giver_faction_no", ":giver_troop"),
+        
+        (troop_get_slot, ":giver_party_no", ":giver_troop", slot_troop_leaded_party),
+        (troop_get_slot, ":giver_reputation", ":giver_troop", slot_lord_reputation_type),
+        
+        (assign, ":giver_center_no", -1),
+        (try_begin),
+          (gt, ":giver_party_no", 0),
+          (party_get_attached_to, ":giver_center_no", ":giver_party_no"),
+        (else_try),
+          (is_between, "$g_encountered_party", centers_begin, centers_end),
+          (assign, ":giver_center_no", "$g_encountered_party"),
+        (try_end),
+        
+        (try_begin),
+          (troop_slot_eq, ":giver_troop", slot_troop_occupation, slto_kingdom_hero),
+          (try_begin),
+            (ge, "$g_talk_troop_faction_kingdom_relation", 0),
+            (assign, ":quests_begin", lord_quests_begin),
+            (assign, ":quests_end", lord_quests_end),
+            (assign, ":quests_begin_2", lord_quests_begin_2),
+            (assign, ":quests_end_2", lord_quests_end_2),
+          (else_try),
+            (assign, ":quests_begin", enemy_lord_quests_begin),
+            (assign, ":quests_end", enemy_lord_quests_end),
+            (assign, ":quests_begin_2", 0),
+            (assign, ":quests_end_2", 0),
+          (try_end),
+        (else_try),
+          (is_between, ":giver_troop", village_elders_begin, village_elders_end),
+          (assign, ":quests_begin", village_elder_quests_begin),
+          (assign, ":quests_end", village_elder_quests_end),
+          (assign, ":quests_begin_2", village_elder_quests_begin_2),
+          (assign, ":quests_end_2", village_elder_quests_end_2),
+        (else_try),
+          (this_or_next|is_between, ":giver_troop", mayors_begin, mayors_end),
+          (is_between, ":giver_troop", "trp_castle_1_seneschal","trp_town_1_arena_master"),
+          (assign, ":quests_begin", mayor_quests_begin),
+          (assign, ":quests_end", mayor_quests_end),
+          (assign, ":quests_begin_2", mayor_quests_begin_2),
+          (assign, ":quests_end_2", mayor_quests_end_2),
+        (else_try),
+          (assign, ":quests_begin", lady_quests_begin),
+          (assign, ":quests_end", lady_quests_end),
+          (assign, ":quests_begin_2", lady_quests_begin_2),
+          (assign, ":quests_end_2", lady_quests_end_2),
+        (try_end),
+        
+        (store_sub, ":num_possible_old_quests", ":quests_end", ":quests_begin"),
+        (store_sub, ":num_possible_new_quests", ":quests_end_2", ":quests_begin_2"),
+        (store_add, ":num_possible_total_quests", ":num_possible_old_quests", ":num_possible_new_quests"),
+        #           (store_add. ":num_possible_total_quests_plus_1",":num_possible_total_quests", 1),
+        
+        (try_for_range, ":unused", 0, ":num_possible_total_quests"),
           (eq, ":result", -1),
           (assign, ":quest_target_troop", -1),
           (assign, ":quest_target_center", -1),
@@ -21712,17 +21720,29 @@ edited_native_scripts = [
           (assign, ":quest_expiration_days", 0),
           (assign, ":quest_dont_give_again_period", 0),
           
-          (store_sub, ":num_possible_old_quests", ":quests_end", ":quests_begin"),
-          (store_sub, ":num_possible_new_quests", ":quests_end_2", ":quests_begin_2"),
-          (store_add, ":num_possible_total_quests", ":num_possible_old_quests", ":num_possible_new_quests"),
-          #           (store_add. ":num_possible_total_quests_plus_1",":num_possible_total_quests", 1),
-          (store_random_in_range, ":quest_no", 0, ":num_possible_total_quests"),
+          (try_begin),
+            (eq, "$cheat_mode", 0),
+            (store_random_in_range, ":quest_no", 0, ":num_possible_total_quests"),
+          (else_try),
+            (assign, ":quest_no", "$vc_next_quest"),
+            (val_add, "$vc_next_quest", 1),
+            (try_begin),
+              (eq, "$vc_next_quest", ":num_possible_total_quests"),
+              (assign, "$vc_next_quest", 0),
+            (try_end),
+          (try_end),
           
           (try_begin),
             (lt, ":quest_no", ":num_possible_old_quests"),
-            (store_random_in_range, ":quest_no", ":quests_begin", ":quests_end"),
+            (val_add, ":quest_no", ":quests_begin"),
           (else_try),
-            (store_random_in_range, ":quest_no", ":quests_begin_2", ":quests_end_2"),
+            (val_sub, ":quest_no", ":num_possible_old_quests"),
+            (val_add, ":quest_no", ":quests_begin_2"),
+          (try_end),
+          (try_begin),
+            (neq, "$cheat_mode", 0),
+            (assign, reg1, ":quest_no"),
+            (display_message, "@trying quest {reg1}"),
           (try_end),
           (neg|check_quest_active,":quest_no"),
           (neg|quest_slot_ge, ":quest_no", slot_quest_dont_give_again_remaining_days, 1),
@@ -21829,6 +21849,7 @@ edited_native_scripts = [
               (assign, ":end", villages_end),
             (try_end),
             (try_for_range,":cur_village", villages_begin, ":end"),
+              (party_slot_eq, ":cur_village", slot_village_state, svs_normal),
               (store_distance_to_party_from_party, ":cur_distance", ":cur_village", ":giver_center_no"),
               (lt,  ":cur_distance", ":distance"),
               (val_add, ":no_villages", 1),
@@ -21837,12 +21858,13 @@ edited_native_scripts = [
             (store_random_in_range, ":random_village", 0, ":no_villages"),
             (assign, ":no_villages", 0),
             (try_for_range,":cur_village", villages_begin, ":end"),
-              (eq, ":result", -1),
+              (party_slot_eq, ":cur_village", slot_village_state, svs_normal),
               (store_distance_to_party_from_party, ":cur_distance", ":cur_village", ":giver_center_no"),
               (lt,  ":cur_distance", ":distance"),
               (val_add, ":no_villages", 1),
               (gt, ":no_villages", ":random_village"),
               (assign, ":result", ":cur_village"),
+              (assign, ":end", ":cur_village"),
             (try_end),
             (assign, ":quest_target_center", ":result"),
             (store_random_in_range, ":rand", 0, 100),
@@ -22007,7 +22029,7 @@ edited_native_scripts = [
             (eq, ":quest_no", "qst_rescue_lord_by_replace"),
             (eq, 1, 0),
             (try_begin),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (is_between, ":player_level", 5, 25),
               
               (assign, ":prisoner_relative", -1),
@@ -22063,7 +22085,7 @@ edited_native_scripts = [
             (eq, "$player_has_homage", 0),
             
             (try_begin),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (is_between, ":player_level", 5, 25),
               (troop_get_slot, ":cur_target_troop", ":giver_troop", slot_troop_father),
               (try_begin),
@@ -22088,7 +22110,7 @@ edited_native_scripts = [
           (else_try),
             (eq, ":quest_no", "qst_duel_for_lady"),
             (try_begin),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (ge, ":player_level", 10),
               (neg|troop_slot_eq, ":giver_troop", slot_troop_spouse, 0),  #in dialog lady_quest_duel_for_lady_2, refers to husband
               (call_script, "script_cf_troop_get_random_enemy_troop_with_occupation", ":giver_troop", slto_kingdom_hero),#Can fail
@@ -22118,8 +22140,7 @@ edited_native_scripts = [
             (neg|troop_slot_eq, ":giver_troop", slot_troop_spouse, "trp_player"),
             (troop_get_slot, ":spouse", ":giver_troop", slot_troop_spouse),
             (try_begin),
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (call_script, "script_troop_get_player_relation", ":giver_troop"),
               (assign, ":relation", reg0),
               (assign, ":continue", 0),
@@ -22189,8 +22210,7 @@ edited_native_scripts = [
             (neg|troop_slot_eq, ":giver_troop", slot_troop_spouse, "trp_player"),
             (troop_get_slot, ":spouse", ":giver_troop", slot_troop_spouse),
             (try_begin),
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (call_script, "script_troop_get_player_relation", ":giver_troop"),
               (assign, ":relation", reg0),
               (assign, ":continue", 0),
@@ -22324,8 +22344,7 @@ edited_native_scripts = [
           (else_try),
             (eq, ":quest_no", "qst_deliver_message"),
             (try_begin),
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (le, ":player_level", 20),
               (neg|troop_slot_ge, "trp_player", slot_troop_renown, 250),
               (call_script, "script_cf_get_random_lord_in_a_center_with_faction", ":giver_faction_no"),#Can fail
@@ -22351,8 +22370,7 @@ edited_native_scripts = [
               (is_between, ":attached_to", walled_centers_begin, walled_centers_end),
               (party_slot_eq, ":attached_to", slot_town_lord, ":giver_troop"),
               (troop_slot_eq, ":giver_troop", slot_troop_religion, 1),#christian
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (troop_slot_ge, "trp_player", slot_troop_renown, 250),
               (store_relation,":rel","fac_christians","fac_player_faction"),
               (gt, ":rel", 50),
@@ -22386,8 +22404,7 @@ edited_native_scripts = [
               (this_or_next|troop_slot_eq, ":giver_troop", slot_lord_reputation_type, lrep_debauched),
               (this_or_next|troop_slot_eq, ":giver_troop", slot_lord_reputation_type, lrep_cunning),
               (troop_slot_eq, ":giver_troop", slot_lord_reputation_type, lrep_roguish),
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (troop_slot_ge, "trp_player", slot_troop_renown, 130),
               (store_character_level, ":quest_target_amount", "trp_player"),
               (gt,":quest_target_amount", 8),
@@ -22407,8 +22424,7 @@ edited_native_scripts = [
           (else_try),
             (eq, ":quest_no", "qst_escort_lady"),
             (try_begin),
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (ge, ":player_level", 10),
               
               (ge, ":giver_troop", 0), #skip troops without fathers in range
@@ -22534,25 +22550,25 @@ edited_native_scripts = [
             ##            (assign, ":quest_gold_reward", 750),
             ##            (assign, ":result", ":quest_no"),
             ##          (try_end),
-          (else_try),
-            (eq, ":quest_no", "qst_blank_quest_18"),
-            (try_begin),
-              (is_between, ":player_level", 5, 30),
-              (gt, "$player_honor", 30),
-              (is_between, ":giver_troop", kingdom_ladies_begin, kingdom_ladies_end),
-              (troop_get_slot, ":cur_target_troop", ":giver_troop", slot_troop_lover),
-              (gt, ":cur_target_troop", 0),#Skip ladies without a lover
-              (troop_get_slot, ":cur_target_center", ":cur_target_troop", slot_troop_cur_center),
-              (neq,":giver_center_no", ":cur_target_center"),#Skip current center
-              (neg|troop_slot_eq, "trp_player", slot_troop_spouse, "$g_talk_troop"),
-              (neg|troop_slot_eq, ":cur_target_troop", slot_troop_spouse, "$g_talk_troop"),
-              (call_script, "script_troop_get_player_relation", ":giver_troop"),
-              (gt, reg0, 2),
-              (assign, ":quest_target_troop", ":cur_target_troop"),
-              (assign, ":quest_expiration_days", 30),
-              (assign, ":quest_dont_give_again_period", 30),
-              (assign, ":result", ":quest_no"),
-            (try_end),
+          # (else_try),
+            # (eq, ":quest_no", "qst_blank_quest_18"),
+            # (try_begin),
+              # (is_between, ":player_level", 5, 30),
+              # (gt, "$player_honor", 30),
+              # (is_between, ":giver_troop", kingdom_ladies_begin, kingdom_ladies_end),
+              # (troop_get_slot, ":cur_target_troop", ":giver_troop", slot_troop_lover),
+              # (gt, ":cur_target_troop", 0),#Skip ladies without a lover
+              # (troop_get_slot, ":cur_target_center", ":cur_target_troop", slot_troop_cur_center),
+              # (neq,":giver_center_no", ":cur_target_center"),#Skip current center
+              # (neg|troop_slot_eq, "trp_player", slot_troop_spouse, "$g_talk_troop"),
+              # (neg|troop_slot_eq, ":cur_target_troop", slot_troop_spouse, "$g_talk_troop"),
+              # (call_script, "script_troop_get_player_relation", ":giver_troop"),
+              # (gt, reg0, 2),
+              # (assign, ":quest_target_troop", ":cur_target_troop"),
+              # (assign, ":quest_expiration_days", 30),
+              # (assign, ":quest_dont_give_again_period", 30),
+              # (assign, ":result", ":quest_no"),
+            # (try_end),
             ##        (else_try),
             ##          (eq, ":quest_no", "qst_bring_reinforcements_to_siege"),
             ##          (try_begin),
@@ -22582,8 +22598,7 @@ edited_native_scripts = [
           (else_try),
             (eq, ":quest_no", "qst_deliver_message_to_enemy_lord"),
             (try_begin),
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (is_between, ":player_level", 5,25),
               (call_script, "script_cf_get_random_lord_from_another_faction_in_a_center", ":giver_faction_no"),#Can fail
               (assign, ":cur_target_troop", reg0),
@@ -22621,8 +22636,7 @@ edited_native_scripts = [
             (try_begin),
               (neq, ":giver_reputation", lrep_debauched),
               (neq, ":giver_reputation", lrep_quarrelsome),
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (assign, ":end_cond", villages_end),
               (assign, ":cur_target_center", -1),
               (try_for_range, ":cur_village", villages_begin, ":end_cond"),
@@ -22648,8 +22662,7 @@ edited_native_scripts = [
             (try_begin),
               (neq, ":giver_reputation", lrep_martial),
               (neq, ":giver_faction_no", "fac_player_supporters_faction"), #we need tier_1_troop a valid value
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (store_character_level, ":cur_level", "trp_player"),
               (gt, ":cur_level", 35), #level 35 need. This quest is very difficult for low level players
               (troop_slot_ge, "trp_player", slot_troop_renown, 800), #renow 800 need.
@@ -22687,8 +22700,7 @@ edited_native_scripts = [
             (try_begin),
               (neq, ":giver_reputation", lrep_goodnatured),
               (neq, ":giver_reputation", lrep_upstanding),
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (call_script, "script_cf_troop_get_random_leaded_town_or_village_except_center", ":giver_troop", ":giver_center_no"),
               (assign, ":quest_target_center", reg0),
               (assign, ":quest_importance", 1),
@@ -22702,8 +22714,7 @@ edited_native_scripts = [
             (eq, ":quest_no", "qst_hunt_down_fugitive"),
             (eq, "$player_has_homage", 0),
             (try_begin),
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (call_script, "script_cf_select_random_village_with_faction", ":giver_faction_no"),
               (assign, ":quest_target_center", reg0),
               #					(try_begin),
@@ -22752,8 +22763,7 @@ edited_native_scripts = [
               (this_or_next|eq, ":giver_reputation", lrep_cunning),
               (eq, ":giver_reputation", lrep_debauched),
               (neg|faction_slot_eq, ":giver_faction_no", slot_faction_leader, ":giver_troop"),#Can not take the quest from the king
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (gt, ":player_level", 5),
               (is_between, ":giver_center_no", towns_begin, towns_end),
               (assign, ":quest_importance", 40),
@@ -22768,8 +22778,7 @@ edited_native_scripts = [
             (try_begin),
               (neq, ":giver_reputation", lrep_goodnatured),
               (neq, ":giver_reputation", lrep_upstanding),
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (ge, ":player_level", 5),
               (gt, ":giver_center_no", 0),#Skip if lord is outside the center
               (eq, "$g_defending_against_siege", 0),#Skip if the center is under siege (because of resting)
@@ -22804,8 +22813,7 @@ edited_native_scripts = [
             (eq, "$player_has_homage", 0),
             
             (try_begin),
-              (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (neq, ":giver_reputation", lrep_goodnatured),
               (party_get_skill_level, ":tracking_skill", "p_main_party", "skl_tracking"),
               (ge, ":tracking_skill", 2),
@@ -22864,7 +22872,7 @@ edited_native_scripts = [
           (else_try),
             (eq, ":quest_no", "qst_lend_companion"),
             (try_begin),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               (assign, ":total_heroes", 0),
               (party_get_num_companion_stacks, ":num_stacks", "p_main_party"),
               (try_for_range, ":i_stack", 0, ":num_stacks"),
@@ -22923,7 +22931,7 @@ edited_native_scripts = [
             (eq, ":quest_no", "qst_collect_debt"),
             (eq, 1, 0), #disable this quest pending talk with armagan
             (try_begin),
-              (ge, "$g_talk_troop_faction_relation", 0),
+              (ge, "$g_talk_troop_faction_kingdom_relation", 0),
               # Find a vassal (within the same kingdom?)
               (call_script, "script_cf_get_random_lord_in_a_center_with_faction", ":giver_faction_no"),#Can fail
               (assign, ":quest_target_troop", reg0),
@@ -24937,7 +24945,7 @@ edited_native_scripts = [
         
         #No current issue on the agenda
         (try_begin),
-          (faction_slot_eq, ":orig_faction", slot_faction_political_issue, 0),
+          (neg|faction_slot_ge, ":orig_faction", slot_faction_political_issue, 1),
           
           (faction_set_slot, ":orig_faction", slot_faction_political_issue, 1), #Appointment of marshal
           (store_current_hours, ":hours"),
@@ -25176,19 +25184,11 @@ edited_native_scripts = [
         #  (val_mod, ":gender", 2),
         
         (assign, ":lord_have_fief", 0),
-        (try_for_range, ":cur_center", centers_begin, centers_end),
+        (try_begin),
           (neq, ":troop_no", ":faction_leader"), # exclude research for ruler
-          (party_slot_ge, ":cur_center", slot_town_lord, 0),
-          (party_slot_eq, ":cur_center", slot_town_lord, ":troop_no"),
-          (try_begin),
-            (party_slot_eq, ":cur_center", slot_party_type, spt_town),
+          (try_for_range, ":cur_center", walled_centers_begin, walled_centers_end),
+            (party_slot_eq, ":cur_center", slot_town_lord, ":troop_no"),
             (val_add, ":lord_have_fief", 1),
-          (else_try),
-            (party_slot_eq, ":cur_center", slot_party_type, spt_castle),
-            (val_add, ":lord_have_fief", 1),
-          (else_try),
-            #(party_slot_eq, ":cur_center", slot_party_type, spt_village),
-            (val_add, ":lord_have_fief", 0), #initially lords with only village low range.
           (try_end),
         (try_end),
         
@@ -25232,12 +25232,12 @@ edited_native_scripts = [
           (faction_slot_eq, ":faction_no", slot_faction_culture, "fac_culture_irish"),
           (try_begin),
             (eq, ":troop_no", ":faction_leader"), # he is king
-            (assign, ":title_index", "str_faction_title_male_3"),
+            (assign, ":title_index", "str_faction_title_female_2"),
           (else_try),
             (gt, ":lord_have_fief", 0), #he has town or forts.
-            (assign, ":title_index", "str_faction_title_male_4"),
+            (assign, ":title_index", "str_faction_title_female_3"),
           (else_try),
-            (assign, ":title_index", "str_faction_title_male_5"),
+            (assign, ":title_index", "str_faction_title_female_4"),
           (try_end),
         (else_try), #other
           (try_begin),
@@ -25305,9 +25305,11 @@ edited_native_scripts = [
       (else_try),
         (eq, ":lord_troop_id", "trp_player"),
         (assign, ":lord_troop_faction", "$players_kingdom"), #was changed on Apr 27 from fac_plyr_sup_fac
+        (party_set_slot,":center_no",recruit_permission_need, 0),
         
       (else_try),
         (store_troop_faction, ":lord_troop_faction", ":lord_troop_id"),
+        (party_set_slot,":center_no",recruit_permission_need, 1),
       (try_end),
       (faction_get_slot, ":faction_leader", ":lord_troop_faction", slot_faction_leader),
       
@@ -28835,9 +28837,9 @@ edited_native_scripts = [
         (troop_slot_ge, ":faction_marshal", slot_troop_prisoner_of_party, 0),
         
         #No current issue on the agenda
-        (this_or_next|faction_slot_eq, ":faction_no", slot_faction_political_issue, 0),
         (this_or_next|eq, ":player_marshal_is_prisoner", 1),
-        (troop_slot_ge, ":faction_marshal", slot_troop_prisoner_of_party, 0),
+        (this_or_next|troop_slot_ge, ":faction_marshal", slot_troop_prisoner_of_party, 0),
+        (neg|faction_slot_ge, ":faction_no", slot_faction_political_issue, 1),
         
         (faction_set_slot, ":faction_no", slot_faction_political_issue, 1), #Appointment of marshal
         (store_current_hours, ":hours"),
@@ -29158,8 +29160,7 @@ edited_native_scripts = [
       
       #Add fief to faction issues
       (try_begin),
-        (faction_get_slot, ":faction_issue", ":faction_no", slot_faction_political_issue),
-        (le, ":faction_issue", 0),
+        (neg|faction_slot_ge, ":faction_no", slot_faction_political_issue, 1),
         
         (assign, ":landless_lords", 0),
         (assign, ":unassigned_centers", 0),
@@ -37498,6 +37499,11 @@ edited_native_scripts = [
   ("player_join_faction",
     [
       (store_script_param, ":faction_no", 1),
+      (try_begin),
+        (eq, "$players_kingdom", "fac_player_supporters_faction"),
+        (neq, ":faction_no", "fac_player_supporters_faction"),
+        (call_script, "script_deactivate_player_faction"),
+      (try_end),
       (assign,"$players_kingdom",":faction_no"),
       (faction_set_slot, "fac_player_supporters_faction", slot_faction_ai_state, sfai_default),
       (assign, "$players_oath_renounced_against_kingdom", 0),
@@ -37556,11 +37562,6 @@ edited_native_scripts = [
         (store_relation, ":quest_giver_faction_relation", "fac_player_faction", ":quest_giver_faction"),
         (lt, ":quest_giver_faction_relation", 0),
         (call_script, "script_abort_quest", ":quest_no", 0),
-      (try_end),
-      (try_begin),
-        (neq, ":faction_no", "fac_player_supporters_faction"),
-        (faction_set_slot, "fac_player_supporters_faction", slot_faction_state, sfs_inactive),
-        (faction_set_slot, "fac_player_supporters_faction", slot_faction_leader, "trp_player"),
       (try_end),
       
       (try_begin),
@@ -37726,14 +37727,25 @@ edited_native_scripts = [
       (assign, "$players_oath_renounced_begin_time", 0),
       (assign, "$control_tax", 0),
       #(call_script, "script_store_average_center_value_per_faction"),
-      (call_script, "script_update_all_notes"),
+      (call_script, "script_appoint_faction_marshal", "fac_player_supporters_faction", -1),
       
-      (try_begin),
-        (is_between, "$g_player_minister", companions_begin, companions_end),
-        (assign, "$npc_to_rejoin_party", "$g_player_minister"),
+      #end missions and recall minister
+      (try_for_range, ":npc", companions_begin, companions_end),
+        (troop_slot_eq, ":npc", slot_troop_occupation, slto_player_companion),
+        (troop_set_slot, ":npc", slot_troop_days_on_mission, 0),
+        (neg|main_party_has_troop, ":npc"),
+        (troop_set_slot, ":npc", slot_troop_current_mission, npc_mission_rejoin_when_possible),
       (try_end),
+      
+      (try_for_range, ":minister_quest", all_quests_begin, all_quests_end),
+        (check_quest_active, ":minister_quest"),
+        (quest_slot_eq, ":minister_quest", slot_quest_giver_troop, "$g_player_minister"),
+        (call_script, "script_abort_quest", ":minister_quest", 0),
+      (try_end),
+      
       (assign, "$g_player_minister", -1),
       
+      (call_script, "script_update_all_notes"),
       (call_script, "script_add_notification_menu", "mnu_notification_player_faction_deactive", 0, 0),
   ]),
   
@@ -37781,7 +37793,7 @@ edited_native_scripts = [
         (str_store_troop_name, s2, ":liege"),
         (str_store_string, s1, "str_s2s_rebellion"),
       (try_end),
-      (faction_set_color, "fac_player_supporters_faction", 0xFF0000),
+      (faction_set_color, "fac_player_supporters_faction", "$current_color"),
       
       (assign, "$players_kingdom", "fac_player_supporters_faction"),
       (assign, "$g_player_banner_granted", 1),
@@ -41721,13 +41733,16 @@ edited_native_scripts = [
           (this_or_next|eq, ":stack_troop", "trp_knight_8_4"),
           (this_or_next|eq, ":stack_troop", "trp_knight_8_7"),
           (is_between, ":stack_troop", "trp_knight_8_11", "trp_knight_9_1"),	#(knight_8_15	#trp_kingdom_8
-          (val_add, ":escape_chance", 990),
+          (assign, ":always", 1),
+        (else_try),
+          (assign, ":always", 0),
         (try_end),
         ######
         (neq, ":stack_troop", ":quest_troop_1"),
         (neq, ":stack_troop", ":quest_troop_2"),
         (troop_slot_eq, ":stack_troop", slot_troop_occupation, slto_kingdom_hero),
         (store_random_in_range, ":random_no", 0, 1000),
+        (this_or_next|eq, ":always", 1),
         (lt, ":random_no", ":escape_chance"),
         (party_remove_prisoners, ":party_no", ":stack_troop", 1),
         (call_script, "script_remove_troop_from_prison", ":stack_troop"),
@@ -43312,7 +43327,6 @@ edited_native_scripts = [
           (assign, ":relevance", 200),
           (assign, ":suggested_relation_change", -1),
           (assign, ":comment", "str_comment_you_raided_my_village_default"),
-          (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
           (try_begin),
             (lt, "$g_talk_troop_faction_relation", -5),
             (this_or_next|eq, ":reputation", lrep_goodnatured),
@@ -43375,8 +43389,6 @@ edited_native_scripts = [
         (eq, ":faction_object", "$g_talk_troop_faction"),
         (eq, ":center_object", -1),
         (eq, ":troop_object", -1),
-        
-        
         
         (faction_slot_eq, "$g_talk_troop_faction", slot_faction_leader, "$g_talk_troop"),
         (assign, ":relevance", 30),
@@ -44290,7 +44302,6 @@ edited_native_scripts = [
         (try_begin),
           (eq, ":faction_object", "$g_talk_troop_faction"),
           (neq, ":troop_object", "$g_talk_troop"),
-          (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
           (try_begin),
             (ge, "$g_talk_troop_faction_relation", 0),
             (neq, "$g_talk_troop_faction", "$players_kingdom"),
@@ -44493,7 +44504,6 @@ edited_native_scripts = [
           (assign, ":relevance", 200),
           (assign, ":suggested_relation_change", -1),
           (assign, ":comment", "str_comment_you_stole_cattles_from_my_village_default"),
-          (store_relation, "$g_talk_troop_faction_relation", "$g_talk_troop_faction", "$players_kingdom"),
           (try_begin),
             (lt, "$g_talk_troop_faction_relation", -3),
             (this_or_next|eq, ":reputation", lrep_goodnatured),
@@ -47504,7 +47514,6 @@ edited_native_scripts = [
       (store_script_param, ":faction_no", 1),
       (store_script_param, ":faction_marshal", 2),
       
-      
       (faction_get_slot, ":faction_leader", ":faction_no", slot_faction_leader),
       (faction_get_slot, ":old_marshal", ":faction_no", slot_faction_marshal),
       
@@ -47517,14 +47526,12 @@ edited_native_scripts = [
         (party_set_marshal, ":old_marshal_party", 0),
       (try_end),
       
-      
       (try_begin),
         (ge, ":faction_marshal", 0),
         (troop_get_slot, ":new_marshal_party", ":faction_marshal", slot_troop_leaded_party),
         (party_is_active, ":new_marshal_party"),
         (party_set_marshal,":new_marshal_party", 1),
       (try_end),
-      
       
       (try_begin),
         (neq, ":faction_marshal", ":faction_leader"),
@@ -47540,7 +47547,6 @@ edited_native_scripts = [
           (str_store_faction_name, s15, ":faction_no"),
           (display_message, "str_checking_lord_reactions_in_s15"),
         (try_end),
-        
         
         (call_script, "script_troop_change_relation_with_troop", ":faction_marshal", ":faction_leader", 5),
         (val_add, "$total_promotion_changes", 5),
@@ -48078,69 +48084,34 @@ edited_native_scripts = [
       (store_faction_of_troop, ":troop_faction", ":cur_troop"),
       (try_for_range, ":unused", 0, 10),
         (store_random_in_range, ":cur_lady", "trp_kingdom_1_lady_1", kingdom_ladies_end),
+        (troop_slot_eq, ":cur_lady", slot_troop_spouse, -1),
+        (troop_slot_eq, ":cur_troop", slot_troop_spouse, -1),
+        (store_faction_of_troop, ":lady_faction", ":cur_lady"),
+        
+        (assign, ":continue", 0),
         (try_begin),
-          (neg|troop_slot_eq, ":cur_lady", slot_troop_spouse, -1),
-          (troop_get_slot, ":spouse", ":cur_lady", slot_troop_spouse),
-          (neq, ":spouse", ":cur_troop"),
-          (troop_get_slot, ":mother", ":cur_troop", slot_troop_mother),
-          (neq, ":mother", ":cur_lady"),
-          (neg|troop_slot_eq, ":cur_troop", slot_troop_love_interest_1, ":cur_lady"),
-          (neg|troop_slot_eq, ":cur_troop", slot_troop_love_interest_2, ":cur_lady"),
-          (neg|troop_slot_eq, ":cur_troop", slot_troop_love_interest_3, ":cur_lady"),
-          (troop_get_slot, ":lover", ":cur_lady", slot_troop_lover),
-          (eq,":lover", -1),
-          (assign, ":chance", 10),
-          (try_begin),
-            (troop_slot_eq, ":cur_lady", slot_lord_reputation_type, lrep_moralist),
-            (val_sub, ":chance", 9),
-          (else_try),
-            (troop_slot_eq, ":cur_lady", slot_lord_reputation_type, lrep_conventional),
-            (val_sub, ":chance", 8),
-          (else_try),
-            (troop_slot_eq, ":cur_lady", slot_lord_reputation_type, lrep_ambitious),
-          (else_try),
-            (troop_slot_eq, ":cur_lady", slot_lord_reputation_type, lrep_adventurous),
-            (val_add, ":chance", 5),
-          (else_try),
-            (troop_slot_eq, ":cur_lady", slot_lord_reputation_type, lrep_otherworldly),
-            (val_sub, ":chance", 4),
-            #(val_add, ":chance", 1),
-          (else_try),
-            (val_sub, ":chance", 1),
-          (try_end),
-          (store_random_in_range, ":rand", 0, 100),
-          (le, ":rand", ":chance"),
-          (troop_set_slot, ":cur_lady", slot_troop_lover, ":cur_troop"),
-          (store_random_in_range, ":rel", 25, 60),
-          (call_script, "script_troop_change_relation_with_troop", ":cur_troop", ":cur_lady", ":rel"),
+          (eq, ":troop_faction", ":lady_faction"),
+          (call_script, "script_troop_get_family_relation_to_troop", ":cur_troop", ":cur_lady"),
+          (gt, reg0, 0),
+          (assign, ":continue", 1),
+        (try_end),
+        (eq, ":continue", 0),
+        
+        (call_script, "script_troop_get_relation_with_troop", ":cur_troop", ":cur_lady"),
+        (eq, reg0, 0), #do not develop love interest if already spurned or courted
+        
+        (neg|troop_slot_eq, ":cur_troop", slot_troop_love_interest_1, ":cur_lady"),
+        (neg|troop_slot_eq, ":cur_troop", slot_troop_love_interest_2, ":cur_lady"),
+        (neg|troop_slot_eq, ":cur_troop", slot_troop_love_interest_3, ":cur_lady"),
+        (try_begin),
+          (troop_slot_eq, ":cur_troop", slot_troop_love_interest_1, 0),
+          (troop_set_slot, ":cur_troop", slot_troop_love_interest_1, ":cur_lady"),
         (else_try),
-          (troop_slot_eq, ":cur_lady", slot_troop_spouse, -1),
-          (troop_slot_eq, ":cur_troop", slot_troop_spouse, -1),
-          (store_faction_of_troop, ":lady_faction", ":cur_lady"),
-          (assign, ":continue", 0),
-          (try_begin),
-            (eq, ":troop_faction", ":lady_faction"),
-            (call_script, "script_troop_get_family_relation_to_troop", ":cur_troop", ":cur_lady"),
-            (neq, reg0, 0),
-            (assign, ":continue", 1),
-          (try_end),
-          (eq, ":continue", 0),
-          (call_script, "script_troop_get_relation_with_troop", ":cur_troop", ":cur_lady"),
-          (eq, reg0, 0), #do not develop love interest if already spurned or courted
-          
-          (neg|troop_slot_eq, ":cur_troop", slot_troop_love_interest_1, ":cur_lady"),
-          (neg|troop_slot_eq, ":cur_troop", slot_troop_love_interest_2, ":cur_lady"),
-          (neg|troop_slot_eq, ":cur_troop", slot_troop_love_interest_3, ":cur_lady"),
-          (try_begin),
-            (troop_slot_eq, ":cur_troop", slot_troop_love_interest_1, 0),
-            (troop_set_slot, ":cur_troop", slot_troop_love_interest_1, ":cur_lady"),
-          (else_try),
-            (troop_slot_eq, ":cur_troop", slot_troop_love_interest_2, 0),
-            (troop_set_slot, ":cur_troop", slot_troop_love_interest_2, ":cur_lady"),
-          (else_try),
-            (troop_slot_eq, ":cur_troop", slot_troop_love_interest_3, 0),
-            (troop_set_slot, ":cur_troop", slot_troop_love_interest_3, ":cur_lady"),
-          (try_end),
+          (troop_slot_eq, ":cur_troop", slot_troop_love_interest_2, 0),
+          (troop_set_slot, ":cur_troop", slot_troop_love_interest_2, ":cur_lady"),
+        (else_try),
+          (troop_slot_eq, ":cur_troop", slot_troop_love_interest_3, 0),
+          (troop_set_slot, ":cur_troop", slot_troop_love_interest_3, ":cur_lady"),
         (try_end),
       (try_end),
   ]),
@@ -49325,7 +49296,7 @@ edited_native_scripts = [
             (eq, ":operation_in_progress", 0),
             (store_sub, reg0, ":lowest_acceptable_strength_percentage", ":distance_addition"),	#MOTO ignore distance addition for this purpose
             (lt, ":party_strength_as_percentage_of_ideal", reg0),
-            (faction_slot_eq, ":faction_no", slot_faction_political_issue, 0),	#not already done?
+            (neg|faction_slot_ge, ":faction_no", slot_faction_political_issue, 1),	#not already done?
             (call_script, "script_change_troop_renown", ":troop_no", -1),
             (faction_set_slot, ":faction_no", slot_faction_political_issue, 1), #Appointment of marshal
             (store_current_hours, ":hours"),
@@ -50480,42 +50451,26 @@ edited_native_scripts = [
           
           (gt, ":hours_since_last_courtship", 72),
           (eq, ":operation_in_progress", 0),
+          (troop_slot_eq, ":troop_no", slot_troop_spouse, -1),
           
           (assign, ":center_to_visit", -1),
           (assign, ":score_to_beat", 150),
-          (try_begin),
-            (troop_slot_eq, ":troop_no", slot_troop_spouse, -1),
-            (try_for_range, ":slot", slot_troop_love_interest_1, slot_troop_love_interests_end),
-              (troop_get_slot, ":love_interest", ":troop_no", ":slot"),
-              (is_between, ":love_interest", kingdom_ladies_begin, kingdom_ladies_end),
-              (troop_get_slot, ":center_no", ":love_interest", slot_troop_cur_center),
-              (is_between, ":center_no", centers_begin, centers_end),
-              (store_faction_of_party, ":center_faction", ":center_no"),
-              # (eq, ":faction_no", ":center_faction"),
-              (store_relation, ":relation", ":faction_no", ":center_faction"),
-              (ge, ":relation", 0),
-              
-              (store_distance_to_party_from_party, ":distance", ":party_no", ":center_no"),
-              
-              (lt, ":distance", ":score_to_beat"),
-              (assign, ":center_to_visit", ":center_no"),
-              (assign, ":score_to_beat", ":distance"),
-            (try_end),
-          (else_try),
-            (try_for_range, ":lady", kingdom_ladies_begin, kingdom_ladies_end),
-              (troop_get_slot, ":lover", ":lady", slot_troop_lover),
-              (eq, ":lover", ":troop_no"),
-              (troop_get_slot, ":center_no", ":lover", slot_troop_cur_center),
-              (is_between, ":center_no", centers_begin, centers_end),
-              (store_faction_of_party, ":center_faction", ":center_no"),
-              # (eq, ":faction_no", ":center_faction"),
-              (store_relation, ":relation", ":faction_no", ":center_faction"),
-              (ge, ":relation", 0),
-              (store_distance_to_party_from_party, ":distance", ":party_no", ":center_no"),
-              (lt, ":distance", ":score_to_beat"),
-              (assign, ":center_to_visit", ":center_no"),
-              (assign, ":score_to_beat", ":distance"),
-            (try_end),
+          
+          (try_for_range, ":slot", slot_troop_love_interest_1, slot_troop_love_interests_end),
+            (troop_get_slot, ":love_interest", ":troop_no", ":slot"),
+            (is_between, ":love_interest", kingdom_ladies_begin, kingdom_ladies_end),
+            (troop_get_slot, ":center_no", ":love_interest", slot_troop_cur_center),
+            (is_between, ":center_no", centers_begin, centers_end),
+            (store_faction_of_party, ":center_faction", ":center_no"),
+            # (eq, ":faction_no", ":center_faction"),
+            (store_relation, ":relation", ":faction_no", ":center_faction"),
+            (ge, ":relation", 0),
+            
+            (store_distance_to_party_from_party, ":distance", ":party_no", ":center_no"),
+            
+            (lt, ":distance", ":score_to_beat"),
+            (assign, ":center_to_visit", ":center_no"),
+            (assign, ":score_to_beat", ":distance"),
           (try_end),
           
           (gt, ":center_to_visit", -1),
@@ -52065,6 +52020,7 @@ edited_native_scripts = [
         (try_begin),
           (eq, "$cheat_mode", 1),
           (assign, reg4, ":modified_honor_and_relation"),
+          (str_store_troop_name, s4, ":envoy"),
           (display_message, "str_envoymodified_diplomacy_score_honor_plus_relation_plus_envoy_persuasion_=_reg4"),
         (try_end),
         
@@ -52175,6 +52131,14 @@ edited_native_scripts = [
       (val_div, ":strength_ratio", ":actor_strength"),
       # (try_end),
       #MOTO avoid div-by-0 through init (above) end
+      
+      (try_begin),
+        (eq, "$cheat_mode", 1),
+        (eq, ":target_faction", "fac_player_supporters_faction"),
+        (assign, reg3, ":strength_ratio"),
+        (str_store_faction_name, s4, ":actor_faction"),
+        (display_message, "@{!}DEBUG: {s4} strength ratio {reg3}% versus player faction"),
+      (try_end),
       
       (try_for_range, ":possible_mutual_enemy", kingdoms_begin, kingdoms_end),
         (neq, ":possible_mutual_enemy", ":target_faction"),
@@ -53435,7 +53399,7 @@ edited_native_scripts = [
     [
       (get_player_agent_no, ":player_agent"),
       (agent_get_position, pos3, ":player_agent"),
-      (agent_get_team, ":player_team", ":player_agent"),
+      # (agent_get_team, ":player_team", ":player_agent"),
       
       (try_begin),
         (agent_is_active, "$g_main_attacker_agent"),
@@ -53450,14 +53414,25 @@ edited_native_scripts = [
       
       (try_for_agents, ":agent"),
         (agent_get_team, ":other_team", ":agent"),
-        (neq, ":other_team", ":attacker_team_no"),
-        (neq, ":other_team", ":player_team"),
+        (neq, ":other_team", ":attacker_team_no"),  #tavern brawl - team set in script_activate_tavern_attackers
+        # (neq, ":other_team", ":player_team"), team normally not defined
         
         (agent_get_troop_id, ":troop_id", ":agent"),
-        (neg|is_between, ":troop_id", "trp_norse_slave", "trp_looter"),
+        (neg|is_between, ":troop_id", "trp_norse_slave", "trp_caravan_master"),
+        
+        (agent_get_animation, ":anim", ":agent", 0),
+        (try_begin),
+          (is_between, ":anim", "anim_sitting", "anim_thrust_onehanded_overhead"),  #ambiance animations
+          (agent_set_stand_animation,":agent","anim_stand_man"),
+          (agent_ai_set_interact_with_player,":agent",1),
+          (agent_set_slot,":agent",slot_agent_is_blocked,0),
+          (try_begin),
+            (is_between, ":anim", "anim_sitting", "anim_woodcutting_2"),  #sitting animations
+            (agent_set_animation,":agent","anim_crouch_to_stand"),
+          (try_end),
+        (try_end),
         
         (agent_get_position, pos4, ":agent"),
-        
         (assign, ":best_position_score", 0),
         (assign, ":best_position", -1),
         
@@ -53697,9 +53672,8 @@ edited_native_scripts = [
       (assign, ":new_faction", -1),
       (assign, ":score_to_beat", -5),
       
+      (store_random_in_range, ":advantegous_faction_change_time", 0, 10000),
       (try_begin),
-        (store_random_in_range, ":advantegous_faction_change_time", 0, 10000),
-        
         (this_or_next|le, "$g_advantegous_faction", 0),
         (eq, ":advantegous_faction_change_time", 0),
         (store_random_in_range, "$g_advantegous_faction", kingdoms_begin, kingdoms_end),
@@ -53732,22 +53706,19 @@ edited_native_scripts = [
           (try_end),
         (try_end),
         
-        (assign, ":number_of_lords", 0),
+        (assign, ":number_of_lords", 1),  #avoid div by 0
         (try_for_range, ":troop_id", original_kingdom_heroes_begin, active_npcs_end),
           (store_troop_faction, ":faction_of_troop", ":troop_id"),
           (eq, ":faction_of_troop", ":faction_no"),
           (val_add, ":number_of_lords", 1),
         (try_end),
-        #(neq, ":number_of_lords", 0),    #(eliminated?) faction      with no lords Motomataru chief
-        (val_max, ":number_of_lords", 1),
-        
-        (faction_get_slot, ":liege", ":faction_no", slot_faction_leader),
-        (call_script, "script_troop_get_relation_with_troop", ":troop_no", ":liege"),
-        (assign, ":relation_with_leader", reg0),
         
         (store_mul, ":faction_score", ":number_of_walled_centers", 100),
         (val_div, ":faction_score", ":number_of_lords"),
-        (val_add, ":faction_score", ":relation_with_leader"),
+        
+        (faction_get_slot, ":liege", ":faction_no", slot_faction_leader),
+        (call_script, "script_troop_get_relation_with_troop", ":troop_no", ":liege"),
+        (val_add, ":faction_score", reg0),
         
         (try_begin),
           (eq, ":faction_no", ":orig_faction"),
@@ -53757,6 +53728,15 @@ edited_native_scripts = [
         
         (try_begin),
           (eq, "$g_advantegous_faction", ":faction_no"),
+          (val_add, ":faction_score", 50),
+        (try_end),
+        
+        (troop_get_slot, reg1, ":troop_no", slot_troop_original_faction),
+        (faction_get_slot, ":troop_culture", reg1, slot_faction_culture),
+        
+        (faction_get_slot, ":faction_culture", ":faction_no", slot_faction_culture),
+        (try_begin),
+          (eq, ":faction_culture", ":troop_culture"),
           (val_add, ":faction_score", 50),
         (try_end),
         
@@ -56502,13 +56482,6 @@ vc_scripts = [
           # (party_is_in_any_town, ":party"),
           #(remove_party, ":party"),
         (try_end),
-        # Adultery
-        (try_begin),
-          (try_for_range, ":npc", kingdom_ladies_begin, kingdom_ladies_end),
-            (troop_slot_eq, ":npc", slot_troop_lover, 0),
-            (troop_set_slot, ":npc", slot_troop_lover, -1),
-          (try_end),
-        (try_end),
         # Initialize npcs for messangers
         (try_begin),
           (try_for_range, ":npc", active_npcs_begin, active_npcs_end),
@@ -57079,7 +57052,7 @@ vc_scripts = [
         (neg | party_slot_eq, "$current_town", slot_village_state, svs_looted),
         (neg | party_slot_eq, "$current_town", slot_village_state, svs_being_raided),
         (neg | party_slot_ge, "$current_town", slot_village_infested_by_bandits, 1),
-        (neg | is_currently_night),
+        # (neg | is_currently_night), player can visit leader at night in scene
         (party_slot_eq,"$current_town", slot_party_levy_on, 0),
         (neg | check_quest_active, "qst_blank_quest_7"), #!
         (party_get_slot, ":leader", "$current_town", slot_town_elder),
@@ -58220,8 +58193,6 @@ vc_scripts = [
           
           (call_script, "script_init_town_walkers"),
           (set_jump_mission,"mt_town_center"),
-
-
           (assign, ":override_state", af_override_horse),
 
           (try_begin),
@@ -62689,7 +62660,7 @@ vc_scripts = [
   # Output: none
   # Expects team_set_order_position has been done
   ("process_place_divisions", [(assign, ":num_bgroups", 0),
-      (try_for_range, ":division", 0, 9),
+      (try_for_range_backwards, ":division", 0, 9), #running backwards to avoid "garbage" divisions
         (class_is_listening_order, "$fplayer_team_no", ":division"),
         (store_add, ":slot", slot_team_d0_target_team, ":division"),
         (team_set_slot, "$fplayer_team_no", ":slot", -1),
@@ -66346,7 +66317,6 @@ vc_scripts = [
       #captain
       (try_begin),
         (eq, "$show_face", 0), #face description
-        (str_store_string,s2,"@No staff have been hired."),
         (str_store_string,s3,"@To hire workers, you need to select them from the list. If the list is empty, you may need to increase your renown or improve your refuge for them to come and offer their services."),
       (else_try),
         (eq, "$show_face", 1), #face description
@@ -66487,7 +66457,7 @@ vc_scripts = [
         (eq, "$show_face", 13), #face description
         (str_store_string,s2,"@Name: The Hungry Hammer."),
         (try_begin),
-          (eq, "$armorer_hired", 1), #contratado chief, hired
+          (eq, "$armorer_hired_on", 1), #contratado chief, hired
           (str_store_string,s3,"@Occupation: This armorer is already working for you."),
         (else_try),
           (str_store_string,s3,"@Occupation: Armorer^Initial Cost: 400^Weekly cost: 40^Notes: His nickname comes from his voracious appetite for iron, manufacturing all kinds of things."),
@@ -67255,7 +67225,7 @@ vc_scripts = [
       #IF HAS HELMET -5
       #MIN CHANCE: 5
       (assign, ":base_chance", 5),
-
+      
       (try_begin),
         
         # Mounted bot
@@ -76071,10 +76041,10 @@ vc_text_scripts = [
           (gt, ":total_valor", 29),
           (assign, ":modifier_value", 3),
         (else_try),
-          (gt, ":total_valor", 9),
+          (gt, ":total_valor", 19),
           (assign, ":modifier_value", 2),
         (else_try),
-          (gt, ":total_valor", 0),
+          (gt, ":total_valor", 9),
           (assign, ":modifier_value", 1),
         (else_try),
           (assign, ":modifier_value", 0),
@@ -77148,6 +77118,9 @@ vc_text_scripts = [
             (eq, ":faction_issue", 0),
             (str_store_string, s11, "str_none"),
           (else_try),
+            (eq, ":faction_issue", -1),
+            (str_store_string, s11, "str_no"),
+          (else_try),
             (assign, reg3, ":faction_issue"),
             (str_store_string, s11, "@{!}Error ({reg3})"),
           (try_end),
@@ -77584,7 +77557,7 @@ vc_text_scripts = [
       (try_end),
       (str_store_string,s10,"@^Welcome to Viking Conquest Reforged Edition^^^{s2}^^{s3}"),]),
   
-  # script_cf_process_training
+  # script_cf_process_training_fail
   # Input: training center, upgrade path
   # Output: none
   ("cf_process_training_fail", [

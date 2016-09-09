@@ -198,6 +198,7 @@ multi_scripts = [
           (else_try),
             (play_sound,"snd_heavy_rain_loop"),
           (try_end),
+          (store_last_sound_channel, "$ambiance_channel"),
           (store_random_in_range,":r",80,101),
           (set_global_cloud_amount,":r"),
           (store_random_in_range,":r",200,301),
@@ -247,6 +248,7 @@ multi_scripts = [
             (val_add,":sound_type","snd_ambient_day_plains_loop"),
             (play_sound,":sound_type"),
           (try_end),
+          (store_last_sound_channel, "$ambiance_channel"),
           
           #setting clouds and stuff
           (try_begin),
@@ -367,10 +369,10 @@ multi_scripts = [
         (neq, "$current_town", "p_town_12"),#Lundenwic = river
         (party_slot_eq,"$current_town",slot_town_port, 1),
         (play_sound,"snd_ambient_coast_loop"),
-        (play_sound,"snd_ambient_day_plains_loop"),
-      (else_try),
-        (party_slot_eq,"$current_town",slot_party_type,spt_town),
-        (play_sound,"snd_ambient_day_plains_loop"),
+        # (play_sound,"snd_ambient_day_plains_loop"),
+      # (else_try),
+        # (party_slot_eq,"$current_town",slot_party_type,spt_town),
+        # (play_sound,"snd_ambient_day_plains_loop"),
       (else_try),
         (party_slot_eq,"$current_town",slot_party_type,spt_village),
         (play_sound,"snd_ambient_day_village_loop"),

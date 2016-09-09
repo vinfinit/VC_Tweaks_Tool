@@ -35,6 +35,9 @@ python process_party_tmps.py
 python process_parties.py
 
 python process_global_variables_unused.py
+
+python process_module_ini.py 
+
 @del *.pyc
 echo.
 echo ______________________________

@@ -43,8 +43,8 @@ factions = [
   ("cultures_end","{!}cultures_end", 0, 0,[], []),
 
 #  ("caza_animales","Animals",0, 0.1,[("player_faction",-0.85)], [],0xFFFFFF),
-  ("player_faction","Player Faction",0, 0.9, [], [],0xFFFFFF),
-  ("player_supporters_faction","Player's Supporters",0, 0.9, [("player_faction",1.00),("outlaws",-0.08),("peasant_rebels", -0.1),("deserters", -0.08),("mountain_bandits", -0.08),("forest_bandits", -0.08)], [], 0xDDFF00),
+  ("player_faction","Player Faction",0, 0.9, [], [],0xE12126),  #for relations with player
+  ("player_supporters_faction","Player's Supporters",0, 0.9, [("player_faction",1.00),("outlaws",-0.08),("peasant_rebels", -0.1),("deserters", -0.08),("mountain_bandits", -0.08),("forest_bandits", -0.08)], [], 0xE12126),  #for relations with player's kingdom
 # Reinos de chief.
 
   ("kingdom_1", "Kingdom of Danmark",		0, 0.9, [("outlaws",-0.02),("peasant_rebels", -0.1),("deserters", -0.02),("mountain_bandits", -0.05),("forest_bandits", -0.05),("kingdom_8", 0.9),("kingdom_3", 0.5),("kingdom_2", 0.5),("kingdom_7", -0.9),("kingdom_5", -0.9),("christians",-0.05)], [], 0x800000),

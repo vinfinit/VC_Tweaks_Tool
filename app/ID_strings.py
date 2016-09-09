@@ -3758,5 +3758,6 @@ str_changing_gametype_is_voteable = 3756
 str_changing_gametype_is_not_voteable = 3757
 str_weapon_break = 3758
 str_no_suit_religion = 3759
+str_modifications = 3760
 
 
