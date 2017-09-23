@@ -12,8 +12,8 @@ from tweaks import *
 # that it will be easy to change it if you need to.
 ##############################################################
 
-warband_version = 1168  #matching what is in module.ini
-vc_version = 2025
+warband_version = 1170  #matching what is in module.ini
+vc_version = 2036
 
 ########################################################
 ##  ITEM SLOTS             #############################
@@ -96,25 +96,28 @@ slot_agent_fatiga_inicial         = 28
 
 #motomataru agent slots 29-32 (see below)
 
-slot_agent_prop					= 34
-slot_agent_is_blocked			= 35
-slot_agent_is_chosen			= 36
-slot_agent_morale				= 37
-slot_agent_horn_use_cooldown	= 38
-slot_agent_horn_cooldown		= 39
-slot_agent_horn_bonus_applied	= 40
-slot_agent_berserk_use_cooldown	= 41
-slot_agent_berserk_cooldown		= 42
-slot_agent_banner_bonus			= 43
-slot_agent_banner_bonus_applied	= 44
-slot_agent_shieldwall_bonus		= 45
+slot_agent_prop                   = 34
+slot_agent_is_blocked             = 35
+slot_agent_is_chosen              = 36
+slot_agent_morale                 = 37
+slot_agent_vc_wounded             = 38
+slot_agent_ammo_refilled          = 39	#VC-1806
+slot_agent_was_dehorsed           = 40
+slot_agent_time_without_rider	= slot_agent_was_dehorsed
 
-slot_agent_vc_wounded			= 46
-slot_agent_shieldbash_cooldown	= 47
-slot_agent_time_without_rider	= slot_agent_shieldbash_cooldown
-slot_agent_ammo_refilled		= 48	#VC-1806
-slot_agent_berserk_modeon		= 49	#berserker chief mode on
+slot_agent_horn_use_cooldown      = 41
+slot_agent_horn_cooldown          = 42
+slot_agent_horn_bonus_applied     = 43
 
+slot_agent_berserk_modeon         = 44	#berserker chief mode on
+slot_agent_berserk_use_cooldown   = 45
+slot_agent_berserk_cooldown       = 46
+
+slot_agent_banner_bonus           = 47
+slot_agent_banner_bonus_applied   = 48
+slot_agent_shieldwall_bonus       = 49
+
+slot_agent_shieldbash_cooldown    = 50
 shielbash_miss_cooldown = 2 #x2 = 2 seconds #12 seconds #before 2, now 30 = more time penalty. VC-2854
 shielbash_hit_cooldown = 15 #x2 = 20 seconds # 30 seconds
 
@@ -122,6 +125,21 @@ shielbash_hit_cooldown = 15 #x2 = 20 seconds # 30 seconds
 ##  FACTION SLOTS          #############################
 ########################################################
 slot_faction_ai_state                   = 4
+#slot_faction_ai_state values
+sfai_default                   		 = 0 #also defending
+sfai_gathering_army            		 = 1
+sfai_attacking_center          		 = 2
+sfai_raiding_village           		 = 3
+sfai_attacking_enemy_army      		 = 4
+sfai_attacking_enemies_around_center = 5
+sfai_feast             		 		 = 6 #can be feast, wedding, or major tournament
+#Social events are a generic aristocratic gathering. Tournaments take place if they are in a town, and hunts take place if they are at a castle.
+#Weddings will take place at social events between betrothed couples if they have been engaged for at least a month, if the lady's guardian is the town lord, and if both bride and groom are present
+
+#Rebellion system changes begin
+sfai_nascent_rebellion          = 7
+#Rebellion system changes end
+
 slot_faction_ai_object                  = 5
 slot_faction_ai_rationale               = 6 #Currently unused, can be linked to strings generated from decision checklists
 slot_faction_troop_in_player_party      = 7
@@ -132,12 +150,19 @@ slot_faction_culture                    = 10
 slot_faction_leader                     = 11
 
 slot_faction_temp_slot                  = 12
+slot_faction_religion                   = 13  #cb3_christian or cb3_pagan
 
-##slot_faction_vassal_of            = 11
 slot_faction_banner                     = 15
 
 slot_faction_number_of_parties          = 20
 slot_faction_state                      = 21
+
+#slot_faction_state values
+sfs_active                     = 0
+sfs_defeated                   = 1
+sfs_inactive                   = 2
+sfs_inactive_rebellion         = 3
+sfs_beginning_rebellion        = 4
 
 # slot_faction_adjective            = 22 MOTO just use fac_culture name 
 
@@ -233,7 +258,6 @@ slot_faction_ai_current_state_started = 97 #
 slot_faction_ai_last_decisive_event   = 98 #capture a fortress or declaration of war
 
 slot_faction_morale_of_player_troops  = 99
-slot_agent_was_dehorsed               = 100
 	
 #diplomacy
 #MOTO chief following in blocks of 40 (32 factions)
@@ -264,10 +288,52 @@ min_dist_neighb_of_neighb = 31	#Brycheniog to other neighbors of Glywissing 32
 ##  PARTY SLOTS            #############################
 ########################################################
 slot_party_type                = 0  #spt_caravan, spt_town, spt_castle
+#slot_party_type values
+##spt_caravan            = 1
+spt_castle             = 2
+spt_town               = 3
+spt_village            = 4
+#spt_forager            = 5 
+##spt_war_party          = 6
+##spt_patrol             = 7 #chief 
+##spt_messenger          = 8 #chief 
+##spt_capitan_mercenario   = 9 #### capitan mercenario chief
+spt_levy             = 9
+##spt_scout              = 10 #chief
+spt_kingdom_caravan    = 11
+##spt_prisoner_train     = 12
+spt_kingdom_hero_party = 13
+##spt_merchant_caravan   = 14
+spt_village_farmer     = 15
+spt_ship               = 16
+spt_cattle_herd        = 17
+spt_bandit_lair       = 18
+#spt_deserter           = 20  #19 is dplmc_spouse
+
+kingdom_party_types_begin = spt_kingdom_caravan
+kingdom_party_types_end = spt_kingdom_hero_party + 1
+
 slot_party_save_icon           = 1  #add motomataru save original icon chief
 slot_party_retreat_flag        = 2
 slot_party_ignore_player_until = 3
 slot_party_ai_state            = 4
+
+#slot_party_ai_state values
+spai_undefined                  = -1
+spai_besieging_center           = 1
+spai_patrolling_around_center   = 4
+spai_raiding_around_center      = 5
+##spai_raiding_village            = 6
+spai_holding_center             = 7
+##spai_helping_town_against_siege = 9
+spai_engaging_army              = 10
+spai_accompanying_army          = 11
+spai_screening_army             = 12  #essentially deprecated, as things that routinely counted "accompanying" would miss these. Now represented as accompanying + substate set
+spai_trading_with_town          = 13
+spai_retreating_to_center       = 14
+##spai_trading_within_kingdom     = 15
+spai_visiting_village           = 16 #same thing, I think. Recruiting differs from holding because NPC parties don't actually enter villages
+
 slot_party_ai_object           = 5
 slot_party_ai_rationale        = 6 #Currently unused, but can be used to save a string explaining the lord's thinking
 
@@ -310,7 +376,16 @@ slot_party_follow_player_until_time = 32
 slot_party_dont_follow_player_until_time = 33
 
 slot_village_raided_by        = 34
-slot_village_state            = 35 #svs_normal, svs_being_raided, svs_looted, svs_recovering, svs_deserted
+slot_village_state            = 35
+
+#slot_village_state values
+svs_normal                      = 0
+svs_being_raided                = 1
+svs_looted                      = 2
+# svs_recovering                  = 3
+# svs_deserted                    = 4
+svs_under_siege                 = 5
+
 slot_village_raid_progress    = 36
 slot_village_recover_progress = 37
 slot_village_smoke_added      = 38
@@ -616,10 +691,10 @@ slot_production_sources_end = 233
 #limestone and timber for mortar, if we allow building
 
 #Faith Religion chief y edificios
-kingdom_religion_cristiana = 233
+kingdom_religion_cristiana = 233  #deprecated for slot_faction_religion
 slot_center_religion = 234 # 1 -christian, 2 -pagan
 slot_center_faithratio = 235 # christian vs pagan
-kingdom_religion_pagana = 236
+kingdom_religion_pagana = 236  #deprecated for slot_faction_religion
 slot_center_player_cattle = 237
 #center_religion_pagana = 237
 #center_pagana_faithratio = 238
@@ -633,8 +708,6 @@ recruit_permission_need = 239 #recruit in villages, lord's permission need to Ch
 
 slot_town_last_nearby_fire_time	= 240
 slot_town_port = 241	#sea battles chief
-# slot_saqueo_state = 242 #MOTO no longer set to anything but 0
-slot_town_lord_old	= 243	#MOTO tested in game_menus but never set...
 
 slot_party_following_orders_of_troop        = 244
 slot_party_orders_type				        = 245
@@ -771,79 +844,6 @@ slot_center_starvation_time     = 406 #used for but a single value; global shoul
 
 slot_party_messenger_time         = 418 #used for but a single value; global should be used
 
-#slot_party_type values
-##spt_caravan            = 1
-spt_castle             = 2
-spt_town               = 3
-spt_village            = 4
-#spt_forager            = 5 
-##spt_war_party          = 6
-##spt_patrol             = 7 #chief 
-##spt_messenger          = 8 #chief 
-##spt_capitan_mercenario   = 9 #### capitan mercenario chief
-spt_levy             = 9
-##spt_scout              = 10 #chief
-spt_kingdom_caravan    = 11
-##spt_prisoner_train     = 12
-spt_kingdom_hero_party = 13
-##spt_merchant_caravan   = 14
-spt_village_farmer     = 15
-spt_ship               = 16
-spt_cattle_herd        = 17
-spt_bandit_lair       = 18
-#spt_deserter           = 20  #19 is dplmc_spouse
-
-kingdom_party_types_begin = spt_kingdom_caravan
-kingdom_party_types_end = spt_kingdom_hero_party + 1
-
-#slot_faction_state values
-sfs_active                     = 0
-sfs_defeated                   = 1
-sfs_inactive                   = 2
-sfs_inactive_rebellion         = 3
-sfs_beginning_rebellion        = 4
-
-
-#slot_faction_ai_state values
-sfai_default                   		 = 0 #also defending
-sfai_gathering_army            		 = 1
-sfai_attacking_center          		 = 2
-sfai_raiding_village           		 = 3
-sfai_attacking_enemy_army      		 = 4
-sfai_attacking_enemies_around_center = 5
-sfai_feast             		 		 = 6 #can be feast, wedding, or major tournament
-#Social events are a generic aristocratic gathering. Tournaments take place if they are in a town, and hunts take place if they are at a castle.
-#Weddings will take place at social events between betrothed couples if they have been engaged for at least a month, if the lady's guardian is the town lord, and if both bride and groom are present
-
-
-#Rebellion system changes begin
-sfai_nascent_rebellion          = 7
-#Rebellion system changes end
-
-#slot_party_ai_state values
-spai_undefined                  = -1
-spai_besieging_center           = 1
-spai_patrolling_around_center   = 4
-spai_raiding_around_center      = 5
-##spai_raiding_village            = 6
-spai_holding_center             = 7
-##spai_helping_town_against_siege = 9
-spai_engaging_army              = 10
-spai_accompanying_army          = 11
-spai_screening_army             = 12  #essentially deprecated, as things that routinely counted "accompanying" would miss these. Now represented as accompanying + substate set
-spai_trading_with_town          = 13
-spai_retreating_to_center       = 14
-##spai_trading_within_kingdom     = 15
-spai_visiting_village           = 16 #same thing, I think. Recruiting differs from holding because NPC parties don't actually enter villages
-
-#slot_village_state values
-svs_normal                      = 0
-svs_being_raided                = 1
-svs_looted                      = 2
-# svs_recovering                  = 3
-# svs_deserted                    = 4
-svs_under_siege                 = 5
-
 #$g_player_icon_state values
 pis_normal                      = 0
 pis_camping                     = 1
@@ -887,6 +887,7 @@ slot_troop_occupation          = 2
 ### Troop occupations slot_troop_occupation
 ##slto_merchant           = 1
 slto_inactive           = 0 #for companions at the beginning of the game
+slto_dead               = 1
 
 slto_kingdom_hero       = 2
 
@@ -2322,6 +2323,7 @@ estandartes_end = "itm_horn"
 
 banner_meshes_begin = "mesh_banner_extra01"
 banner_meshes_end = "mesh_banner_kingdom_a"
+kingdom_banner_meshes_end = "mesh_banner_default"
 
 arms_meshes_begin = "mesh_arms_extra01"
 banner_map_icons_begin = "icon_map_flag_extra01"
@@ -2925,3 +2927,23 @@ slot_quest_menu_meet_leader = slot_quest_menu_4
 #sea battle
 boarding_progress_peak_0 = 60
 boarding_progress_peak = 70
+
+# VC-3689
+menu_none         =  0
+menu_left         = -1
+menu_right_1      =  1
+menu_right_2      =  2
+menu_fake_div     =  3
+
+menu_right_max    =  2
+menu_fake_div_max =  6
+
+player_func_none      = 0
+player_func_creeping  = 0x01
+player_func_trait     = 0x02
+player_func_horsecall = 0x04
+
+dot_size        = 4000
+dot_spacing_div = 30
+dot_color       = 0x000000
+dot_alpha       = 0xC0  #75%

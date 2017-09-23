@@ -1624,3 +1624,8 @@ g_siege_tribute_paid
 g_talk_troop_faction_kingdom_relation
 ambiance_channel
 vc_next_quest
+player_functions
+controller_keys
+controller_in_use
+dpad_menu
+dpad_menu_row

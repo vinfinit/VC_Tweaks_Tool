@@ -39,24 +39,6 @@ multi_scripts = [
       (assign,"$g_multiplayer_team_1_priests_spawned",0),
       (assign,"$g_multiplayer_poll_cooldown_counter", 0),
   ]),
-  ("init_sea_wave_shader", [
-      (store_div, "$WaveNumber_y", 31416 * 2, "$lamda_y"),
-      (store_div, "$omega_y", 2 * 3141, "$lamda_y"),
-      (val_mul, "$omega_y", "$wavespeed_y"),
-      (val_div, "$omega_y", 10),
-      (store_div, "$WaveNumber_x", 31416 * 2, "$lamda_x"),
-      # no "$omega_x" yet
-      (try_begin),
-        (neg|multiplayer_is_dedicated_server),
-        (set_fixed_point_multiplier,1),
-        (set_shader_param_float, "@vWindStrength", "$WindStrength_variable"),
-        (set_fixed_point_multiplier,10000),
-        (set_shader_param_float4, "@vWaveInfo", "$Amplitude_x", "$Amplitude_y", "$WaveNumber_x", "$WaveNumber_y"),
-        (store_add, ":Origin_z", "$Amplitude_x", "$Amplitude_y"), # This can be used to alter overall sea level
-        (set_shader_param_float4, "@vWaveOrigin", 0, 0, ":Origin_z", 0),
-        (set_fixed_point_multiplier,100),
-      (try_end),
-  ]),
   ("multi_set_scene_slots", [
       (assign,"$g_multiplayer_deadly_bow",0),
       
@@ -324,7 +306,6 @@ multi_scripts = [
         (multiplayer_is_server),
         (try_begin),
           (scene_slot_eq,":scene",slot_scene_sounds,sounds_sea),
-          #(call_script,"script_init_sea_wave_shader"),
           (call_script,"script_set_wave_shader"),
         (else_try),
           #no waves fo non-sea maps

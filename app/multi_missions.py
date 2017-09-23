@@ -682,14 +682,14 @@ ambient_scene_play_loop = (ti_after_mission_start, 0, 0,[],[
     (neg|game_in_multiplayer_mode),
     (call_script,"script_sp_scene_play_ambient_loop",0),
     (store_last_sound_channel, "$ambiance_channel"),
-    ])
+])
 ambient_scene_play_random_sound = (3, 0, 0,[],[
     (neg|game_in_multiplayer_mode),
     (call_script,"script_sp_scene_play_random_ambient_sound",0)])
 ambient_tavern_play_loop = (ti_after_mission_start, 0, 0,[],[
     (play_sound,"snd_ambient_tavern_loop"),
     (store_last_sound_channel, "$ambiance_channel"),
-    ])
+])
 ambient_tavern_play_random_sound = (5, 0, 0,[],[
     (store_random_in_range,":r",0,10),(lt,":r",2),
     (play_sound,"snd_ambient_random_tavern")])
@@ -702,17 +702,17 @@ ambient_agent_play_sound = (4, 0, 0, [],[
 ambient_end_sound = (ti_tab_pressed, 0, 0, [
     (stop_all_sounds),	#store_last_sound_channel is failing
     (ge, "$ambiance_channel", 0),
-  ],[
+    ],[
     (stop_sound_channel, "$ambiance_channel"),
     (assign, "$ambiance_channel", -1),
-  ])
+])
 ambient_mp_end_sound = (ti_on_player_exit, 0, 0, [
     (stop_all_sounds),	#store_last_sound_channel is failing
     (ge, "$ambiance_channel", 0),
-  ],[
+    ],[
     (stop_sound_channel, "$ambiance_channel"),
     (assign, "$ambiance_channel", -1),
-  ])
+])
 
 
 ###WEATHER
@@ -4362,11 +4362,11 @@ multi_missions = [
               (this_or_next|scene_prop_has_agent_on_it, ":ship_main_instance", ":agent"),
               (scene_prop_has_agent_on_it, ":ship_ramp_1_instance", ":agent"),
               #
-              (try_begin),
-                (eq,1,0),#disable for raid
-                #(neg|scene_prop_slot_eq, ":ship_instance", scene_prop_boarding_progress, -1),
-                (agent_refill_ammo, ":agent"),		# Refill Ammo of crew (Brustwarzenlenny)
-              (try_end),
+              # (try_begin),
+              # (eq,1,0),#disable for raid
+              # #(neg|scene_prop_slot_eq, ":ship_instance", scene_prop_boarding_progress, -1),
+              # (agent_refill_ammo, ":agent"),		# Refill Ammo of crew (Brustwarzenlenny)
+              # (try_end),
               #
               (agent_get_team  , ":agent_team", ":agent"),
               (val_add, ":agent_counter", 1),
@@ -5162,70 +5162,70 @@ multi_missions = [
             (assign, ":team_with_less_players", 1),
           (try_end),
           ########SWAP TEAMS AFTER ROUND CHANGE
-          (try_begin),
-            (eq,1,0),#comment out to turn ON auto team swap after round change
-            (try_for_range,":slot",0,250),
-              (troop_set_slot,"trp_temp_array_a",":slot",-1),
-            (try_end),
-            
-            (try_begin),
-              (eq,":team_with_more_players",1),
-              (store_sub,":num_players_to_swap",":number_of_players_at_team_2",":number_of_players_will_be_moved"),
-            (else_try),
-              #(gt,":number_of_players_at_team_2",0),
-              (assign,":num_players_to_swap",":number_of_players_at_team_2"),
-              # (else_try),
-              # (assign,":num_players_to_swap",":number_of_players_at_team_1"),
-            (try_end),
-            
-            (assign,":current_slot",0),
-            (assign,":players_0_swaped",0),
-            (assign,":players_1_swaped",0),
-            (assign,":add",10),
-            (try_for_range,":unused",0,2),
-              (try_for_range,":team",0,2),
-                (try_begin),
-                  (eq,":team",0),
-                  (assign,":players_swaped",":players_0_swaped"),
-                (else_try),
-                  (assign,":players_swaped",":players_1_swaped"),
-                (try_end),
-                (try_for_players,":player"),
-                  (lt,":players_swaped",":num_players_to_swap"),
-                  (player_is_active,":player"),
-                  (player_get_team_no,":p_team",":player"),
-                  (eq,":team",":p_team"),
-                  #
-                  (neg|player_slot_ge,":player",slot_player_forced_team_change,":add"),
-                  (troop_set_slot,"trp_temp_array_a",":current_slot",":player"),
-                  (val_add,":players_swaped",1),
-                  (val_add,":current_slot",1),
-                (try_end),
-                (try_begin),
-                  (eq,":team",0),
-                  (assign,":players_0_swaped",":players_swaped"),
-                (else_try),
-                  (assign,":players_1_swaped",":players_swaped"),
-                (try_end),
-              (try_end),
-              (assign,":add",20),
-            (try_end),
-            
-            #swap
-            (try_for_range,":slot",0,250),
-              (troop_get_slot,":player","trp_temp_array_a",":slot"),
-              (player_is_active,":player"),
-              (player_get_team_no,":team",":player"),
-              (is_between,":team",0,2),
-              (val_add,":team",1),
-              (val_mod,":team",2),
-              (call_script,"script_mp_change_player_team",":player",":team"),
-              (val_add,":team",10),
-              (player_set_slot,":player",slot_player_forced_team_change,":team"),
-              (multiplayer_send_message_to_player,":player",multiplayer_event_force_start_team_selection),
-            (try_end),
-            (assign,":number_of_players_will_be_moved",0),
-          (try_end),
+          # (try_begin),
+          # (eq,1,0),#comment out to turn ON auto team swap after round change
+          # (try_for_range,":slot",0,250),
+          # (troop_set_slot,"trp_temp_array_a",":slot",-1),
+          # (try_end),
+          
+          # (try_begin),
+          # (eq,":team_with_more_players",1),
+          # (store_sub,":num_players_to_swap",":number_of_players_at_team_2",":number_of_players_will_be_moved"),
+          # (else_try),
+          # #(gt,":number_of_players_at_team_2",0),
+          # (assign,":num_players_to_swap",":number_of_players_at_team_2"),
+          # # (else_try),
+          # # (assign,":num_players_to_swap",":number_of_players_at_team_1"),
+          # (try_end),
+          
+          # (assign,":current_slot",0),
+          # (assign,":players_0_swaped",0),
+          # (assign,":players_1_swaped",0),
+          # (assign,":add",10),
+          # (try_for_range,":unused",0,2),
+          # (try_for_range,":team",0,2),
+          # (try_begin),
+          # (eq,":team",0),
+          # (assign,":players_swaped",":players_0_swaped"),
+          # (else_try),
+          # (assign,":players_swaped",":players_1_swaped"),
+          # (try_end),
+          # (try_for_players,":player"),
+          # (lt,":players_swaped",":num_players_to_swap"),
+          # (player_is_active,":player"),
+          # (player_get_team_no,":p_team",":player"),
+          # (eq,":team",":p_team"),
+          # #
+          # (neg|player_slot_ge,":player",slot_player_forced_team_change,":add"),
+          # (troop_set_slot,"trp_temp_array_a",":current_slot",":player"),
+          # (val_add,":players_swaped",1),
+          # (val_add,":current_slot",1),
+          # (try_end),
+          # (try_begin),
+          # (eq,":team",0),
+          # (assign,":players_0_swaped",":players_swaped"),
+          # (else_try),
+          # (assign,":players_1_swaped",":players_swaped"),
+          # (try_end),
+          # (try_end),
+          # (assign,":add",20),
+          # (try_end),
+          
+          # #swap
+          # (try_for_range,":slot",0,250),
+          # (troop_get_slot,":player","trp_temp_array_a",":slot"),
+          # (player_is_active,":player"),
+          # (player_get_team_no,":team",":player"),
+          # (is_between,":team",0,2),
+          # (val_add,":team",1),
+          # (val_mod,":team",2),
+          # (call_script,"script_mp_change_player_team",":player",":team"),
+          # (val_add,":team",10),
+          # (player_set_slot,":player",slot_player_forced_team_change,":team"),
+          # (multiplayer_send_message_to_player,":player",multiplayer_event_force_start_team_selection),
+          # (try_end),
+          # (assign,":number_of_players_will_be_moved",0),
+          # (try_end),
           #######
           #number of players will be moved calculated. (it is 0 if no need to make team balance)
           (try_begin),
@@ -5276,7 +5276,7 @@ multi_missions = [
             (player_get_agent_id, ":player_agent", ":player_no"),
             (ge, ":player_agent", 0),
             (agent_is_alive, ":player_agent"),
-            (player_get_team_no,":p_team",":player"),
+            (player_get_team_no,":p_team",":player_no"),
             (try_begin),
               (eq,":p_team",0),#don't save items for peasants
               (agent_get_troop_id,":troop",":player_agent"),

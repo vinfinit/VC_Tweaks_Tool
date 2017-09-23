@@ -47,6 +47,39 @@ common_presentation_switcher = (
     (assign, "$switch_presentation_new", 0),
 ])
 
+common_controller_keys = (
+  0, .25, .75, [
+    (key_clicked, key_pad_rup),
+    ], [
+    (assign, "$controller_in_use", 1),
+    (try_begin),
+      (eq, "$controller_keys", 1),
+      (presentation_set_duration, 0),
+      
+    (else_try),
+      (key_is_down, key_pad_rup),  #player is holding key down?
+      (gt, "$player_functions", 0), #there are functions to access?
+      (assign, "$controller_keys", 1),
+      
+      #shut down engine's use of keys
+      (omit_key_once, key_pad_rdown),
+      (omit_key_once, key_pad_rright),
+      (omit_key_once, key_pad_rleft),
+      (omit_key_once, key_pad_rup),
+      (presentation_set_duration, 0),
+      (assign, "$switch_presentation_new", "prsnt_console_player_functions"),
+    (try_end),
+])
+
+common_controller_keys_end = (
+  .25, 0, 0, [
+    (neg|is_presentation_active, "prsnt_console_player_functions"),
+    (eq, "$controller_keys", 1),
+    ], [
+    (assign, "$controller_keys", 0),
+    (clear_omitted_keys),
+])
+
 vc_menu = [
   (0, 0, ti_once, [(neq, "$vc_menu_active", 0),],	# This is starting the presentation
     [
@@ -458,7 +491,7 @@ vc_courage = [			# 4 trigger
         
         (store_random_in_range, ":randomized_addition_courage", 0, 3000), #average : 1500
         (val_add, ":initial_courage_score", ":randomized_addition_courage"),
-         
+        
         (try_begin),
           (eq, TWEAK_LOW_LEVEL_UNITS_ARE_COWARDS, 1),
           (store_character_level, ":troop_level", ":troop_id"),
@@ -467,7 +500,7 @@ vc_courage = [			# 4 trigger
           (val_sub, ":initial_courage_score", ":troop_level"),
           (val_sub, ":initial_courage_score", ":randomized_addition_courage"),
         (try_end),
-
+        
         (agent_get_party_id, ":agent_party", ":agent_no"),
         (party_get_morale, ":cur_morale", ":agent_party"),
         
@@ -960,18 +993,18 @@ dog_companion =	[		# 7 trigger
       (eq, ":dead_agent_no", "$player_dog_agent_no"),
     ],
     [
-      (store_random_in_range, ":rand", 1, 11),
-      (try_begin),
-        (eq, 1, 0),#VC-3394
-        (eq, ":rand", 10),
-        (agent_set_slot, "$player_dog_agent_no", slot_agent_vc_wounded, -1),
-        #(display_message, "@{!}TEST: Dog should be shown as dead!"),
-        (assign, "$dog_companion", 0),
-        (str_store_string, s7, "@Dog"),
-        (troop_set_name, "trp_dog", s7),
-      (else_try),
-        (agent_set_slot, "$player_dog_agent_no", slot_agent_vc_wounded, 1),
-      (end_try),
+      # (store_random_in_range, ":rand", 1, 11),
+      # (try_begin),
+      # (eq, 1, 0),#VC-3394
+      # (eq, ":rand", 10),
+      # (agent_set_slot, "$player_dog_agent_no", slot_agent_vc_wounded, -1),
+      # #(display_message, "@{!}TEST: Dog should be shown as dead!"),
+      # (assign, "$dog_companion", 0),
+      # (str_store_string, s7, "@Dog"),
+      # (troop_set_name, "trp_dog", s7),
+      # (else_try),
+      (agent_set_slot, "$player_dog_agent_no", slot_agent_vc_wounded, 1),
+      # (end_try),
       (agent_get_horse, ":horse", "$player_dog_agent_no"),
       (gt, ":horse", 0),
       (agent_deliver_damage_to_agent, ":horse", ":horse", 1000),
@@ -998,30 +1031,30 @@ dog_companion =	[		# 7 trigger
   
   #KILL DOG ON DISMOUNT 1
   (ti_on_agent_dismount, 0, 0, [
-    (eq, "$dog_companion", 1),
-    (store_trigger_param_1, ":agent_id"),
-    (eq, ":agent_id", "$player_dog_agent_no"),
-  ], [
-    (assign, "$dog_order", -2),
-    (store_trigger_param_2, "$alpha_animal"),
+      (eq, "$dog_companion", 1),
+      (store_trigger_param_1, ":agent_id"),
+      (eq, ":agent_id", "$player_dog_agent_no"),
+      ], [
+      (assign, "$dog_order", -2),
+      (store_trigger_param_2, "$alpha_animal"),
   ]),
   
   #KILL DOG ON DISMOUNT 2
   (0.5, 0.5, 0, [
-    (eq, "$dog_companion", 1),
-    (eq, "$dog_order", -2),
-  ], [
-    (assign, "$dog_order", -1),
-    (try_begin),
-      (agent_is_active, "$player_dog_agent_no"),
-      (agent_is_alive, "$player_dog_agent_no"),
-      (agent_deliver_damage_to_agent, "$player_dog_agent_no", "$player_dog_agent_no", 1000),
-    (end_try),
-    (try_begin),
-      (agent_is_active, "$alpha_animal"),
-      (agent_is_alive, "$alpha_animal"),
-      (agent_deliver_damage_to_agent, "$alpha_animal", "$alpha_animal", 1000),
-    (end_try),
+      (eq, "$dog_companion", 1),
+      (eq, "$dog_order", -2),
+      ], [
+      (assign, "$dog_order", -1),
+      (try_begin),
+        (agent_is_active, "$player_dog_agent_no"),
+        (agent_is_alive, "$player_dog_agent_no"),
+        (agent_deliver_damage_to_agent, "$player_dog_agent_no", "$player_dog_agent_no", 1000),
+      (end_try),
+      (try_begin),
+        (agent_is_active, "$alpha_animal"),
+        (agent_is_alive, "$alpha_animal"),
+        (agent_deliver_damage_to_agent, "$alpha_animal", "$alpha_animal", 1000),
+      (end_try),
   ]),
   
   (1, 0, 0, [(eq, "$dog_companion", 1),],
@@ -1502,133 +1535,7 @@ logger_ti_on_agent_hit_for_damaged_detected = (
     
     (display_message, "@Dmg detected: {reg40}|    Wpn:{reg41}|Bone:{reg42}|Wpn:{s50}", ":color"),
 ])
-common_gear_check = [	#3 triggers; has to go before dedal_leg_check
-  #Armor randomization
-  (ti_on_agent_spawn, 0, 0, [],
-    [
-      (store_trigger_param_1, ":agent_no"),
-      (agent_is_human, ":agent_no"),
-      (agent_is_alive, ":agent_no"),
-      (agent_is_non_player, ":agent_no"),
-      (agent_get_item_slot, ":cur_armor", ":agent_no", ek_body),
-      (agent_get_troop_id, ":troop", ":agent_no"),
-      (neg|troop_is_hero,":troop"),
-      (troop_get_inventory_capacity, ":end_cond", ":troop"),
-      (assign, ":result", -1),
-      (assign, ":slot_no", 0),
-      (try_for_range, ":i_slot", 0, ":end_cond"),
-        (troop_get_inventory_slot, ":item_id", ":troop", ":i_slot"),
-        (gt,":item_id",0),
-        (item_get_type, ":item_type", ":item_id"),
-        (eq, ":item_type", itp_type_body_armor),
-        (troop_get_inventory_slot_modifier, ":item_imod", ":troop", ":i_slot"),
-        (troop_set_slot, "trp_temp_array_b", ":slot_no", ":item_id"),
-        (troop_set_slot, "trp_temp_array_a", ":slot_no", ":item_imod"),
-        (val_add, ":slot_no", 1),
-      (try_end),
-      (try_for_range, ":unused", 0, 2),
-        (call_script, "script_shuffle_troop_slots",  "trp_temp_array_b",0,":slot_no"),
-      (try_end),
-      (gt, ":slot_no", 0),
-      (store_mul, ":slot10", ":slot_no",10),
-      (try_for_range, ":unused", 0, 6),
-        (store_random_in_range, ":result", 0, ":slot10"),
-      (try_end),
-      (val_div, ":result", 10),
-      (try_begin),
-        (gt, ":slot_no", 6),
-        (store_div, ":half", ":slot_no", 2),
-        (eq, ":result", ":half"),
-        #			(display_log_message, "@Half!"),
-        (store_random_in_range, ":rand", -2,3),
-        (val_add, ":result", ":rand"),
-      (try_end),
-      (neq, ":result", -1),
-      (store_random_in_range, ":imod", 0, ":slot_no"),
-      (troop_get_slot, ":cur_slot", "trp_temp_array_b", ":result"),
-      (troop_get_slot, ":cur_imod", "trp_temp_array_a", ":imod"),
-      (neq, ":cur_slot", ":cur_armor"),
-      #		(str_store_item_name, s24, ":cur_armor"),
-      #		(str_store_item_name, s23, ":cur_slot"),
-      #		(assign, reg24, ":cur_armor"),
-      #		(assign, reg23, ":cur_slot"),
-      #		(assign, reg25, ":agent_no"),
-      #		(assign, reg26, ":result"),
-      (try_begin),
-        (gt, ":cur_armor", -1),
-        (agent_unequip_item, ":agent_no",":cur_armor"),
-      (try_end),
-      (agent_equip_item, ":agent_no",":cur_slot",ek_body, ":cur_imod"),
-      #		(display_log_message, "@{!}{reg25} - Removed {s24}({reg24}), equipped {s23} ({reg23}), slot is {reg26}"),
-  ]),
-  
-  (1,0,2,[],
-    [(try_for_agents, ":agent_no"),
-        (agent_is_non_player, ":agent_no"),
-        (agent_is_human, ":agent_no"),
-        (agent_is_alive, ":agent_no"),
-        (agent_get_troop_id, ":troop", ":agent_no"),
-        (troop_is_guarantee_horse, ":troop"),
-        (agent_get_horse, ":horse", ":agent_no"),
-        (le, ":horse", 0),
-        (agent_get_wielded_item, ":wielded_item", ":agent_no", 0),
-        (gt, ":wielded_item", 0),
-        (is_between, ":wielded_item", "itm_war_spear1", "itm_standard"),
-        (agent_unequip_item, ":agent_no", ":wielded_item"),
-        (call_script, "script_equip_best_melee_weapon", ":agent_no", 0, 0, 1),
-        (try_begin),
-          (eq, "$cheat_mode", 1),
-          (str_store_troop_name, s33, ":troop"),
-          (display_message, "@{s33} changes weapons"),
-        (try_end),
-      (try_end),
-  ]),
-  
-  (2, 0, 10,[],
-    [(try_for_agents, ":agent_no"),
-        (agent_is_non_player, ":agent_no"),
-        (agent_is_human, ":agent_no"),
-        (agent_is_alive, ":agent_no"),
-        (agent_get_troop_id, ":troop", ":agent_no"),
-        (agent_get_wielded_item, ":wielded_item", ":agent_no", 0),
-        (gt, ":wielded_item", 0),
-        (item_get_type, ":weapon_type", ":wielded_item"),
-        (troop_is_guarantee_ranged, ":troop"),
-        (try_begin),
-          (eq,":weapon_type", itp_type_pistol),
-          (agent_get_position, pos0, ":agent_no"),
-          #				(agent_get_team, ":team", ":agent_no"),
-          (agent_ai_get_num_cached_enemies, ":num_nearby_agents", ":agent_no"),
-          (try_for_range, reg0, 0, ":num_nearby_agents"),
-            (agent_ai_get_cached_enemy, ":enemy_agent", ":agent_no", reg0),
-            (agent_is_alive, ":enemy_agent"),
-            (agent_is_human, ":enemy_agent"),
-            (agent_get_position, pos1, ":enemy_agent"),
-            #				(agent_get_slot, ":closest_enemy", ":agent_no", slot_agent_nearest_enemy_agent),
-            
-            #               (try_for_agents, ":enemy_agent"),
-            #                   (agent_is_alive, ":enemy_agent"),
-            #                    (agent_is_human, ":enemy_agent"),
-            #					(agent_get_team, ":enemy_team", ":enemy_agent"),
-            #					(teams_are_enemies, ":team", ":enemy_team"),
-            #                   (agent_get_position, pos1, ":enemy_agent"),
-            (get_distance_between_positions, ":distance", pos0, pos1),
-            (lt, ":distance", 2000),
-            (assign, ":end", ek_head),
-            (try_for_range, ":slot", ek_item_0, ":end"),
-              (agent_get_item_slot, ":cur_weapon", ":agent_no", ":slot"),
-              (gt, ":cur_weapon", -1),
-              (item_get_type, ":weapon_type", ":cur_weapon"),
-              (eq, ":weapon_type", itp_type_thrown),
-              (agent_unequip_item, ":agent_no", ":wielded_item"),
-              (agent_set_wielded_item, ":agent_no", ":cur_weapon"),
-              (assign, ":end", ek_item_0),
-            (try_end),
-          (try_end),
-        (try_end),
-      (try_end),
-  ]),
-]
+
 common_realistic_casualties =(
   ti_on_agent_killed_or_wounded, 0, 0, [],
   [
@@ -1857,18 +1764,135 @@ ai_horn = [ #3 triggers
   ]),
   
 ]
-player_trait = [  #2 triggers
+
+creeping = [  #4 triggers; requires common_controller_keys*, init $player_functions
+  (ti_before_mission_start, 0, 0, [], [
+      (assign, "$player_is_creeping", 0),
+  ]),
+  
+  (0, 0, 0, [
+      (game_key_clicked, gk_crouch),
+      ], [
+      (get_player_agent_no, ":player_agent"),
+      (try_begin),
+        (eq, "$player_is_creeping", 1),
+        (assign, "$player_is_creeping", 0),
+        (call_script, "script_advanced_agent_set_speed_modifier", ":player_agent", 100),
+        (agent_set_accuracy_modifier, ":player_agent", 100),
+        (agent_set_walk_forward_animation, ":player_agent", "anim_walk_forward"),
+      (else_try),
+        (neg|troop_is_mounted, "trp_player"),
+        (neg|main_hero_fallen),
+        (assign, "$player_is_creeping", 1),
+        (call_script, "script_advanced_agent_set_speed_modifier", ":player_agent", 40),
+        (agent_set_accuracy_modifier, ":player_agent", 125),
+        (agent_set_walk_forward_animation, ":player_agent", "anim_walk_forward_crouch"),
+      (end_try),
+  ]),
+  
+  (0, 0, 0, [
+      (key_clicked, key_pad_rdown),
+      (eq, "$controller_keys", 1),
+      ], [
+      (try_begin),
+        (store_and, reg1, "$player_functions", player_func_creeping),
+        (neq, reg1, 0),
+        
+        (get_player_agent_no, ":player_agent"),
+        (try_begin),
+          (eq, "$player_is_creeping", 1),
+          (assign, "$player_is_creeping", 0),
+          (call_script, "script_advanced_agent_set_speed_modifier", ":player_agent", 100),
+          (agent_set_accuracy_modifier, ":player_agent", 100),
+          (agent_set_walk_forward_animation, ":player_agent", "anim_walk_forward"),
+        (else_try),
+          (neg|troop_is_mounted, "trp_player"),
+          (neg|main_hero_fallen),
+          (assign, "$player_is_creeping", 1),
+          (call_script, "script_advanced_agent_set_speed_modifier", ":player_agent", 40),
+          (agent_set_accuracy_modifier, ":player_agent", 125),
+          (agent_set_walk_forward_animation, ":player_agent", "anim_walk_forward_crouch"),
+        (end_try),
+      (try_end),
+      
+      # (assign, "$controller_keys", 0), common_controller_keys_end
+      (presentation_set_duration, 0),
+      # (clear_omitted_keys),
+  ]),
+  
+  #action that cancels creeping?
+  (0, 0, 0, [
+      (eq, "$player_is_creeping", 1),
+      (eq, "$controller_keys", 0),
+      
+      (this_or_next|game_key_clicked, gk_action), #mounting horse, etc.
+      (this_or_next|game_key_clicked, gk_jump),
+      (this_or_next|game_key_clicked, gk_kick),
+      (game_key_is_down, gk_defend),
+      ], [
+      (assign, "$player_is_creeping", 0),
+      (get_player_agent_no, ":player_agent"),
+      (agent_set_crouch_mode, ":player_agent", 0),
+      (call_script, "script_advanced_agent_set_speed_modifier", ":player_agent", 100),
+      (agent_set_accuracy_modifier, ":player_agent", 100),
+      # (agent_set_animation, ":player_agent", "anim_crouch_to_stand", 0),
+      # (agent_set_stand_animation, ":player_agent", "anim_stand"),
+      (agent_set_walk_forward_animation, ":player_agent", "anim_walk_forward"),
+  ]),
+  
+  (0, 0, 0, [
+      (eq, "$player_is_creeping", 1),
+      (neg|troop_is_mounted, "trp_player"),
+      (neg|main_hero_fallen),
+      ], [
+      (get_player_agent_no, ":player_agent"),
+      
+      #animation does not work with weapon
+      (try_begin),
+        (game_key_is_down, gk_move_forward),
+        (agent_get_wielded_item, reg1, ":player_agent", 0),
+        (gt, reg1, 0),
+        (agent_set_wielded_item, ":player_agent", -1),
+      (try_end),
+      
+      #lost animation?
+      (agent_get_animation, reg1, ":player_agent", 0),
+      (try_begin),
+        (neq, reg1, "anim_walk_forward_crouch"),
+        
+        (call_script, "script_advanced_agent_set_speed_modifier", ":player_agent", 40),
+        (agent_set_walk_forward_animation, ":player_agent", "anim_walk_forward_crouch"),
+      (try_end),
+      
+      #lost crouch?
+      (agent_get_crouch_mode, reg1, ":player_agent"),
+      (try_begin),
+        (eq, reg1, 0),
+        (neg|game_key_is_down, gk_move_forward),  #let animation work
+        (neg|game_key_is_down, gk_move_backward),
+        (neg|game_key_is_down, gk_move_left),
+        (neg|game_key_is_down, gk_move_right),
+        (neg|game_key_is_down, gk_attack),  #don't disrupt attack
+        (agent_set_crouch_mode, ":player_agent", 1),
+      (try_end),
+  ]),
+]
+
+player_trait = [  #3 triggers; requires common_controller_keys*, init $player_functions
+  (ti_before_mission_start, 0, 0, [], [
+      (assign, "$warcry_loading", 0),
+  ]),
+  
   (0, 0, 3,
     [
       (key_clicked, key_t),
-      (this_or_next|eq, "$player_trait", 1),
-      (				eq, "$player_trait", 2),
+      (neg|main_hero_fallen),
     ],
     [
       (try_begin),
         (eq, "$player_trait", 1),
         (call_script,"script_berserk_trigger"),
-        #
+        
       (else_try),
         (eq, "$player_trait", 2),
         (le, "$warcry_loading", 0),
@@ -1881,21 +1905,8 @@ player_trait = [  #2 triggers
           (agent_set_damage_modifier, ":cur_agent", 105),
           (call_script,"script_agent_perform_warcry", ":cur_agent"),
         (end_try),
-      (end_try),
-  ]),
-  (0, 0, 1,
-    [
-      (try_begin),
-        (gt, "$warcry_loading", 0),
-        (val_sub, "$warcry_loading", 1),
-      (end_try),
-      
-      (key_is_down, key_t),
-      (this_or_next|eq, "$player_trait", 3),
-      (				eq, "$player_trait", 4),
-    ],
-    [
-      (try_begin),
+        
+      (else_try),
         (eq, "$player_trait", 3),
         (try_for_agents, ":cur_agent"),#effect
           (agent_is_human, ":cur_agent"),
@@ -1904,7 +1915,7 @@ player_trait = [  #2 triggers
           (call_script,"script_agent_perform_shield_taunt", ":cur_agent"),
           (call_script, "script_advanced_agent_set_speed_modifier", ":cur_agent", 110),
         (end_try),
-        #
+        
       (else_try),
         (eq, "$player_trait", 4),
         (call_script,"script_shield_taunt_trigger"),
@@ -1920,7 +1931,74 @@ player_trait = [  #2 triggers
         (end_try),
       (end_try),
   ]),
+  
+  (0, 0, 0, [
+      (key_clicked, key_pad_rleft),
+      (eq, "$controller_keys", 1),
+      ], [
+      (try_begin),
+        (store_and, reg1, "$player_functions", player_func_trait),
+        (neq, reg1, 0),
+        (neg|main_hero_fallen),
+        
+        (try_begin),
+          (eq, "$player_trait", 1),
+          (call_script,"script_berserk_trigger"),
+          
+        (else_try),
+          (eq, "$player_trait", 2),
+          (le, "$warcry_loading", 0),
+          (assign, "$warcry_loading", 10),
+          (try_for_agents, ":cur_agent"),#effect
+            (agent_is_human, ":cur_agent"),
+            (agent_is_alive, ":cur_agent"),
+            (agent_is_active,":cur_agent"),
+            (agent_is_ally, ":cur_agent"),
+            (agent_set_damage_modifier, ":cur_agent", 105),
+            (call_script,"script_agent_perform_warcry", ":cur_agent"),
+          (end_try),
+          
+        (else_try),
+          (eq, "$player_trait", 3),
+          (try_for_agents, ":cur_agent"),#effect
+            (agent_is_human, ":cur_agent"),
+            (agent_is_alive, ":cur_agent"),
+            (agent_is_ally, ":cur_agent"),
+            (call_script,"script_agent_perform_shield_taunt", ":cur_agent"),
+            (call_script, "script_advanced_agent_set_speed_modifier", ":cur_agent", 110),
+          (end_try),
+          
+        (else_try),
+          (eq, "$player_trait", 4),
+          (call_script,"script_shield_taunt_trigger"),
+          (try_for_agents, ":cur_agent"),#effect
+            (agent_is_human, ":cur_agent"),
+            (agent_is_alive, ":cur_agent"),
+            (try_begin),
+              (agent_is_ally, ":cur_agent"),
+              (call_script,"script_agent_perform_shield_taunt", ":cur_agent"),
+            (else_try),
+              (agent_set_damage_modifier, ":cur_agent", 95),
+            (end_try),
+          (end_try),
+        (end_try),
+      (try_end),
+      
+      # (assign, "$controller_keys", 0), common_controller_keys_end
+      (presentation_set_duration, 0),
+      # (clear_omitted_keys),
+  ]),
+  
+  (0, 0, 1,
+    [
+      (gt, "$warcry_loading", 0),
+    ],
+    [
+      (val_sub, "$warcry_loading", 1),
+  ]),
+  
 ]
+
 ai_lord_trait =	[		# 4 trigger
   #VC-1635 begins
   (ti_before_mission_start, 0, 0, [],
@@ -2003,37 +2081,6 @@ ai_lord_trait =	[		# 4 trigger
       (assign, "$enemy_lord_trait", -1),
   ]),
   #VC-1635 ends
-]
-call_horse =	[		# 2 trigger
-  #VC-1729 begins
-  (0, 0, ti_once,
-    [],
-    [
-      (assign, "$player_horse_agent_no", -1),
-      (store_skill_level, ":skill", "skl_riding", "trp_player"),
-      (ge, ":skill", 4),	#need riding skill 4 to call horse
-      (get_player_agent_no, ":player_agent"),
-      (gt, ":player_agent", -1),
-      (agent_is_alive, ":player_agent"),
-      (agent_get_horse, "$player_horse_agent_no", ":player_agent"),
-  ]),
-  
-  (0, 0, 0,
-    [
-      (key_clicked, key_h),
-      (gt, "$player_horse_agent_no", -1),
-      (agent_is_alive, "$player_horse_agent_no"),
-      (get_player_agent_no, ":player_agent"),
-      (agent_is_alive, ":player_agent"),
-      (agent_get_rider, ":rider", "$player_horse_agent_no"),
-      (neq, ":rider", ":player_agent"),
-      (agent_get_position, pos1, ":player_agent"),
-    ],
-    [
-      (agent_set_scripted_destination, "$player_horse_agent_no", pos1),
-      (display_message, "@You call your horse..."),
-  ]),
-  #VC-1729 ends
 ]
 core_ship_system = [	# 7 trigger
   (ti_before_mission_start, 0, ti_once, [],		#preparations
@@ -2157,8 +2204,12 @@ core_ship_system = [	# 7 trigger
       #(scene_prop_get_num_instances, ":number_of_ships", "spr_dyn_ship_substrate"),
       (try_for_range,":ship_number", 0, "$number_of_ships_global"),
         (try_begin),
+          (this_or_next|eq, "$coastal_battle", 0),  #don't play ship sound in coastal battle unless player has a ship
+          (eq, ":ship_number", "$player_ship_number"),
+          
           (this_or_next|eq, ":ship_number", "$player_ship_number"),
           (eq, ":ship_number", 0),		# Only 2 ships max
+          
           (scene_prop_get_instance, ":ship_instance", "spr_dyn_ship_substrate", ":ship_number"),
           (scene_prop_get_slot, ":speed", ":ship_instance", scene_prop_last_speed),
           (scene_prop_get_slot, ":sound", ":ship_instance", scene_prop_sound),
@@ -3097,51 +3148,45 @@ common_maritime_deselect_all =(
 ])
 coastal_defender_formation = [
   # for coastal batlle only
-  (1, 0, ti_once, [],
+  (1, 0, ti_once, [(eq, "$first_ship_landet", 0)],
     [
-      (try_begin),
-        (eq, "$first_ship_landet", 0),
-        (assign, ":agent_counter", 0),
-        (try_for_agents,":agent"),
-          (agent_is_alive,":agent"),
-          (agent_is_human,":agent"),
-          (agent_is_non_player, ":agent"),
-          (agent_get_team, ":team", ":agent"),
-          (eq, ":team", 0),
-          (try_begin),
-            (le, ":agent_counter", 0),
-            (entry_point_get_position, pos4, 50),
-            (position_move_x, pos4, -1000),
-          (else_try),
-            (this_or_next|eq, ":agent_counter", 21),
-            (this_or_next|eq, ":agent_counter", 41),
-            (this_or_next|eq, ":agent_counter", 61),
-            (eq, ":agent_counter", 81),
-            (position_move_y, pos4, -100),
-            (position_move_x, pos4, -2000),
-          (end_try),
-          (agent_set_scripted_destination,":agent",pos4,0),
-          (position_move_x, pos4, 100),
-          (val_add, ":agent_counter", 1),
+      (assign, ":agent_counter", 0),
+      (try_for_agents,":agent"),
+        (agent_is_alive,":agent"),
+        (agent_is_human,":agent"),
+        (agent_is_non_player, ":agent"),
+        (agent_get_team, ":team", ":agent"),
+        (eq, ":team", 0),
+        (try_begin),
+          (le, ":agent_counter", 0),
+          (entry_point_get_position, pos4, 50),
+          (position_move_x, pos4, -1000),
+        (else_try),
+          (this_or_next|eq, ":agent_counter", 21),
+          (this_or_next|eq, ":agent_counter", 41),
+          (this_or_next|eq, ":agent_counter", 61),
+          (eq, ":agent_counter", 81),
+          (position_move_y, pos4, -100),
+          (position_move_x, pos4, -2000),
         (end_try),
+        (agent_set_scripted_destination,":agent",pos4,0),
+        (position_move_x, pos4, 100),
+        (val_add, ":agent_counter", 1),
       (end_try),
   ]),
   
-  (1, 0, 0, [],
+  (1, 0, 0, [(eq, "$first_ship_landet", 1)],
     [
-      (try_begin),
-        (eq, "$first_ship_landet", 1),
-        (try_for_agents,":agent"),
-          (agent_is_alive,":agent"),
-          (agent_is_human,":agent"),
-          (agent_is_non_player, ":agent"),
-          (agent_get_team, ":team", ":agent"),
-          (eq, ":team", 0),
-          (agent_clear_scripted_mode, ":agent"),
-          (agent_ai_set_aggressiveness, ":agent", 299), #!
-        (end_try),
-        (assign, "$first_ship_landet", 2),
-      (try_end),
+      (try_for_agents,":agent"),
+        (agent_is_alive,":agent"),
+        (agent_is_human,":agent"),
+        (agent_is_non_player, ":agent"),
+        (agent_get_team, ":team", ":agent"),
+        (eq, ":team", 0),
+        (agent_clear_scripted_mode, ":agent"),
+        (agent_ai_set_aggressiveness, ":agent", 299), #!
+      (end_try),
+      (assign, "$first_ship_landet", 2),
   ]),
 ]
 player_only_drowning =(	#VC-3182
@@ -3179,80 +3224,6 @@ common_remove_banner_and_pole =(
     (try_end),
     ],[])
 
-berserker_ai_mode = [ #4 triggers
-  (ti_on_agent_spawn, 0, 0, [],
-    [
-      (store_trigger_param_1, ":agent_no"),
-      (agent_get_troop_id, ":troop_id", ":agent_no"),
-      (this_or_next|eq,":troop_id","trp_sea_raider_leader"), #berserker
-      (eq,":troop_id","trp_looter_leader"), #Ulfhedinn
-      (agent_set_slot,":agent_no",slot_agent_berserk_modeon,0),
-  ]),
-  
-  (0, 20, 0,
-    [
-      (store_mission_timer_a, ":cur_time"),
-      (gt, ":cur_time", 15),#
-    ],
-    [
-      (try_for_agents, ":agent"),
-        (agent_is_human, ":agent"),
-        (agent_is_alive, ":agent"),
-        (agent_is_active,":agent"),
-        (agent_slot_eq,":agent",slot_agent_berserk_modeon,0),
-        (agent_get_troop_id, ":troop_id", ":agent"),
-        (this_or_next|eq,":troop_id","trp_sea_raider_leader"), #berserker
-        (eq,":troop_id","trp_looter_leader"), #Ulfhedinn
-        (store_random_in_range, ":rand", 0, 25),
-        (le, ":rand", 1),#
-        (call_script, "script_berserkermode_fortroop_on", ":agent"),
-      (try_end),
-  ]),
-  
-  (ti_on_agent_hit, 0, 0,
-    [
-      (store_mission_timer_a, ":cur_time"),
-      (gt, ":cur_time", 20),
-    ],
-    [
-      (assign, ":reg0_backup", reg0),
-      (store_trigger_param, ":inflicted_agent_id", 1),
-      # (store_trigger_param, ":dealer_agent_id", 2),
-      # (store_trigger_param, ":inflicted_damage", 3),
-      
-      (agent_is_active,":inflicted_agent_id"),
-      (agent_is_human, ":inflicted_agent_id"),
-      (agent_is_alive, ":inflicted_agent_id"),
-      
-      (agent_get_troop_id, ":troop_id", ":inflicted_agent_id"),
-      (this_or_next|eq,":troop_id","trp_sea_raider_leader"), #berserker
-      (eq,":troop_id","trp_looter_leader"), #Ulfhedinn
-      
-      (agent_slot_eq,":inflicted_agent_id",slot_agent_berserk_modeon,0),
-      (store_random_in_range, ":rand", 0, 4),
-      (ge, ":rand", 1),
-      (call_script, "script_berserkermode_fortroop_on", ":inflicted_agent_id"),
-      (assign, reg0, ":reg0_backup"),
-  ]),
-  
-  (0, 15, 0, #berserker mode drop
-    [
-      (store_mission_timer_a, ":cur_time"),
-      (gt, ":cur_time", 10),#
-    ],
-    [
-      (try_for_agents, ":agent"),
-        (agent_is_human, ":agent"),
-        (agent_is_alive, ":agent"),
-        (agent_is_active,":agent"),
-        (agent_slot_eq,":agent",slot_agent_berserk_modeon,1),
-        (agent_get_troop_id, ":troop_id", ":agent"),
-        (this_or_next|eq,":troop_id","trp_sea_raider_leader"), #berserker
-        (eq,":troop_id","trp_looter_leader"), #Ulfhedinn
-        (call_script, "script_berserk_cooldown_modeai_tigger", ":agent"),
-      (try_end),
-  ]),
-]
 common_critical_system =(
   ti_on_agent_hit, 0, 0, [],
   [
@@ -3434,6 +3405,9 @@ extended_battle_menu = [  #15 triggers
       # (assign, "$last_player_trigger", -2),
       (assign, "$native_opening_menu", 0),	#tracks whether the first tier battle menu would normally be showing
       (assign, "$g_presentation_active", 0),	#used here to track whether prsnt_battle is overridden when fake battle menu starts
+      (assign, "$controller_in_use", 0),
+      (assign, "$dpad_menu", menu_none),
+      (assign, "$dpad_menu_row", 0),
   ]),
   
   common_presentation_switcher,
@@ -3459,9 +3433,9 @@ extended_battle_menu = [  #15 triggers
         (is_presentation_active, "prsnt_battle"),
         (assign, "$g_presentation_active", 1),
       (try_end),
+      (presentation_set_duration, 0),
       (try_begin),
-        # (neg|is_presentation_active, "prsnt_battle_command"),
-        (presentation_set_duration, 0),
+        (eq, "$controller_in_use", 0),
         (assign, "$switch_presentation_new", "prsnt_order_display"),
       (try_end),
       (assign, "$native_opening_menu", 1),
@@ -3490,6 +3464,7 @@ extended_battle_menu = [  #15 triggers
   # Trigger file: extended_battle_menu_esc_or_die_out
   (0, 0, 0, [
       (this_or_next|main_hero_fallen),
+      (this_or_next|key_is_down, key_pad_start),
       (key_is_down, key_escape),
       (is_presentation_active, "prsnt_order_display"),
       ],[
@@ -3499,6 +3474,7 @@ extended_battle_menu = [  #15 triggers
   
   (0, 0, 0, [
       (this_or_next|main_hero_fallen),
+      (this_or_next|key_is_down, key_pad_start),
       (key_is_down, key_escape),
       (neq, "$gk_order", 0),
       ],[
@@ -3590,8 +3566,11 @@ extended_battle_menu = [  #15 triggers
           (is_presentation_active, "prsnt_battle"),
           (assign, "$g_presentation_active", 1),
         (try_end),
-        (presentation_set_duration, 0),
-        (assign, "$switch_presentation_new", "prsnt_order_display"),
+        (presentation_set_duration, 0),	#clear main menu additions
+        (try_begin),
+          (eq, "$controller_in_use", 0),
+          (assign, "$switch_presentation_new", "prsnt_order_display"),
+        (try_end),
       (else_try),
         (eq, "$gk_order", gk_order_1),	#FOLLOW
         (assign, "$gk_order", 0),
@@ -3653,8 +3632,11 @@ extended_battle_menu = [  #15 triggers
             (is_presentation_active, "prsnt_battle"),
             (assign, "$g_presentation_active", 1),
           (try_end),
-          (presentation_set_duration, 0),
-          (assign, "$switch_presentation_new", "prsnt_order_display"),
+          (presentation_set_duration, 0),	#clear main menu additions
+          (try_begin),
+            (eq, "$controller_in_use", 0),
+            (assign, "$switch_presentation_new", "prsnt_order_display"),
+          (try_end),
           
           (store_and, reg0, "$first_time", first_time_formations),
           (try_begin),
@@ -3671,8 +3653,11 @@ extended_battle_menu = [  #15 triggers
             (is_presentation_active, "prsnt_battle"),
             (assign, "$g_presentation_active", 1),
           (try_end),
-          (presentation_set_duration, 0),
-          (assign, "$switch_presentation_new", "prsnt_order_display"),
+          (presentation_set_duration, 0),	#clear main menu additions
+          (try_begin),
+            (eq, "$controller_in_use", 0),
+            (assign, "$switch_presentation_new", "prsnt_order_display"),
+          (try_end),
         (try_end),
       (else_try),
         (eq, "$gk_order", gk_order_1),	#STAND GROUND
@@ -3689,17 +3674,7 @@ extended_battle_menu = [  #15 triggers
       (else_try),
         (eq, "$gk_order", gk_order_4),	#FORMATION - RANKS
         (assign, "$gk_order", 0),
-        (call_script, "script_division_reset_places"),
-        (try_for_range, ":division", 0, 9),
-          (class_is_listening_order, "$fplayer_team_no", ":division"),
-          (store_add, ":slot", slot_team_d0_target_team, ":division"),
-          (team_set_slot, "$fplayer_team_no", ":slot", -1),
-          (store_add, ":slot", slot_team_d0_size, ":division"),
-          (team_slot_ge, "$fplayer_team_no", ":slot", 1),
-          (store_add, ":slot", slot_team_d0_fclock, ":division"),
-          (team_set_slot, "$fplayer_team_no", ":slot", 1),
-          (call_script, "script_player_attempt_formation", ":division", formation_ranks, 1),
-        (try_end),
+        (call_script, "script_player_order_extended_formations", formation_ranks),
       (try_end),
   ]),
   
@@ -3715,8 +3690,11 @@ extended_battle_menu = [  #15 triggers
           (is_presentation_active, "prsnt_battle"),
           (assign, "$g_presentation_active", 1),
         (try_end),
-        (presentation_set_duration, 0),
-        (assign, "$switch_presentation_new", "prsnt_order_display"),
+        (presentation_set_duration, 0),	#clear main menu additions
+        (try_begin),
+          (eq, "$controller_in_use", 0),
+          (assign, "$switch_presentation_new", "prsnt_order_display"),
+        (try_end),
       (else_try),
         (eq, "$gk_order", gk_order_1),	#RETREAT
         (assign, "$gk_order", 0),
@@ -3728,17 +3706,7 @@ extended_battle_menu = [  #15 triggers
       (else_try),
         (eq, "$gk_order", gk_order_4), #FORMATION - SHIELDWALL
         (assign, "$gk_order", 0),
-        (call_script, "script_division_reset_places"),
-        (try_for_range, ":division", 0, 9),
-          (class_is_listening_order, "$fplayer_team_no", ":division"),
-          (store_add, ":slot", slot_team_d0_target_team, ":division"),
-          (team_set_slot, "$fplayer_team_no", ":slot", -1),
-          (store_add, ":slot", slot_team_d0_size, ":division"),
-          (team_slot_ge, "$fplayer_team_no", ":slot", 1),
-          (store_add, ":slot", slot_team_d0_fclock, ":division"),
-          (team_set_slot, "$fplayer_team_no", ":slot", 1),
-          (call_script, "script_player_attempt_formation", ":division", formation_shield, 1),
-        (try_end),
+        (call_script, "script_player_order_extended_formations", formation_shield),
       (try_end),
   ]),
   
@@ -3754,8 +3722,11 @@ extended_battle_menu = [  #15 triggers
           (is_presentation_active, "prsnt_battle"),
           (assign, "$g_presentation_active", 1),
         (try_end),
-        (presentation_set_duration, 0),
-        (assign, "$switch_presentation_new", "prsnt_order_display"),
+        (presentation_set_duration, 0),	#clear main menu additions
+        (try_begin),
+          (eq, "$controller_in_use", 0),
+          (assign, "$switch_presentation_new", "prsnt_order_display"),
+        (try_end),
       (else_try),
         (eq, "$gk_order", gk_order_2),	#DISMOUNT
         (assign, "$gk_order", 0),
@@ -3764,17 +3735,7 @@ extended_battle_menu = [  #15 triggers
       (else_try),
         (eq, "$gk_order", gk_order_4), #FORMATION - WEDGE
         (assign, "$gk_order", 0),
-        (call_script, "script_division_reset_places"),
-        (try_for_range, ":division", 0, 9),
-          (class_is_listening_order, "$fplayer_team_no", ":division"),
-          (store_add, ":slot", slot_team_d0_target_team, ":division"),
-          (team_set_slot, "$fplayer_team_no", ":slot", -1),
-          (store_add, ":slot", slot_team_d0_size, ":division"),
-          (team_slot_ge, "$fplayer_team_no", ":slot", 1),
-          (store_add, ":slot", slot_team_d0_fclock, ":division"),
-          (team_set_slot, "$fplayer_team_no", ":slot", 1),
-          (call_script, "script_player_attempt_formation", ":division", formation_wedge, 1),
-        (try_end),
+        (call_script, "script_player_order_extended_formations", formation_wedge),
       (try_end),
   ]),
   
@@ -3790,8 +3751,11 @@ extended_battle_menu = [  #15 triggers
           (is_presentation_active, "prsnt_battle"),
           (assign, "$g_presentation_active", 1),
         (try_end),
-        (presentation_set_duration, 0),
-        (assign, "$switch_presentation_new", "prsnt_order_display"),
+        (presentation_set_duration, 0),	#clear main menu additions
+        (try_begin),
+          (eq, "$controller_in_use", 0),
+          (assign, "$switch_presentation_new", "prsnt_order_display"),
+        (try_end),
       (else_try),
         (eq, "$gk_order", gk_order_2),	#MEMORIZE DIVISION PLACEMENTS
         (call_script, "script_memorize_division_placements"),
@@ -3799,17 +3763,7 @@ extended_battle_menu = [  #15 triggers
       (else_try),
         (eq, "$gk_order", gk_order_4), #FORMATION - SQUARE
         (assign, "$gk_order", 0),
-        (call_script, "script_division_reset_places"),
-        (try_for_range, ":division", 0, 9),
-          (class_is_listening_order, "$fplayer_team_no", ":division"),
-          (store_add, ":slot", slot_team_d0_target_team, ":division"),
-          (team_set_slot, "$fplayer_team_no", ":slot", -1),
-          (store_add, ":slot", slot_team_d0_size, ":division"),
-          (team_slot_ge, "$fplayer_team_no", ":slot", 1),
-          (store_add, ":slot", slot_team_d0_fclock, ":division"),
-          (team_set_slot, "$fplayer_team_no", ":slot", 1),
-          (call_script, "script_player_attempt_formation", ":division", formation_square, 1),
-        (try_end),
+        (call_script, "script_player_order_extended_formations", formation_square),
       (try_end),
   ]),
   
@@ -3825,8 +3779,11 @@ extended_battle_menu = [  #15 triggers
           (is_presentation_active, "prsnt_battle"),
           (assign, "$g_presentation_active", 1),
         (try_end),
-        (presentation_set_duration, 0),
-        (assign, "$switch_presentation_new", "prsnt_order_display"),
+        (presentation_set_duration, 0),	#clear main menu additions
+        (try_begin),
+          (eq, "$controller_in_use", 0),
+          (assign, "$switch_presentation_new", "prsnt_order_display"),
+        (try_end),
       (else_try),
         (eq, "$gk_order", gk_order_2),	#FORGET DIVISION PLACEMENTS (WILL USE DEFAULT)
         (call_script, "script_default_division_placements"),
@@ -3846,6 +3803,230 @@ extended_battle_menu = [  #15 triggers
       (presentation_set_duration, 0),
       (assign, "$switch_presentation_new", "prsnt_battle"),
       (assign, "$g_presentation_active", 0),
+  ]),
+  
+  # Controller triggers
+  (0, 0, .15, [
+      (key_is_down, key_pad_lleft),  #not capturing all clicks
+      (neg|main_hero_fallen)
+      ], [
+      (assign, "$controller_in_use", 1),
+      
+      (try_begin),
+        (eq, "$dpad_menu", menu_none),
+        (assign, "$dpad_menu", menu_left),
+        
+      (else_try),
+        (this_or_next|eq, "$dpad_menu", menu_right_1),
+        (eq, "$dpad_menu", menu_fake_div),
+        (assign, "$dpad_menu", menu_none),
+        (presentation_set_duration, 0),
+        (clear_omitted_keys),
+        
+      (else_try),
+        (assign, "$dpad_menu", menu_none),
+      (try_end),
+  ]),
+  
+  (0, 0, .15, [
+      (key_is_down, key_pad_lright),
+      (neg|main_hero_fallen)
+      ], [
+      (assign, "$controller_in_use", 1),
+      
+      (try_begin),
+        (this_or_next|eq, "$dpad_menu", menu_left),
+        (eq, "$dpad_menu", menu_none),
+        
+        (assign, "$dpad_menu", menu_right_1),
+        (assign, "$dpad_menu_row", 0),
+        (assign, "$switch_presentation_new", "prsnt_console_main_menu_extended"),
+        (omit_key_once, key_pad_lup),
+        
+      (else_try),
+        (eq, "$dpad_menu", menu_right_1),
+        
+        (try_begin),
+          (eq, "$dpad_menu_row", menu_right_max+1), #invoking fake menu
+          
+          (assign, "$dpad_menu", menu_fake_div),
+          (assign, "$dpad_menu_row", 0),
+          (presentation_set_duration, 0),
+          (assign, "$switch_presentation_new", "prsnt_console_division_menu"),
+          
+          #shut down Native menus
+          (close_order_menu),
+          (omit_key_once, key_pad_lup),
+          (omit_key_once, key_pad_ldown),
+          (omit_key_once, key_pad_lleft),
+          (omit_key_once, key_pad_lright),
+          
+        (else_try),
+          (assign, "$dpad_menu", menu_right_2),
+          (presentation_set_duration, 0),
+          (clear_omitted_keys),
+        (try_end),
+        
+      (else_try),
+        (eq, "$dpad_menu", menu_fake_div),
+        (assign, "$dpad_menu", menu_none),
+        (presentation_set_duration, 0),
+        (clear_omitted_keys),
+        
+        #implement menu selection (prsnt_console_division_menu)
+        (try_begin),
+          (eq, "$dpad_menu_row", 0),
+          (try_begin),
+            (eq, "$FormAI_off", 0),
+            (call_script, "script_player_order_extended_formations", formation_ranks),
+          (else_try),
+            (call_script, "script_player_order_regular_formations", formation_5_row),
+          (try_end),
+          
+        (else_try),
+          (eq, "$dpad_menu_row", 1),
+          (try_begin),
+            (eq, "$FormAI_off", 0),
+            (call_script, "script_player_order_extended_formations", formation_shield),
+          (else_try),
+            (call_script, "script_player_order_regular_formations", formation_4_row),
+          (try_end),
+          
+        (else_try),
+          (eq, "$dpad_menu_row", 2),
+          (try_begin),
+            (eq, "$FormAI_off", 0),
+            (call_script, "script_player_order_extended_formations", formation_wedge),
+          (else_try),
+            (call_script, "script_player_order_regular_formations", formation_3_row),
+          (try_end),
+          
+        (else_try),
+          (eq, "$dpad_menu_row", 3),
+          (try_begin),
+            (eq, "$FormAI_off", 0),
+            (call_script, "script_player_order_extended_formations", formation_square),
+          (else_try),
+            (call_script, "script_player_order_regular_formations", formation_2_row),
+          (try_end),
+          
+        (else_try),
+          (eq, "$dpad_menu_row", 4),
+          (try_begin),
+            (eq, "$FormAI_off", 0),
+            (call_script, "script_player_order_formations", mordr_charge),  #cancel formation
+          (else_try),
+            (call_script, "script_player_order_regular_formations", formation_1_row),
+          (try_end),
+          
+        (else_try),
+          (eq, "$dpad_menu_row", 5),
+          (call_script, "script_memorize_division_placements"),
+        (else_try),
+          (eq, "$dpad_menu_row", 6),
+          (call_script, "script_default_division_placements"),
+        (try_end),
+        
+      (else_try),
+        (assign, "$dpad_menu", menu_none),
+      (try_end),
+  ]),
+  
+  (0, 0, .15, [
+      (key_is_down, key_pad_lup),
+      (eq, "$dpad_menu", menu_right_1),
+      ], [
+      (assign, "$controller_in_use", 1),
+      (val_sub, "$dpad_menu_row", 1),
+      
+      (try_begin),
+        (lt, "$dpad_menu_row", 0),
+        (assign, "$dpad_menu_row", menu_right_max+1), #VC extension
+        (omit_key_once, key_pad_ldown),  #engine already thinks it's on first option
+        (omit_key_once, key_pad_lright), #so also forbid selection of that menu
+      (else_try),
+        (eq, "$dpad_menu_row", 0),
+        (omit_key_once, key_pad_lup),  #when going to extension; leave behind
+      (else_try),
+        (eq, "$dpad_menu_row", menu_right_max),
+        (omit_key_once, key_pad_ldown),  #when going to extension; leave behind
+      (else_try),
+        (clear_omitted_keys),
+      (try_end),
+      
+      (presentation_set_duration, 0),
+      (start_presentation, "prsnt_console_main_menu_extended"),
+  ]),
+  
+  (0, 0, .15, [
+      (key_is_down, key_pad_ldown),
+      (eq, "$dpad_menu", menu_right_1),
+      ], [
+      (assign, "$controller_in_use", 1),
+      (val_add, "$dpad_menu_row", 1),
+      
+      (try_begin),
+        (gt, "$dpad_menu_row", menu_right_max+1),
+        (assign, "$dpad_menu_row", 0),
+        (omit_key_once, key_pad_lup),  #when going to extension; leave behind
+      (else_try),
+        (eq, "$dpad_menu_row", menu_right_max+1),
+        (omit_key_once, key_pad_lup),  #engine already thinks it's on last option
+        (omit_key_once, key_pad_lright), #so also forbid selection of that menu
+      (else_try),
+        (eq, "$dpad_menu_row", 0),
+        (omit_key_once, key_pad_lup),  #when going to extension; leave behind
+      (else_try),
+        (eq, "$dpad_menu_row", menu_right_max),
+        (omit_key_once, key_pad_ldown),  #when going to extension; leave behind
+      (else_try),
+        (clear_omitted_keys),
+      (try_end),
+      
+      (presentation_set_duration, 0),
+      (start_presentation, "prsnt_console_main_menu_extended"),
+  ]),
+  
+  (0, 0, .15, [
+      (key_is_down, key_pad_lup),
+      (eq, "$dpad_menu", menu_fake_div),
+      ], [
+      (assign, "$controller_in_use", 1),
+      (val_sub, "$dpad_menu_row", 1),
+      
+      (try_begin),
+        (lt, "$dpad_menu_row", 0),
+        (assign, "$dpad_menu_row", menu_fake_div_max),
+      (try_end),
+      (presentation_set_duration, 0),
+      (start_presentation, "prsnt_console_division_menu"),
+      
+      #shut down Native menus
+      (omit_key_once, key_pad_lup),
+      (omit_key_once, key_pad_ldown),
+      (omit_key_once, key_pad_lleft),
+      (omit_key_once, key_pad_lright),
+  ]),
+  
+  (0, 0, .15, [
+      (key_is_down, key_pad_ldown),
+      (eq, "$dpad_menu", menu_fake_div),
+      ], [
+      (assign, "$controller_in_use", 1),
+      (val_add, "$dpad_menu_row", 1),
+      
+      (try_begin),
+        (gt, "$dpad_menu_row", menu_fake_div_max),
+        (assign, "$dpad_menu_row", 0),
+      (try_end),
+      (presentation_set_duration, 0),
+      (start_presentation, "prsnt_console_division_menu"),
+      
+      #shut down Native menus
+      (omit_key_once, key_pad_lup),
+      (omit_key_once, key_pad_ldown),
+      (omit_key_once, key_pad_lleft),
+      (omit_key_once, key_pad_lright),
   ]),
 ]#end extended battle menu
 
@@ -3966,7 +4147,7 @@ common_division_data = [  #4 triggers
 #These triggers process non-Native orders to divisions
 #divorced from whatever command or AI interface (the back end)
 division_order_processing = [ #4 triggers
-  # (0,0,0,[	EXPERIMENT SWITCH ANIMATIONS
+  # (0,0,0,[	#EXPERIMENT SWITCH ANIMATIONS
   # (store_and, reg0, "$cam_mode", camera_follow_terrain),
   # (neq, reg0, 0),
   # ],[
@@ -4006,6 +4187,7 @@ division_order_processing = [ #4 triggers
   # (try_end),
   # (try_end),
   # ]),
+  
   # Trigger file: division_order_processing_before_mission_start
   (ti_before_mission_start, 0, ti_once, [], [
       (assign, "$g_division_order_processing", 1),	#flag showing these functions are active
@@ -4355,7 +4537,7 @@ formations_triggers = [ #4 triggers
       (agent_is_active,":inflicted_agent_id"),
       (agent_is_human, ":inflicted_agent_id"),
       (agent_is_alive, ":inflicted_agent_id"),
-    ], [
+      ], [
       # (assign, ":reg0_backup", reg0),
       (store_trigger_param, ":inflicted_agent_id", 1),
       (store_trigger_param, ":dealer_agent_id", 2),
@@ -4662,10 +4844,10 @@ camera_controls = [ #7 triggers
       (try_begin),
         (gt, reg0, 0),
         (try_begin),
-          (key_is_down, key_w),
+          (game_key_is_down, gk_move_forward),
           (store_mul, ":pan_back_forth", "$cam_speed", 1),
         (else_try),
-          (key_is_down, key_s),
+          (game_key_is_down, gk_move_backward),
           (store_mul, ":pan_back_forth", "$cam_speed", -1),
         (try_end),
       (try_end),
@@ -4675,10 +4857,10 @@ camera_controls = [ #7 triggers
       (try_begin),
         (gt, reg0, 0),
         (try_begin),
-          (key_is_down, key_d),
+          (game_key_is_down, gk_move_right),
           (store_mul, ":pan_right_left", "$cam_speed", 1),
         (else_try),
-          (key_is_down, key_a),
+          (game_key_is_down, gk_move_left),
           (store_mul, ":pan_right_left", "$cam_speed", -1),
         (try_end),
       (try_end),
@@ -5937,7 +6119,156 @@ more_difficult_damage = ( #player less damnage, opponent more damage
     (assign, reg0, ":reg0_backup"),
 ])
 
-common_gore = [ #6 triggers
+#chief listos para aplicar
+battle_mode_triggers = [  #ca. 43 triggers; has to go before dedal_leg_check
+  common_realistic_casualties,
+  sistema_fatiga, #stamina
+  start_display_fatiga, #stamina
+  recupera_fatiga,#stamina
+  suma_fatigue,#stamina
+  suma_fatigue_player,#stamina
+  resta_fatigue_porcorrer,#stamina
+  resta_fatigue,#stamina
+  more_difficult_damage, #insane damage
+  respiracion_moribunda, #respiracion con bloodloss
+  respiracion_moribunda2, #respiracion con bloodloss
+  respiracion_moribunda3, #respiracion con bloodloss
+  common_critical_system,
+  common_critical_system2,
+  common_wound_system,
+  common_weapon_break,
+  common_armor_break,
+  common_drowning,
+  common_disable_ai_crouching,
+  
+  # common_gear_check = [	#3 triggers; has to go before dedal_leg_check
+  #Armor randomization
+  (ti_on_agent_spawn, 0, 0, [],
+    [
+      (store_trigger_param_1, ":agent_no"),
+      (agent_is_human, ":agent_no"),
+      (agent_is_alive, ":agent_no"),
+      (agent_is_non_player, ":agent_no"),
+      (agent_get_item_slot, ":cur_armor", ":agent_no", ek_body),
+      (agent_get_troop_id, ":troop", ":agent_no"),
+      (neg|troop_is_hero,":troop"),
+      (troop_get_inventory_capacity, ":end_cond", ":troop"),
+      (assign, ":result", -1),
+      (assign, ":slot_no", 0),
+      (try_for_range, ":i_slot", 0, ":end_cond"),
+        (troop_get_inventory_slot, ":item_id", ":troop", ":i_slot"),
+        (gt,":item_id",0),
+        (item_get_type, ":item_type", ":item_id"),
+        (eq, ":item_type", itp_type_body_armor),
+        (troop_get_inventory_slot_modifier, ":item_imod", ":troop", ":i_slot"),
+        (troop_set_slot, "trp_temp_array_b", ":slot_no", ":item_id"),
+        (troop_set_slot, "trp_temp_array_a", ":slot_no", ":item_imod"),
+        (val_add, ":slot_no", 1),
+      (try_end),
+      (try_for_range, ":unused", 0, 2),
+        (call_script, "script_shuffle_troop_slots",  "trp_temp_array_b",0,":slot_no"),
+      (try_end),
+      (gt, ":slot_no", 0),
+      (store_mul, ":slot10", ":slot_no",10),
+      (try_for_range, ":unused", 0, 6),
+        (store_random_in_range, ":result", 0, ":slot10"),
+      (try_end),
+      (val_div, ":result", 10),
+      (try_begin),
+        (gt, ":slot_no", 6),
+        (store_div, ":half", ":slot_no", 2),
+        (eq, ":result", ":half"),
+        #			(display_log_message, "@Half!"),
+        (store_random_in_range, ":rand", -2,3),
+        (val_add, ":result", ":rand"),
+      (try_end),
+      (neq, ":result", -1),
+      (store_random_in_range, ":imod", 0, ":slot_no"),
+      (troop_get_slot, ":cur_slot", "trp_temp_array_b", ":result"),
+      (troop_get_slot, ":cur_imod", "trp_temp_array_a", ":imod"),
+      (neq, ":cur_slot", ":cur_armor"),
+      #		(str_store_item_name, s24, ":cur_armor"),
+      #		(str_store_item_name, s23, ":cur_slot"),
+      #		(assign, reg24, ":cur_armor"),
+      #		(assign, reg23, ":cur_slot"),
+      #		(assign, reg25, ":agent_no"),
+      #		(assign, reg26, ":result"),
+      (try_begin),
+        (gt, ":cur_armor", -1),
+        (agent_unequip_item, ":agent_no",":cur_armor"),
+      (try_end),
+      (agent_equip_item, ":agent_no",":cur_slot",ek_body, ":cur_imod"),
+      #		(display_log_message, "@{!}{reg25} - Removed {s24}({reg24}), equipped {s23} ({reg23}), slot is {reg26}"),
+  ]),
+  
+  (1,0,2,[],
+    [(try_for_agents, ":agent_no"),
+        (agent_is_non_player, ":agent_no"),
+        (agent_is_human, ":agent_no"),
+        (agent_is_alive, ":agent_no"),
+        (agent_get_troop_id, ":troop", ":agent_no"),
+        (troop_is_guarantee_horse, ":troop"),
+        (agent_get_horse, ":horse", ":agent_no"),
+        (le, ":horse", 0),
+        (agent_get_wielded_item, ":wielded_item", ":agent_no", 0),
+        (gt, ":wielded_item", 0),
+        (is_between, ":wielded_item", "itm_war_spear1", "itm_standard"),
+        (agent_unequip_item, ":agent_no", ":wielded_item"),
+        (call_script, "script_equip_best_melee_weapon", ":agent_no", 0, 0, 1),
+        (try_begin),
+          (eq, "$cheat_mode", 1),
+          (str_store_troop_name, s33, ":troop"),
+          (display_message, "@{s33} changes weapons"),
+        (try_end),
+      (try_end),
+  ]),
+  
+  (2, 0, 10,[],
+    [(try_for_agents, ":agent_no"),
+        (agent_is_non_player, ":agent_no"),
+        (agent_is_human, ":agent_no"),
+        (agent_is_alive, ":agent_no"),
+        (agent_get_troop_id, ":troop", ":agent_no"),
+        (agent_get_wielded_item, ":wielded_item", ":agent_no", 0),
+        (gt, ":wielded_item", 0),
+        (item_get_type, ":weapon_type", ":wielded_item"),
+        (troop_is_guarantee_ranged, ":troop"),
+        (try_begin),
+          (eq,":weapon_type", itp_type_pistol),
+          (agent_get_position, pos0, ":agent_no"),
+          #				(agent_get_team, ":team", ":agent_no"),
+          (agent_ai_get_num_cached_enemies, ":num_nearby_agents", ":agent_no"),
+          (try_for_range, reg0, 0, ":num_nearby_agents"),
+            (agent_ai_get_cached_enemy, ":enemy_agent", ":agent_no", reg0),
+            (agent_is_alive, ":enemy_agent"),
+            (agent_is_human, ":enemy_agent"),
+            (agent_get_position, pos1, ":enemy_agent"),
+            #				(agent_get_slot, ":closest_enemy", ":agent_no", slot_agent_nearest_enemy_agent),
+            
+            #               (try_for_agents, ":enemy_agent"),
+            #                   (agent_is_alive, ":enemy_agent"),
+            #                    (agent_is_human, ":enemy_agent"),
+            #					(agent_get_team, ":enemy_team", ":enemy_agent"),
+            #					(teams_are_enemies, ":team", ":enemy_team"),
+            #                   (agent_get_position, pos1, ":enemy_agent"),
+            (get_distance_between_positions, ":distance", pos0, pos1),
+            (lt, ":distance", 2000),
+            (assign, ":end", ek_head),
+            (try_for_range, ":slot", ek_item_0, ":end"),
+              (agent_get_item_slot, ":cur_weapon", ":agent_no", ":slot"),
+              (gt, ":cur_weapon", -1),
+              (item_get_type, ":weapon_type", ":cur_weapon"),
+              (eq, ":weapon_type", itp_type_thrown),
+              (agent_unequip_item, ":agent_no", ":wielded_item"),
+              (agent_set_wielded_item, ":agent_no", ":cur_weapon"),
+              (assign, ":end", ek_item_0),
+            (try_end),
+          (try_end),
+        (try_end),
+      (try_end),
+  ]),
+  
+  # common_gore = [ #3 triggers
   #Decapitation
   (ti_on_agent_hit, 0, 0, [
       (neq, "$goredec_on", 0), # SP only. Gore ON from options menu.
@@ -5973,9 +6304,9 @@ common_gore = [ #6 triggers
         -20,
       ":inflicted_agent_id"),
       
-      (call_script, "script_goredec_debug_log",
-        ":inflicted_agent_id",
-      ":attacker_agent_id"),
+      # (call_script, "script_goredec_debug_log",
+      # ":inflicted_agent_id",
+      # ":attacker_agent_id"),
       
       (assign, reg0, ":reg0_backup"),
   ]),
@@ -5989,34 +6320,6 @@ common_gore = [ #6 triggers
       (assign, "$log_number_decapitations", 0),
       (call_script, "script_goredec_player_bonus"),
   ]),
-  
-  #Control speed of agents
-  (0.000, 0.250, 1.000,
-    [
-      (ge, debug_goredec, 1),
-      (key_is_down, key_left_control),
-      (key_clicked, key_1),
-      (display_message, "@Speed 100%"),
-    ],
-    [(call_script, "script_goredec_debug_speed_agents", 100, 1)]),
-  (0.000, 0.250, 1.000,
-    [
-      (ge, debug_goredec, 1),
-      (key_is_down, key_left_control),
-      (key_clicked, key_2),
-      (display_message, "@Speed 400%"),
-    ],
-    [(call_script, "script_goredec_debug_speed_agents", 400, 1)]),
-  (0.000, 0.250, 1.000,
-    [
-      (ge, debug_goredec, 1),
-      (key_is_down, key_left_control),
-      (key_clicked, key_3),
-      (display_message, "@Speed 0 for AI agents"),
-    ],
-    [(call_script, "script_goredec_debug_speed_agents", 0, 0)]),
-  
-  
   
   (10, 0, 0, [],#VC-3296
     [
@@ -6035,30 +6338,164 @@ common_gore = [ #6 triggers
         (end_try),
       (end_try),
   ]),
-]
-
-#chief listos para aplicar
-battle_mode_triggers = [  #ca. 43 triggers
-  common_realistic_casualties,
-  sistema_fatiga, #stamina
-  start_display_fatiga, #stamina
-  recupera_fatiga,#stamina
-  suma_fatigue,#stamina
-  suma_fatigue_player,#stamina
-  resta_fatigue_porcorrer,#stamina
-  resta_fatigue,#stamina
-  more_difficult_damage, #insane damage
-  respiracion_moribunda, #respiracion con bloodloss
-  respiracion_moribunda2, #respiracion con bloodloss
-  respiracion_moribunda3, #respiracion con bloodloss
-  common_critical_system,
-  common_critical_system2,
-  common_wound_system,
-  common_weapon_break,
-  common_armor_break,
-  common_drowning,
-  common_disable_ai_crouching,
-] + dedal_sp_triggers + player_trait + berserker_ai_mode + common_gore+common_gear_check
+  
+  # berserker_ai_mode
+  (ti_on_agent_spawn, 0, 0, [],
+    [
+      (store_trigger_param_1, ":agent_no"),
+      (agent_get_troop_id, ":troop_id", ":agent_no"),
+      (this_or_next|eq,":troop_id","trp_sea_raider_leader"), #berserker
+      (eq,":troop_id","trp_looter_leader"), #Ulfhedinn
+      (agent_set_slot,":agent_no",slot_agent_berserk_modeon,0),
+  ]),
+  
+  (0, 20, 0,
+    [
+      (store_mission_timer_a, ":cur_time"),
+      (gt, ":cur_time", 15),#
+    ],
+    [
+      (try_for_agents, ":agent"),
+        (agent_is_human, ":agent"),
+        (agent_is_alive, ":agent"),
+        (agent_is_active,":agent"),
+        (agent_slot_eq,":agent",slot_agent_berserk_modeon,0),
+        (agent_get_troop_id, ":troop_id", ":agent"),
+        (this_or_next|eq,":troop_id","trp_sea_raider_leader"), #berserker
+        (eq,":troop_id","trp_looter_leader"), #Ulfhedinn
+        (store_random_in_range, ":rand", 0, 25),
+        (le, ":rand", 1),#
+        (call_script, "script_berserkermode_fortroop_on", ":agent"),
+      (try_end),
+  ]),
+  
+  (ti_on_agent_hit, 0, 0,
+    [
+      (store_mission_timer_a, ":cur_time"),
+      (gt, ":cur_time", 20),
+    ],
+    [
+      (assign, ":reg0_backup", reg0),
+      (store_trigger_param, ":inflicted_agent_id", 1),
+      # (store_trigger_param, ":dealer_agent_id", 2),
+      # (store_trigger_param, ":inflicted_damage", 3),
+      
+      (agent_is_active,":inflicted_agent_id"),
+      (agent_is_human, ":inflicted_agent_id"),
+      (agent_is_alive, ":inflicted_agent_id"),
+      
+      (agent_get_troop_id, ":troop_id", ":inflicted_agent_id"),
+      (this_or_next|eq,":troop_id","trp_sea_raider_leader"), #berserker
+      (eq,":troop_id","trp_looter_leader"), #Ulfhedinn
+      
+      (agent_slot_eq,":inflicted_agent_id",slot_agent_berserk_modeon,0),
+      (store_random_in_range, ":rand", 0, 4),
+      (ge, ":rand", 1),
+      (call_script, "script_berserkermode_fortroop_on", ":inflicted_agent_id"),
+      (assign, reg0, ":reg0_backup"),
+  ]),
+  
+  (0, 15, 0, #berserker mode drop
+    [
+      (store_mission_timer_a, ":cur_time"),
+      (gt, ":cur_time", 10),#
+    ],
+    [
+      (try_for_agents, ":agent"),
+        (agent_is_human, ":agent"),
+        (agent_is_alive, ":agent"),
+        (agent_is_active,":agent"),
+        (agent_slot_eq,":agent",slot_agent_berserk_modeon,1),
+        (agent_get_troop_id, ":troop_id", ":agent"),
+        (this_or_next|eq,":troop_id","trp_sea_raider_leader"), #berserker
+        (eq,":troop_id","trp_looter_leader"), #Ulfhedinn
+        (call_script, "script_berserk_cooldown_modeai_tigger", ":agent"),
+      (try_end),
+  ]),
+  
+  #VC-1729 call horse begins
+  (0, 0, ti_once,
+    [],
+    [
+      #piggybacks
+      (assign, "$player_functions", player_func_creeping),
+      (try_begin),
+        (gt, "$player_trait", 0),
+        (val_or, "$player_functions", player_func_trait),
+      (try_end),
+      
+      (assign, "$player_horse_agent_no", -1),
+      (store_skill_level, ":skill", "skl_riding", "trp_player"),
+      (ge, ":skill", 4),	#need riding skill 4 to call horse
+      (get_player_agent_no, ":player_agent"),
+      (gt, ":player_agent", -1),
+      (agent_is_alive, ":player_agent"),
+      (agent_get_horse, "$player_horse_agent_no", ":player_agent"),
+      (gt, "$player_horse_agent_no", -1),
+      (val_or, "$player_functions", player_func_horsecall),
+  ]),
+  
+  (0, 0, 0,
+    [
+      (key_clicked, key_h),
+      (gt, "$player_horse_agent_no", -1),
+      (neg|main_hero_fallen),
+    ],
+    [
+      (try_begin),
+        (neg|agent_is_alive, "$player_horse_agent_no"),
+        (store_and, reg1, "$player_functions", player_func_horsecall),
+        
+        (try_begin),
+          (neq, reg1, 0),
+          (val_sub, "$player_functions", player_func_horsecall),
+        (try_end),
+        
+      (else_try),
+        (display_message, "@You call your horse..."),
+        (get_player_agent_no, ":player_agent"),
+        (agent_get_rider, ":rider", "$player_horse_agent_no"),
+        (neq, ":rider", ":player_agent"),
+        (agent_get_position, pos1, ":player_agent"),
+        (agent_set_scripted_destination, "$player_horse_agent_no", pos1),
+      (try_end),
+  ]),
+  #VC-1729 ends
+  
+  (0, 0, 0, [
+      (key_clicked, key_pad_rright),
+      (eq, "$controller_keys", 1),
+      ], [
+      (try_begin),
+        (gt, "$player_horse_agent_no", -1),
+        (neg|main_hero_fallen),
+        (try_begin),
+          (neg|agent_is_alive, "$player_horse_agent_no"),
+          (store_and, reg1, "$player_functions", player_func_horsecall),
+          
+          (try_begin),
+            (neq, reg1, 0),
+            (val_sub, "$player_functions", player_func_horsecall),
+          (try_end),
+          
+        (else_try),
+          (display_message, "@You call your horse..."),
+          (get_player_agent_no, ":player_agent"),
+          (agent_get_rider, ":rider", "$player_horse_agent_no"),
+          (neq, ":rider", ":player_agent"),
+          (agent_get_position, pos1, ":player_agent"),
+          (agent_set_scripted_destination, "$player_horse_agent_no", pos1),
+        (try_end),
+      (try_end),
+      
+      # (assign, "$controller_keys", 0), common_controller_keys_end
+      (presentation_set_duration, 0),
+      # (clear_omitted_keys),
+  ]),
+  
+  common_controller_keys_end,
+  common_controller_keys,
+] + dedal_sp_triggers + creeping + player_trait
 
 
 ###multiplayer
@@ -6826,7 +7263,8 @@ common_after_mission_start = (
 ])
 
 common_battle_player_fallen = (
-  1, 4, ti_once, [(main_hero_fallen), (eq, TWEAK_BATTLE_CONTINUATION_AFTER_KO, 0)], [
+  1, 4, ti_once, [(main_hero_fallen), (eq, TWEAK_BATTLE_CONTINUATION_AFTER_KO, 0),  ],
+  [
     (assign, "$pin_player_fallen", 1),
     # (str_store_string, s5, "str_retreat"),  MOTO move these things to TAB out to allow death cam
     # (call_script, "script_simulate_retreat", 10, 20, 1),
@@ -7276,12 +7714,12 @@ common_siege_defender_reinforcement_archer_reposition = (
 common_siege_attacker_reinforcement_check = (
   1, 0, 5,
   [
-    (lt,"$attacker_reinforcement_stage", TWEAK_SIEGE_ATTACKER_REINFORCEMENT_WAVES),
+    (lt,"$attacker_reinforcement_stage",TWEAK_SIEGE_ATTACKER_REINFORCEMENT_WAVES),
     (store_mission_timer_a,":mission_time"),
     (ge,":mission_time",10),
     (store_normalized_team_count,":num_attackers",1),
-    (lt,":num_attackers",6), 	# native
-    (lt,":num_attackers",140),	# Idibil #more reirforcement, best battle. Vc wants massive battles. They are attacking
+    # (lt,":num_attackers",6), 	# native
+    # (lt,":num_attackers",140),	# Idibil #more reirforcement, best battle. Vc wants massive battles. They are attacking
     (lt,":num_attackers",30),	# phaiak # I think it needs to be half of this: (0,mtef_attackers|mtef_team_1,af_override_horse,aif_start_alarmed,60,[]),
   ],
   [
@@ -7721,7 +8159,7 @@ tournament_triggers = [
       (try_end),
   ]),
   common_critical_system2,
-] + dedal_sp_triggers + slo_mo_death_cam
+]
 
 common_spam =(
   0.5, 0, 0, [], [
@@ -8135,17 +8573,6 @@ edited_native_mission_templates = [
             
           (try_end),
       ]),
-      
-      (0, 0, 0,
-        [
-          (this_or_next|key_clicked, key_escape),
-          (key_is_down, key_escape),
-          (neq, "$vc_menu_active", 0),
-        ],
-        [
-          
-      ]),
-      
       # Phaiak end
       
       (ti_on_agent_spawn, 0, 0, [],
@@ -8264,7 +8691,7 @@ edited_native_mission_templates = [
       (1, 0, 0,[
           (this_or_next|eq, "$talk_context", tc_prison_break),
           (eq, "$talk_context", tc_escape),
-      ],[
+          ],[
           (get_player_agent_no, ":player_agent"),
           (agent_is_active,":player_agent"),
           
@@ -8285,7 +8712,7 @@ edited_native_mission_templates = [
       (ti_before_mission_start,0,0,[
           (this_or_next|eq, "$talk_context", tc_prison_break),
           (eq, "$talk_context", tc_escape),
-      ],[
+          ],[
           (assign,"$g_main_attacker_agent",-1),
           (mission_disable_talk),
       ]),
@@ -8295,7 +8722,7 @@ edited_native_mission_templates = [
           #If I set this to 1, 0, ti_once, then the prisoner spawns twice
           (this_or_next|eq, "$talk_context", tc_prison_break),#JuJu70
           (eq, "$talk_context", tc_escape),
-      ],[
+          ],[
           (call_script, "script_activate_town_guard"),
           (get_player_agent_no, ":player_agent"),
           (agent_get_position, pos4, ":player_agent"),
@@ -8319,7 +8746,7 @@ edited_native_mission_templates = [
       (ti_on_agent_spawn,0,0,[
           (this_or_next|eq, "$talk_context", tc_prison_break),
           (eq, "$talk_context", tc_escape),
-      ],[
+          ],[
           (store_trigger_param_1, ":agent_no"),
           (agent_get_troop_id, ":troop_no", ":agent_no"),
           (troop_slot_ge, ":troop_no", slot_troop_mission_participation, mp_prison_break_fight),
@@ -8464,7 +8891,7 @@ edited_native_mission_templates = [
           (try_begin),
             (eq, "$game_started_with_content_update", 1),
             (eq, "$dog_companion", 0),
-            (assign, "$player_dog_agent_no", 0),
+            (assign, "$player_dog_agent_no", -1),
             (store_random_in_range, ":rand", 0, 2),
             
             #avoid dog joining quest fight #VC-3517
@@ -8855,12 +9282,16 @@ edited_native_mission_templates = [
             (main_hero_fallen),
             (jump_to_menu, "mnu_village_confront_contact_defeated"),
             (call_script, "script_fail_quest", "qst_blank_quest_14"),
+            (set_show_messages, 0),
             (call_script, "script_end_quest", "qst_blank_quest_14"),
+            (set_show_messages, 1),
             (finish_mission, 4),
           (else_try),
             (call_script, "script_change_player_relation_with_center", "$current_town", -2),
             (call_script, "script_succeed_quest", "qst_blank_quest_14"),
+            (set_show_messages, 0),
             (call_script, "script_end_quest", "qst_blank_quest_14"),
+            (set_show_messages, 1),
             (add_xp_as_reward, 250),#VC-3382
           (try_end),
       ]),
@@ -9336,10 +9767,66 @@ edited_native_mission_templates = [
       (4,mtef_attackers|mtef_team_1,0,aif_start_alarmed,60,[]),
       (4,mtef_attackers|mtef_team_1,0,aif_start_alarmed,0,[]),
       # info: the dog triggers need to be before the battle_mode_triggers!
-    ], dog_companion + battle_mode_triggers + vc_weather + vc_courage + call_horse + ai_horn +  #71 triggers
+    ], dog_companion + battle_mode_triggers + vc_weather + vc_courage + ai_horn +  #71 triggers
     [
       cannot_spawn_commoners,
       common_battle_init_banner,
+      
+      (1, 0, ti_once, [(eq, "$alpha_animal", 7777),],#VC-3672 performance test
+        [
+          (set_fixed_point_multiplier, 100),
+          (get_player_agent_no, ":player_agent"),
+          (agent_get_position, pos1, ":player_agent"),
+          
+          (copy_position, pos11, pos1),
+          (copy_position, pos7, pos1),
+          (position_rotate_z, pos11, 180),
+          (position_move_y, pos11, -100),
+          (position_move_x, pos1, 100),
+          
+          #Cam
+          (position_move_x, pos7, -200),
+          (position_move_z, pos7, 200),
+          (position_rotate_z, pos7, -90),
+          (mission_cam_set_mode, 1, 0, 0),
+          (set_camera_in_first_person, 0),
+          (mission_cam_set_position, pos7),
+          
+          (assign, ":agent_counter", 1),
+          (assign, ":agent_counter_t0", 0),
+          
+          (try_for_agents,":agent"),
+            (agent_is_alive,":agent"),
+            #(agent_is_human,":agent"),
+            (agent_is_non_player, ":agent"),
+            (agent_get_team, ":team", ":agent"),
+            (try_begin),
+              (eq, ":team", 1),
+              (try_begin),
+                (this_or_next|eq, ":agent_counter", 16),
+                (this_or_next|eq, ":agent_counter", 31),
+                (eq, ":agent_counter", 46),
+                (position_move_y, pos1, -100),
+                (position_move_x, pos1, -1500),
+              (end_try),
+              (agent_set_position, ":agent" ,pos1),
+              (position_move_x, pos1, 100),
+              (val_add, ":agent_counter", 1),
+            (else_try),
+              (try_begin),
+                (this_or_next|eq, ":agent_counter_t0", 16),
+                (this_or_next|eq, ":agent_counter_t0", 31),
+                (eq, ":agent_counter_t0", 46),
+                (position_move_y, pos11, -100),
+                (position_move_x, pos11, 1500),
+              (end_try),
+              (agent_set_position, ":agent" ,pos11),
+              (position_move_x, pos11, -100),
+              (val_add, ":agent_counter_t0", 1),
+            (end_try),
+          (end_try),
+          (assign, "$alpha_animal", 0),
+      ]),
       
       (ti_before_mission_start, 0, 0, [],
         [
@@ -9715,7 +10202,7 @@ edited_native_mission_templates = [
           (lt,":num_defenders",30)], #more agressive battles chief massive battles
         [(add_reinforcements_to_entry,0,45),(assign, "$defender_reinforcement_limit_increased", 0),(val_add,"$defender_reinforcement_stage",1)]),
       
-      (1, 0, 5, [(lt,"$attacker_reinforcement_stage", TWEAK_STANDARD_BATTLE_ATTACKER_REINFORCEMENT_WAVES),
+      (1, 0, 5, [(lt,"$attacker_reinforcement_stage",TWEAK_STANDARD_BATTLE_ATTACKER_REINFORCEMENT_WAVES),
           (store_mission_timer_a,":mission_time"),
           (ge,":mission_time",10),
           (store_normalized_team_count,":num_attackers", 1),
@@ -10899,7 +11386,7 @@ edited_native_mission_templates = [
       (1, 0, 0,[
           (this_or_next|eq, "$talk_context", tc_prison_break),
           (eq, "$talk_context", tc_escape),
-      ],[
+          ],[
           (get_player_agent_no, ":player_agent"),
           (agent_is_active,":player_agent"),
           
@@ -10920,7 +11407,7 @@ edited_native_mission_templates = [
       (ti_before_mission_start,0,0,[
           (this_or_next|eq, "$talk_context", tc_prison_break),
           (eq, "$talk_context", tc_escape),
-      ],[
+          ],[
           (assign,"$g_main_attacker_agent",-1),
           (assign,"$can_spawn_commoners",0),
           (mission_disable_talk),
@@ -10931,7 +11418,7 @@ edited_native_mission_templates = [
           #If I set this to 1, 0, ti_once, then the prisoner spawns twice
           (this_or_next|eq, "$talk_context", tc_prison_break),#JuJu70
           (eq, "$talk_context", tc_escape),
-      ],[
+          ],[
           (call_script, "script_activate_town_guard"),
           (get_player_agent_no, ":player_agent"),
           (agent_get_position, pos4, ":player_agent"),
@@ -10955,7 +11442,7 @@ edited_native_mission_templates = [
       (ti_on_agent_spawn,0,0,[
           (this_or_next|eq, "$talk_context", tc_prison_break),
           (eq, "$talk_context", tc_escape),
-      ],[
+          ],[
           (store_trigger_param_1, ":agent_no"),
           (agent_get_troop_id, ":troop_no", ":agent_no"),
           (troop_slot_ge, ":troop_no", slot_troop_mission_participation, mp_prison_break_fight),
@@ -11668,87 +12155,87 @@ edited_native_mission_templates = [
       can_spawn_commoners_arena,
       dedal_leg_fix,
       dedal_item_fix_bwo,
-    ] + tournament_triggers + vc_weather
+    ] + tournament_triggers + dedal_sp_triggers + slo_mo_death_cam + vc_weather
   ),
   
-  ("arena_challenge_fight",mtf_arena_fight|mtf_commit_casualties,-1,
-    "You enter a melee fight in the arena.",
-    [
-      (56, mtef_visitor_source|mtef_team_0, 0, aif_start_alarmed, 1, []),
-      (58, mtef_visitor_source|mtef_team_2, 0, aif_start_alarmed, 1, []),
-    ], vc_weather + slo_mo_death_cam + battle_mode_triggers +
-    [
-      cannot_spawn_commoners,
-      common_inventory_not_available,
-      (ti_tab_pressed, 0, 0, [(display_message, "str_cannot_leave_now")], []),
-      (ti_before_mission_start, 0, 0, [], [(call_script, "script_change_banners_and_chest")]),
-      
-      (0, 0, ti_once, [],
-        [
-          (call_script, "script_music_set_situation_with_culture", mtf_sit_arena),
-      ]),
-      
-      
-      #NOTE -- THIS IS A VESTIGIAL SCRIPT. FOR LORD DUELS, USE THE NEXT SCRIPT DOWN
-      (1, 4, ti_once, [
-          (this_or_next|main_hero_fallen),
-          (num_active_teams_le,1)],
-        [
-          (try_begin),
-            (main_hero_fallen),
-            (check_quest_active, "qst_blank_quest_15"),
-            (quest_slot_eq, "qst_blank_quest_15", slot_quest_target_troop, "$g_duel_troop"),
-            (call_script, "script_fail_quest", "qst_blank_quest_15"),
-          (else_try),
-            (check_quest_active, "qst_blank_quest_15"),
-            (quest_slot_eq, "qst_blank_quest_15", slot_quest_target_troop, "$g_duel_troop"),
-            (call_script, "script_succeed_quest", "qst_blank_quest_15"),
-          (else_try),
-            (main_hero_fallen),
-            (check_quest_active, "qst_duel_for_lady"),
-            (quest_slot_eq, "qst_duel_for_lady", slot_quest_target_troop, "$g_duel_troop"),
-            (call_script, "script_fail_quest", "qst_duel_for_lady"),
-          (else_try),
-            (check_quest_active, "qst_duel_for_lady"),
-            (quest_slot_eq, "qst_duel_for_lady", slot_quest_target_troop, "$g_duel_troop"),
-            (call_script, "script_succeed_quest", "qst_duel_for_lady"),
-          (else_try),
-            (main_hero_fallen),
-            (check_quest_active, "qst_duel_courtship_rival"),
-            (quest_slot_eq, "qst_duel_courtship_rival", slot_quest_target_troop, "$g_duel_troop"),
-            (call_script, "script_fail_quest", "qst_duel_courtship_rival"),
-          (else_try),
-            (check_quest_active, "qst_duel_courtship_rival"),
-            (quest_slot_eq, "qst_duel_courtship_rival", slot_quest_target_troop, "$g_duel_troop"),
-            (call_script, "script_succeed_quest", "qst_duel_courtship_rival"),
-          (else_try),
-            (main_hero_fallen),
-            (check_quest_active, "qst_duel_avenge_insult"),
-            (quest_slot_eq, "qst_duel_avenge_insult", slot_quest_target_troop, "$g_duel_troop"),
-            (call_script, "script_fail_quest", "qst_duel_avenge_insult"),
-          (else_try),
-            (check_quest_active, "qst_duel_avenge_insult"),
-            (quest_slot_eq, "qst_duel_avenge_insult", slot_quest_target_troop, "$g_duel_troop"),
-            (call_script, "script_succeed_quest", "qst_duel_avenge_insult"),
-          (else_try),
-            (main_hero_fallen),
-            (check_quest_active, "qst_denounce_lord"),
-            (quest_slot_eq, "qst_denounce_lord", slot_quest_target_troop, "$g_duel_troop"),
-            (call_script, "script_fail_quest", "qst_denounce_lord"),
-          (else_try),
-            (check_quest_active, "qst_denounce_lord"),
-            (quest_slot_eq, "qst_denounce_lord", slot_quest_target_troop, "$g_duel_troop"),
-            (call_script, "script_succeed_quest", "qst_denounce_lord"),
-          (else_try),
-            (quest_get_slot, ":target_troop", "qst_denounce_lord", slot_quest_target_troop),
-            (str_store_troop_name, s4, ":target_troop"),
-          (try_end),
-          (finish_mission),
-      ]),
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-    ],
-  ),
+  # ("arena_challenge_fight",mtf_arena_fight|mtf_commit_casualties,-1,
+  # "You enter a melee fight in the arena.",
+  # [
+  # (56, mtef_visitor_source|mtef_team_0, 0, aif_start_alarmed, 1, []),
+  # (58, mtef_visitor_source|mtef_team_2, 0, aif_start_alarmed, 1, []),
+  # ], vc_weather + slo_mo_death_cam + battle_mode_triggers +
+  # [
+  # cannot_spawn_commoners,
+  # common_inventory_not_available,
+  # (ti_tab_pressed, 0, 0, [(display_message, "str_cannot_leave_now")], []),
+  # (ti_before_mission_start, 0, 0, [], [(call_script, "script_change_banners_and_chest")]),
+  
+  # (0, 0, ti_once, [],
+  # [
+  # (call_script, "script_music_set_situation_with_culture", mtf_sit_arena),
+  # ]),
+  
+  
+  # #NOTE -- THIS IS A VESTIGIAL SCRIPT. FOR LORD DUELS, USE THE NEXT SCRIPT DOWN
+  # (1, 4, ti_once, [
+  # (this_or_next|main_hero_fallen),
+  # (num_active_teams_le,1)],
+  # [
+  # (try_begin),
+  # (main_hero_fallen),
+  # (check_quest_active, "qst_blank_quest_15"),
+  # (quest_slot_eq, "qst_blank_quest_15", slot_quest_target_troop, "$g_duel_troop"),
+  # (call_script, "script_fail_quest", "qst_blank_quest_15"),
+  # (else_try),
+  # (check_quest_active, "qst_blank_quest_15"),
+  # (quest_slot_eq, "qst_blank_quest_15", slot_quest_target_troop, "$g_duel_troop"),
+  # (call_script, "script_succeed_quest", "qst_blank_quest_15"),
+  # (else_try),
+  # (main_hero_fallen),
+  # (check_quest_active, "qst_duel_for_lady"),
+  # (quest_slot_eq, "qst_duel_for_lady", slot_quest_target_troop, "$g_duel_troop"),
+  # (call_script, "script_fail_quest", "qst_duel_for_lady"),
+  # (else_try),
+  # (check_quest_active, "qst_duel_for_lady"),
+  # (quest_slot_eq, "qst_duel_for_lady", slot_quest_target_troop, "$g_duel_troop"),
+  # (call_script, "script_succeed_quest", "qst_duel_for_lady"),
+  # (else_try),
+  # (main_hero_fallen),
+  # (check_quest_active, "qst_duel_courtship_rival"),
+  # (quest_slot_eq, "qst_duel_courtship_rival", slot_quest_target_troop, "$g_duel_troop"),
+  # (call_script, "script_fail_quest", "qst_duel_courtship_rival"),
+  # (else_try),
+  # (check_quest_active, "qst_duel_courtship_rival"),
+  # (quest_slot_eq, "qst_duel_courtship_rival", slot_quest_target_troop, "$g_duel_troop"),
+  # (call_script, "script_succeed_quest", "qst_duel_courtship_rival"),
+  # (else_try),
+  # (main_hero_fallen),
+  # (check_quest_active, "qst_duel_avenge_insult"),
+  # (quest_slot_eq, "qst_duel_avenge_insult", slot_quest_target_troop, "$g_duel_troop"),
+  # (call_script, "script_fail_quest", "qst_duel_avenge_insult"),
+  # (else_try),
+  # (check_quest_active, "qst_duel_avenge_insult"),
+  # (quest_slot_eq, "qst_duel_avenge_insult", slot_quest_target_troop, "$g_duel_troop"),
+  # (call_script, "script_succeed_quest", "qst_duel_avenge_insult"),
+  # (else_try),
+  # (main_hero_fallen),
+  # (check_quest_active, "qst_denounce_lord"),
+  # (quest_slot_eq, "qst_denounce_lord", slot_quest_target_troop, "$g_duel_troop"),
+  # (call_script, "script_fail_quest", "qst_denounce_lord"),
+  # (else_try),
+  # (check_quest_active, "qst_denounce_lord"),
+  # (quest_slot_eq, "qst_denounce_lord", slot_quest_target_troop, "$g_duel_troop"),
+  # (call_script, "script_succeed_quest", "qst_denounce_lord"),
+  # (else_try),
+  # (quest_get_slot, ":target_troop", "qst_denounce_lord", slot_quest_target_troop),
+  # (str_store_troop_name, s4, ":target_troop"),
+  # (try_end),
+  # (finish_mission),
+  # ]),
+  # dedal_leg_fix,
+  # dedal_item_fix_bwo,
+  # ],
+  # ),
   
   ("duel_with_lord",mtf_arena_fight|mtf_commit_casualties,-1,
     "You enter a melee fight in the arena.",
@@ -11818,7 +12305,7 @@ edited_native_mission_templates = [
       
       (1, 4, ti_once, [
           (main_hero_fallen),
-        ], [
+          ], [
           (try_begin),
             (check_quest_active, "qst_duel_for_lady"),
             (quest_slot_eq, "qst_duel_for_lady", slot_quest_target_troop, "$g_duel_troop"),
@@ -11849,7 +12336,7 @@ edited_native_mission_templates = [
       (1, 4, ti_once, [
           (all_enemies_defeated, 5),
           (neg|main_hero_fallen),
-        ], [
+          ], [
           (try_begin),
             (check_quest_active, "qst_duel_for_lady"),
             (quest_slot_eq, "qst_duel_for_lady", slot_quest_target_troop, "$g_duel_troop"),
@@ -13790,1277 +14277,6 @@ edited_native_mission_templates = [
     ],
   ),
   
-  ("tutorial_1",0,-1,
-    "You enter the training ground.",
-    [
-      (0,mtef_leader_only,af_override_everything,0,1,[itm_tutorial_shield,itm_tutorial_sword,itm_tutorial_short_bow,itm_tutorial_arrows,itm_bl_tunic07,itm_carbatinae_6s]), #af_override_weapons
-    ],
-    [
-      cannot_spawn_commoners,
-      (ti_tab_pressed, 0, 0, [],
-        [(try_begin),
-            (lt, "$tutorial_1_state", 5),
-            (question_box, "str_do_you_wish_to_leave_tutorial"),
-          (else_try),
-            (finish_mission,0),
-          (try_end),
-      ]),
-      (ti_question_answered, 0, 0, [],
-        [(store_trigger_param_1,":answer"),
-          (eq,":answer",0),
-          (finish_mission,0),
-      ]),
-      (ti_inventory_key_pressed, 0, 0, [(display_message, "str_cant_use_inventory_tutorial")], []),
-      
-      (0, 0, ti_once, [
-          (tutorial_message_set_size, 17, 17),
-          (tutorial_message_set_position, 500, 650),
-          (tutorial_message_set_center_justify, 0),
-          
-          (assign, "$tutorial_1_state", 0),
-          (assign, "$tutorial_1_msg_1_displayed", 0),
-          (assign, "$tutorial_1_msg_2_displayed", 0),
-          (assign, "$tutorial_1_msg_3_displayed", 0),
-          (assign, "$tutorial_1_msg_4_displayed", 0),
-          (assign, "$tutorial_1_msg_5_displayed", 0),
-          (assign, "$tutorial_1_msg_6_displayed", 0),
-          ], []),
-      
-      (0, 0, 0, [(try_begin),
-            (eq, "$tutorial_1_state", 0),
-            (try_begin),
-              (eq, "$tutorial_1_msg_1_displayed", 0),
-              (store_mission_timer_a, ":cur_time"),
-              (gt, ":cur_time", 0),
-              (assign, "$tutorial_1_msg_1_displayed", 1),
-              (tutorial_message, "str_tutorial_1_msg_1"),
-              (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-              (entry_point_get_position,pos1,1),
-              (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-            (try_end),
-            (tutorial_message, "str_tutorial_1_msg_1"),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position,pos2,1),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 100),
-            (val_add, "$tutorial_1_state", 1),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_a", 0),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (entry_point_get_position,pos1,2),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_1_state", 1),
-            (try_begin),
-              (eq, "$tutorial_1_msg_2_displayed", 0),
-              (assign, "$tutorial_1_msg_2_displayed", 1),
-              (tutorial_message, "str_tutorial_1_msg_2"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position,pos2,2),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 100),
-            (val_add, "$tutorial_1_state", 1),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_a", 1),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, 90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (entry_point_get_position,pos1,3),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_1_state", 2),
-            (try_begin),
-              (eq, "$tutorial_1_msg_3_displayed", 0),
-              (assign, "$tutorial_1_msg_3_displayed", 1),
-              (tutorial_message, "str_tutorial_1_msg_3"),
-              (assign, "$tutorial_num_total_dummies_destroyed", 0),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (ge, "$tutorial_num_total_dummies_destroyed", 4),
-            (val_add, "$tutorial_1_state", 1),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_a", 2),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, 90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-          (else_try),
-            (eq, "$tutorial_1_state", 3),
-            (try_begin),
-              (eq, "$tutorial_1_msg_4_displayed", 0),
-              (assign, "$tutorial_1_msg_4_displayed", 1),
-              (tutorial_message, "str_tutorial_1_msg_4"),
-              (store_mission_timer_a, "$tutorial_time"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (store_mission_timer_a, ":cur_time"),
-            (val_sub, ":cur_time", "$tutorial_time"),
-            (gt, ":cur_time", 10),
-            (val_add, "$tutorial_1_state", 1),
-          (else_try),
-            (eq, "$tutorial_1_state", 4),
-            (try_begin),
-              (eq, "$tutorial_1_msg_5_displayed", 0),
-              (assign, "$tutorial_1_msg_5_displayed", 1),
-              (tutorial_message, "str_tutorial_1_msg_5"),
-              (assign, "$g_last_archery_point_earned", 0),
-              (assign, "$tutorial_num_arrows_hit", 0),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (try_begin),
-              (get_player_agent_no, ":player_agent"),
-              (agent_get_ammo, ":cur_ammo", ":player_agent"),
-              (le, ":cur_ammo", 0),
-              (agent_refill_ammo, ":player_agent"),
-              (tutorial_message, "str_tutorial_ammo_refilled"),
-            (try_end),
-            (gt, "$g_last_archery_point_earned", 0),
-            (assign, "$g_last_archery_point_earned", 0),
-            (val_add, "$tutorial_num_arrows_hit", 1),
-            (gt, "$tutorial_num_arrows_hit", 2),
-            (val_add, "$tutorial_1_state", 1),
-          (else_try),
-            (eq, "$tutorial_1_state", 5),
-            (eq, "$tutorial_1_msg_6_displayed", 0),
-            (assign, "$tutorial_1_msg_6_displayed", 1),
-            (tutorial_message, "str_tutorial_1_msg_6"),
-            (play_sound, "snd_tutorial_2"),
-            #(assign, "$tutorial_1_finished", 1),
-          (try_end),
-          ], []),
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-    ],
-  ),
-  
-  ("tutorial_2",mtf_arena_fight,-1,
-    "You enter the training ground.",
-    [
-      (0,mtef_leader_only|mtef_team_0,af_override_everything,0,1,[itm_tutorial_shield,itm_bl_tunic07,itm_carbatinae_6s]),
-      (2,mtef_visitor_source|mtef_team_1,0,aif_start_alarmed,1,[]),
-      (4,mtef_visitor_source|mtef_team_1,0,0,1,[]),
-    ],
-    [
-      cannot_spawn_commoners,
-      (ti_tab_pressed, 0, 0, [],
-        [(try_begin),
-            (lt, "$tutorial_2_state", 9),
-            (question_box,"str_do_you_wish_to_leave_tutorial"),
-          (else_try),
-            (finish_mission,0),
-          (try_end),
-      ]),
-      (ti_question_answered, 0, 0, [],
-        [(store_trigger_param_1,":answer"),
-          (eq,":answer",0),
-          (finish_mission,0),
-      ]),
-      (ti_inventory_key_pressed, 0, 0, [(display_message,"str_cant_use_inventory_tutorial")], []),
-      (0, 0, ti_once, [
-          (store_mission_timer_a, ":cur_time"),
-          (gt, ":cur_time", 2),
-          (main_hero_fallen),
-          (assign, "$tutorial_2_state", 100),
-          ], []),
-      
-      (0, 0, ti_once, [
-          (tutorial_message_set_size, 17, 17),
-          (tutorial_message_set_position, 500, 650),
-          (tutorial_message_set_center_justify, 0),
-          
-          (assign, "$tutorial_2_state", 0),
-          (assign, "$tutorial_2_msg_1_displayed", 0),
-          (assign, "$tutorial_2_msg_2_displayed", 0),
-          (assign, "$tutorial_2_msg_3_displayed", 0),
-          (assign, "$tutorial_2_msg_4_displayed", 0),
-          (assign, "$tutorial_2_msg_5_displayed", 0),
-          (assign, "$tutorial_2_msg_6_displayed", 0),
-          (assign, "$tutorial_2_msg_7_displayed", 0),
-          (assign, "$tutorial_2_msg_8_displayed", 0),
-          (assign, "$tutorial_2_msg_9_displayed", 0),
-          (assign, "$tutorial_2_melee_agent_state", 0),
-          ], []),
-      
-      (10, 0, 0, [(call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_archer"),
-          (agent_refill_ammo, reg0)], []),
-      
-      (0, 0, 0, [(try_begin),
-            (eq, "$tutorial_2_state", 0),
-            (try_begin),
-              (eq, "$tutorial_2_msg_1_displayed", 0),
-              (store_mission_timer_a, ":cur_time"),
-              (gt, ":cur_time", 0),
-              (assign, "$tutorial_2_msg_1_displayed", 1),
-              (tutorial_message, "str_tutorial_2_msg_1"),
-              (team_give_order, 1, grc_everyone, mordr_stand_ground),
-              (team_give_order, 1, grc_infantry, mordr_charge),
-              (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-              (assign, ":cur_agent", reg0),
-              (agent_get_position, pos1, ":cur_agent"),
-              (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (try_end),
-            (get_player_agent_no, ":player_agent"),
-            (ge, ":player_agent", 0),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position,pos2,1),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 200),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_a", 0),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, 90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_2_state", 1),
-          (else_try),
-            (eq, "$tutorial_2_state", 1),
-            (scene_prop_get_instance, ":barrier_object", "spr_barrier_4m", 0),
-            (prop_instance_get_position, pos1, ":barrier_object"),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos2, ":player_agent"),
-            (position_is_behind_position, pos2, pos1),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_a", 0),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_2_state", 1),
-          (else_try),
-            (eq, "$tutorial_2_state", 2),
-            (get_player_agent_no, ":player_agent"),
-            (agent_set_kick_allowed, ":player_agent", 0), #don't let player kick while defending
-            (try_begin),
-              (eq, "$tutorial_2_melee_agent_state", 0),
-              (val_add, "$tutorial_2_melee_agent_state", 1),
-              (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-              (assign, ":cur_agent", reg0),
-              (entry_point_get_position, pos1, 3),
-              (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (else_try),
-              (eq, "$tutorial_2_melee_agent_state", 1),
-              (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-              (assign, ":cur_agent", reg0),
-              (entry_point_get_position, pos1, 3),
-              (agent_get_position, pos2, ":cur_agent"),
-              (get_distance_between_positions, ":cur_distance", pos1, pos2),
-              (le, ":cur_distance", 250),
-              (agent_clear_scripted_mode, ":cur_agent"),
-              (val_add, "$tutorial_2_melee_agent_state", 1),
-              (store_mission_timer_a,"$tutorial_time"),
-            (else_try),
-              (eq, "$tutorial_2_melee_agent_state", 2),
-              (try_begin),
-                (eq, "$tutorial_2_msg_2_displayed", 0),
-                (assign, "$tutorial_2_msg_2_displayed", 1),
-                (play_sound, "snd_tutorial_1"),
-              (try_end),
-              (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-              (assign, ":cur_agent", reg0),
-              (store_mission_timer_a,":cur_time"),
-              (val_sub, ":cur_time", "$tutorial_time"),
-              (store_sub, reg3, 20, ":cur_time"),
-              (tutorial_message, "str_tutorial_2_msg_2"),
-              (gt, ":cur_time", 20),
-              (entry_point_get_position, pos1, 3),
-              (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-              (val_add, "$tutorial_2_melee_agent_state", 1),
-            (else_try),
-              (eq, "$tutorial_2_melee_agent_state", 3),
-              (try_begin),
-                (eq, "$tutorial_2_msg_3_displayed", 0),
-                (assign, "$tutorial_2_msg_3_displayed", 1),
-                (tutorial_message, "str_tutorial_2_msg_3"),
-                (play_sound, "snd_tutorial_1"),
-              (try_end),
-              (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-              (assign, ":cur_agent", reg0),
-              (entry_point_get_position, pos1, 3),
-              (agent_get_position, pos2, ":cur_agent"),
-              (get_distance_between_positions, ":cur_distance", pos1, pos2),
-              (le, ":cur_distance", 250),
-              (entry_point_get_position, pos1, 2),
-              (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-              (val_add, "$tutorial_2_melee_agent_state", 1),
-            (else_try),
-              (eq, "$tutorial_2_melee_agent_state", 4),
-              (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-              (assign, ":cur_agent", reg0),
-              (entry_point_get_position, pos1, 2),
-              (agent_get_position, pos2, ":cur_agent"),
-              (get_distance_between_positions, ":cur_distance", pos1, pos2),
-              (le, ":cur_distance", 250),
-              (entry_point_get_position, pos1, 30),
-              (agent_set_position, ":cur_agent", pos1),
-              (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-              (scene_prop_get_instance, ":door_object", "spr_tutorial_door_a", 1),
-              (prop_instance_get_position, pos1, ":door_object"),
-              (position_rotate_z, pos1, 90),
-              (prop_instance_animate_to_position, ":door_object", pos1, 150),
-              (val_add, "$tutorial_2_melee_agent_state", 1),
-              (val_add, "$tutorial_2_state", 1),
-            (try_end),
-          (else_try),
-            (eq, "$tutorial_2_state", 3),
-            (scene_prop_get_instance, ":barrier_object", "spr_barrier_4m", 1),
-            (prop_instance_get_position, pos1, ":barrier_object"),
-            (get_player_agent_no, ":player_agent"),
-            (agent_set_kick_allowed, ":player_agent", 1), #reenable
-            (agent_get_position, pos2, ":player_agent"),
-            (position_is_behind_position, pos2, pos1),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_a", 1),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (store_mission_timer_a,"$tutorial_time"),
-            (val_add, "$tutorial_2_state", 1),
-          (else_try),
-            (eq, "$tutorial_2_state", 4),
-            (try_begin),
-              (eq, "$tutorial_2_msg_4_displayed", 0),
-              (assign, "$tutorial_2_msg_4_displayed", 1),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (store_mission_timer_a,":cur_time"),
-            (val_sub, ":cur_time", "$tutorial_time"),
-            (store_sub, reg3, 20, ":cur_time"),
-            (tutorial_message, "str_tutorial_2_msg_4"),
-            (gt, ":cur_time", 20),
-            (entry_point_get_position,pos1,5),
-            (set_spawn_position, pos1),
-            (spawn_item, "itm_tutorial_sword"),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-            (assign, ":cur_agent", reg0),
-            (entry_point_get_position, pos1, 3),
-            (agent_set_position, ":cur_agent", pos1),
-            (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_a", 2),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, 90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_2_state", 1),
-          (else_try),
-            (eq, "$tutorial_2_state", 5),
-            (try_begin),
-              (eq, "$tutorial_2_msg_5_displayed", 0),
-              (assign, "$tutorial_2_msg_5_displayed", 1),
-              (tutorial_message, "str_tutorial_2_msg_5"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (scene_prop_get_instance, ":barrier_object", "spr_barrier_4m", 2),
-            (prop_instance_get_position, pos1, ":barrier_object"),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos2, ":player_agent"),
-            (position_is_behind_position, pos2, pos1),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_a", 2),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_2_state", 1),
-          (else_try),
-            (eq, "$tutorial_2_state", 6),
-            (try_begin),
-              (eq, "$tutorial_2_msg_6_displayed", 0),
-              (assign, "$tutorial_2_msg_6_displayed", 1),
-              (tutorial_message, "str_tutorial_2_msg_6"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (get_player_agent_no, ":player_agent"),
-            (agent_has_item_equipped, ":player_agent", "itm_tutorial_sword"),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_a", 3),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_2_state", 1),
-          (else_try),
-            (eq, "$tutorial_2_state", 7),
-            (try_begin),
-              (eq, "$tutorial_2_msg_7_displayed", 0),
-              (assign, "$tutorial_2_msg_7_displayed", 1),
-              (tutorial_message, "str_tutorial_2_msg_7"),
-              (play_sound, "snd_tutorial_1"),
-              (get_player_agent_no, ":player_agent"),
-              (agent_set_hit_points, ":player_agent", 100),
-            (try_end),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_archer"),
-            (assign, ":cur_agent", reg0),
-            (neg|agent_is_alive, ":cur_agent"),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-            (assign, ":cur_agent", reg0),
-            (agent_clear_scripted_mode, ":cur_agent"),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_a", 4),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_2_state", 1),
-          (else_try),
-            (eq, "$tutorial_2_state", 8),
-            (try_begin),
-              (eq, "$tutorial_2_msg_8_displayed", 0),
-              (assign, "$tutorial_2_msg_8_displayed", 1),
-              (tutorial_message, "str_tutorial_2_msg_8"),
-              (play_sound, "snd_tutorial_1"),
-              (get_player_agent_no, ":player_agent"),
-              (agent_set_hit_points, ":player_agent", 100),
-            (try_end),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-            (assign, ":cur_agent", reg0),
-            (neg|agent_is_alive, ":cur_agent"),
-            (val_add, "$tutorial_2_state", 1),
-          (else_try),
-            (eq, "$tutorial_2_state", 9),
-            (eq, "$tutorial_2_msg_9_displayed", 0),
-            (assign, "$tutorial_2_msg_9_displayed", 1),
-            (tutorial_message, "str_tutorial_2_msg_9"),
-            (play_sound, "snd_tutorial_2"),
-            # (assign, "$tutorial_2_finished", 1),
-          (else_try),
-            (gt, "$tutorial_2_state", 30),
-            (tutorial_message, "str_tutorial_failed"),
-          (try_end),
-          ], []),
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-    ],
-  ),
-  
-  ("tutorial_3",mtf_arena_fight,-1,
-    "You enter the training ground.",
-    [
-      (0,mtef_leader_only|mtef_team_0,af_override_everything,0,1,[itm_bl_tunic07,itm_carbatinae_6s]),
-      (3,mtef_visitor_source|mtef_team_1,0,aif_start_alarmed,1,[]),
-      (5,mtef_visitor_source|mtef_team_1,0,aif_start_alarmed,1,[]),
-    ],
-    [
-      cannot_spawn_commoners,
-      (ti_tab_pressed, 0, 0, [],
-        [(try_begin),
-            (lt, "$tutorial_3_state", 12),
-            (question_box,"str_do_you_wish_to_leave_tutorial"),
-          (else_try),
-            (finish_mission,0),
-          (try_end),
-      ]),
-      (ti_question_answered, 0, 0, [],
-        [(store_trigger_param_1,":answer"),
-          (eq,":answer",0),
-          (finish_mission,0),
-      ]),
-      (ti_inventory_key_pressed, 0, 0, [(display_message,"str_cant_use_inventory_tutorial")], []),
-      
-      (0, 0, ti_once, [
-          (store_mission_timer_a, ":cur_time"),
-          (gt, ":cur_time", 2),
-          (main_hero_fallen),
-          (assign, "$tutorial_3_state", 100),
-          ], []),
-      
-      (0, 0, ti_once, [
-          (tutorial_message_set_size, 17, 17),
-          (tutorial_message_set_position, 500, 650),
-          (tutorial_message_set_center_justify, 0),
-          
-          (assign, "$tutorial_3_state", 0),
-          (assign, "$tutorial_3_msg_1_displayed", 0),
-          (assign, "$tutorial_3_msg_2_displayed", 0),
-          (assign, "$tutorial_3_msg_3_displayed", 0),
-          (assign, "$tutorial_3_msg_4_displayed", 0),
-          (assign, "$tutorial_3_msg_5_displayed", 0),
-          (assign, "$tutorial_3_msg_6_displayed", 0),
-          ], []),
-      
-      (0, 0, 0, [(try_begin),
-            (eq, "$tutorial_3_state", 0),
-            (try_begin),
-              (eq, "$tutorial_3_msg_1_displayed", 0),
-              (store_mission_timer_a, ":cur_time"),
-              (gt, ":cur_time", 0),
-              (assign, "$tutorial_3_msg_1_displayed", 1),
-              (tutorial_message, "str_tutorial_3_msg_1"),
-              (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-              (assign, ":cur_agent", reg0),
-              (agent_get_position, pos1, ":cur_agent"),
-              (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-              (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_swordsman"),
-              (assign, ":cur_agent", reg0),
-              (agent_get_position, pos1, ":cur_agent"),
-              (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-              (entry_point_get_position, pos1, 1),
-              (set_spawn_position, pos1),
-              (spawn_item, "itm_tutorial_staff_no_attack"),
-            (try_end),
-            (get_player_agent_no, ":player_agent"),
-            (ge, ":player_agent", 0),
-            (agent_has_item_equipped, ":player_agent", "itm_tutorial_staff_no_attack"),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 1),
-            (try_begin),
-              (eq, "$tutorial_3_msg_2_displayed", 0),
-              (assign, "$tutorial_3_msg_2_displayed", 1),
-              (tutorial_message, "str_tutorial_3_msg_2"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position,pos2,2),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 200),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_b", 0),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 2),
-            (scene_prop_get_instance, ":barrier_object", "spr_barrier_4m", 0),
-            (prop_instance_get_position, pos1, ":barrier_object"),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos2, ":player_agent"),
-            (position_is_behind_position, pos2, pos1),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_b", 0),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, 90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 3),
-            (get_player_agent_no, ":player_agent"),
-            (agent_set_kick_allowed, ":player_agent", 0), #don't let player kick while defending
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-            (assign, ":cur_agent", reg0),
-            (entry_point_get_position, pos1, 4),
-            (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 4),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-            (assign, ":cur_agent", reg0),
-            (entry_point_get_position, pos1, 4),
-            (agent_get_position, pos2, ":cur_agent"),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 250),
-            (agent_clear_scripted_mode, ":cur_agent"),
-            (val_add, "$tutorial_3_state", 1),
-            (store_mission_timer_a,"$tutorial_time"),
-          (else_try),
-            (eq, "$tutorial_3_state", 5),
-            (try_begin),
-              (eq, "$tutorial_3_msg_3_displayed", 0),
-              (assign, "$tutorial_3_msg_3_displayed", 1),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-            (assign, ":cur_agent", reg0),
-            (store_mission_timer_a,":cur_time"),
-            (val_sub, ":cur_time", "$tutorial_time"),
-            (store_sub, reg3, 20, ":cur_time"),
-            (tutorial_message, "str_tutorial_3_msg_3"),
-            (gt, ":cur_time", 20),
-            (entry_point_get_position, pos1, 4),
-            (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 6),
-            (try_begin),
-              (eq, "$tutorial_3_msg_4_displayed", 0),
-              (assign, "$tutorial_3_msg_4_displayed", 1),
-              (tutorial_message, "str_tutorial_3_msg_4"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-            (assign, ":cur_agent", reg0),
-            (entry_point_get_position, pos1, 4),
-            (agent_get_position, pos2, ":cur_agent"),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 250),
-            (entry_point_get_position, pos1, 3),
-            (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 7),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-            (assign, ":cur_agent", reg0),
-            (entry_point_get_position, pos1, 3),
-            (agent_get_position, pos2, ":cur_agent"),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 250),
-            (entry_point_get_position, pos1, 7),
-            (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (agent_set_position, ":cur_agent", pos1),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_b", 1),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_b", 3),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 8),
-            (scene_prop_get_instance, ":barrier_object", "spr_barrier_4m", 1),
-            (prop_instance_get_position, pos1, ":barrier_object"),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos2, ":player_agent"),
-            (position_is_behind_position, pos2, pos1),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_b", 1),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, 90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 9),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_swordsman"),
-            (assign, ":cur_agent", reg0),
-            (entry_point_get_position, pos1, 6),
-            (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 10),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_swordsman"),
-            (assign, ":cur_agent", reg0),
-            (entry_point_get_position, pos1, 6),
-            (agent_get_position, pos2, ":cur_agent"),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 250),
-            (agent_clear_scripted_mode, ":cur_agent"),
-            (val_add, "$tutorial_3_state", 1),
-            (store_mission_timer_a,"$tutorial_time"),
-          (else_try),
-            (eq, "$tutorial_3_state", 11),
-            (try_begin),
-              (eq, "$tutorial_3_msg_5_displayed", 0),
-              (assign, "$tutorial_3_msg_5_displayed", 1),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_swordsman"),
-            (assign, ":cur_agent", reg0),
-            (store_mission_timer_a,":cur_time"),
-            (val_sub, ":cur_time", "$tutorial_time"),
-            (store_sub, reg3, 20, ":cur_time"),
-            (tutorial_message, "str_tutorial_3_msg_5"),
-            (gt, ":cur_time", 20),
-            (entry_point_get_position, pos1, 6),
-            (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 12),
-            (try_begin),
-              (eq, "$tutorial_3_msg_6_displayed", 0),
-              (assign, "$tutorial_3_msg_6_displayed", 1),
-              (tutorial_message, "str_tutorial_3_msg_6"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_swordsman"),
-            (assign, ":cur_agent", reg0),
-            (entry_point_get_position, pos1, 6),
-            (agent_get_position, pos2, ":cur_agent"),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 250),
-            (entry_point_get_position, pos1, 5),
-            (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 13),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_swordsman"),
-            (assign, ":cur_agent", reg0),
-            (entry_point_get_position, pos1, 5),
-            (agent_get_position, pos2, ":cur_agent"),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 250),
-            (entry_point_get_position, pos1, 7),
-            (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (agent_set_position, ":cur_agent", pos1),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (gt, "$tutorial_3_state", 30),
-            (tutorial_message, "str_tutorial_failed"),
-          (try_end),
-          ], []),
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-    ],
-  ),
-  
-  ("tutorial_3_2",mtf_arena_fight,-1,
-    "You enter the training ground.",
-    [
-      (0,mtef_leader_only|mtef_team_0,af_override_everything,0,1,[itm_tutorial_staff,itm_bl_tunic07,itm_carbatinae_6s]),
-      (4,mtef_visitor_source|mtef_team_1,0,aif_start_alarmed,1,[]),
-      (6,mtef_visitor_source|mtef_team_1,0,aif_start_alarmed,1,[]),
-    ],
-    [
-      cannot_spawn_commoners,
-      (ti_tab_pressed, 0, 0, [],
-        [(try_begin),
-            (lt, "$tutorial_3_state", 5),
-            (question_box,"str_do_you_wish_to_leave_tutorial"),
-          (else_try),
-            (finish_mission,0),
-          (try_end),
-      ]),
-      (ti_question_answered, 0, 0, [],
-        [(store_trigger_param_1,":answer"),
-          (eq,":answer",0),
-          (finish_mission,0),
-      ]),
-      (ti_inventory_key_pressed, 0, 0, [(display_message,"str_cant_use_inventory_tutorial")], []),
-      
-      (0, 0, ti_once, [
-          (store_mission_timer_a, ":cur_time"),
-          (gt, ":cur_time", 2),
-          (main_hero_fallen),
-          (assign, "$tutorial_3_state", 100),
-          ], []),
-      
-      
-      (0, 0, ti_once, [
-          (tutorial_message_set_size, 17, 17),
-          (tutorial_message_set_position, 500, 650),
-          (tutorial_message_set_center_justify, 0),
-          
-          (assign, "$tutorial_3_state", 0),
-          (assign, "$tutorial_3_msg_1_displayed", 0),
-          (assign, "$tutorial_3_msg_2_displayed", 0),
-          (assign, "$tutorial_3_msg_3_displayed", 0),
-          (assign, "$tutorial_3_msg_4_displayed", 0),
-          (assign, "$tutorial_3_msg_5_displayed", 0),
-          ], []),
-      
-      (0, 0, 0, [(try_begin),
-            (eq, "$tutorial_3_state", 0),
-            (try_begin),
-              (eq, "$tutorial_3_msg_1_displayed", 0),
-              (store_mission_timer_a, ":cur_time"),
-              (gt, ":cur_time", 0),
-              (assign, "$tutorial_3_msg_1_displayed", 1),
-              (tutorial_message, "str_tutorial_3_2_msg_1"),
-              (play_sound, "snd_tutorial_1"),
-              (call_script, "script_cf_get_first_agent_with_troop_id","trp_tutorial_maceman"),
-              (assign, ":cur_agent", reg0),
-              (agent_get_position, pos1, ":cur_agent"),
-              (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-              (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_swordsman"),
-              (assign, ":cur_agent", reg0),
-              (agent_get_position, pos1, ":cur_agent"),
-              (agent_set_scripted_destination, ":cur_agent", pos1, 0),
-            (try_end),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position,pos2,2),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 200),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_b", 0),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 1),
-            (try_begin),
-              (eq, "$tutorial_3_msg_2_displayed", 0),
-              (assign, "$tutorial_3_msg_2_displayed", 1),
-              (tutorial_message, "str_tutorial_3_2_msg_2"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (scene_prop_get_instance, ":barrier_object", "spr_barrier_4m", 0),
-            (prop_instance_get_position, pos1, ":barrier_object"),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos2, ":player_agent"),
-            (position_is_behind_position, pos2, pos1),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_b", 0),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, 90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-            (agent_clear_scripted_mode, reg0),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 2),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_maceman"),
-            (neg|agent_is_alive, reg0),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_b", 1),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_b", 3),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, -90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 3),
-            (try_begin),
-              (eq, "$tutorial_3_msg_3_displayed", 0),
-              (assign, "$tutorial_3_msg_3_displayed", 1),
-              (tutorial_message, "str_tutorial_3_2_msg_3"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (scene_prop_get_instance, ":barrier_object", "spr_barrier_4m", 1),
-            (prop_instance_get_position, pos1, ":barrier_object"),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos2, ":player_agent"),
-            (position_is_behind_position, pos2, pos1),
-            (scene_prop_get_instance, ":door_object", "spr_tutorial_door_b", 1),
-            (prop_instance_get_position, pos1, ":door_object"),
-            (position_rotate_z, pos1, 90),
-            (prop_instance_animate_to_position, ":door_object", pos1, 150),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_swordsman"),
-            (agent_clear_scripted_mode, reg0),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 4),
-            (try_begin),
-              (eq, "$tutorial_3_msg_4_displayed", 0),
-              (assign, "$tutorial_3_msg_4_displayed", 1),
-              (tutorial_message, "str_tutorial_3_2_msg_4"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (call_script, "script_cf_get_first_agent_with_troop_id", "trp_tutorial_swordsman"),
-            (neg|agent_is_alive, reg0),
-            (val_add, "$tutorial_3_state", 1),
-          (else_try),
-            (eq, "$tutorial_3_state", 5),
-            (eq, "$tutorial_3_msg_5_displayed", 0),
-            (assign, "$tutorial_3_msg_5_displayed", 1),
-            (tutorial_message, "str_tutorial_3_2_msg_5"),
-            (play_sound, "snd_tutorial_2"),
-            # (assign, "$tutorial_3_finished", 1),
-          (else_try),
-            (gt, "$tutorial_3_state", 30),
-            (tutorial_message, "str_tutorial_failed"),
-          (try_end),
-          ], []),
-      
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-      
-    ],
-  ),
-  
-  ("tutorial_4",mtf_arena_fight,-1,
-    "You enter the training ground.",
-    [
-      (0,mtef_leader_only|mtef_team_0,af_override_everything,0,1,[itm_tutorial_sword,itm_tutorial_short_bow,itm_tutorial_arrows,itm_bl_tunic07,itm_carbatinae_6s]), #af_override_weapons
-    ],
-    [
-      cannot_spawn_commoners,
-      (ti_tab_pressed, 0, 0, [],
-        [(try_begin),
-            (lt, "$tutorial_4_state", 11),
-            (question_box,"str_do_you_wish_to_leave_tutorial"),
-          (else_try),
-            (finish_mission,0),
-          (try_end),
-      ]),
-      (ti_question_answered, 0, 0, [],
-        [(store_trigger_param_1,":answer"),
-          (eq,":answer",0),
-          (finish_mission,0),
-      ]),
-      (ti_inventory_key_pressed, 0, 0, [(display_message,"str_cant_use_inventory_tutorial")], []),
-      
-      (ti_before_mission_start, 0, 0, [],
-        [
-          (scene_set_day_time, 13),
-      ]),
-      
-      (0, 0, ti_once, [
-          (tutorial_message_set_size, 17, 17),
-          (tutorial_message_set_position, 500, 650),
-          (tutorial_message_set_center_justify, 0),
-          
-          (assign, "$tutorial_4_state", 0),
-          (assign, "$tutorial_4_msg_1_displayed", 0),
-          (assign, "$tutorial_4_msg_2_displayed", 0),
-          (assign, "$tutorial_4_msg_3_displayed", 0),
-          (assign, "$tutorial_4_msg_4_displayed", 0),
-          (assign, "$tutorial_4_msg_5_displayed", 0),
-          (assign, "$tutorial_4_msg_6_displayed", 0),
-          (assign, "$tutorial_4_msg_7_displayed", 0),
-          ], []),
-      
-      (0, 0, 0, [(try_begin),
-            (eq, "$tutorial_4_state", 0),
-            (try_begin),
-              (eq, "$tutorial_4_msg_1_displayed", 0),
-              (store_mission_timer_a, ":cur_time"),
-              (gt, ":cur_time", 0),
-              (assign, "$tutorial_4_msg_1_displayed", 1),
-              (tutorial_message, "str_tutorial_4_msg_1"),
-              (entry_point_get_position, pos1, 1),
-              (set_spawn_position, 1),
-              (spawn_horse, "itm_tutorial_saddle_horse"),
-              (assign, "$tutorial_num_total_dummies_destroyed", 0),
-            (try_end),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_horse, ":horse_agent", ":player_agent"),
-            (ge, ":horse_agent", 0),
-            (val_add, "$tutorial_4_state", 1),
-            (entry_point_get_position, pos1, 2),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_4_state", 1),
-            (try_begin),
-              (eq, "$tutorial_4_msg_2_displayed", 0),
-              (assign, "$tutorial_4_msg_2_displayed", 1),
-              (tutorial_message, "str_tutorial_4_msg_2"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position, pos2, 2),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 200),
-            (val_add, "$tutorial_4_state", 1),
-            (entry_point_get_position, pos1, 3),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_4_state", 2),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position, pos2, 3),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 200),
-            (val_add, "$tutorial_4_state", 1),
-            (entry_point_get_position, pos1, 4),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_4_state", 3),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position, pos2, 4),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 200),
-            (val_add, "$tutorial_4_state", 1),
-            (entry_point_get_position, pos1, 5),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_4_state", 4),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position, pos2, 5),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 200),
-            (val_add, "$tutorial_4_state", 1),
-            (entry_point_get_position, pos1, 6),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_4_state", 5),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position, pos2, 6),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 200),
-            (val_add, "$tutorial_4_state", 1),
-            (entry_point_get_position, pos1, 1),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_4_state", 6),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position, pos2, 1),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 200),
-            (val_add, "$tutorial_4_state", 1),
-            (entry_point_get_position, pos1, 7),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_4_state", 7),
-            (try_begin),
-              (eq, "$tutorial_4_msg_3_displayed", 0),
-              (assign, "$tutorial_4_msg_3_displayed", 1),
-              (tutorial_message, "str_tutorial_4_msg_3"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position, pos2, 7),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 200),
-            (val_add, "$tutorial_4_state", 1),
-            (entry_point_get_position, pos1, 20),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_4_state", 8),
-            (try_begin),
-              (eq, "$tutorial_4_msg_4_displayed", 0),
-              (assign, "$tutorial_4_msg_4_displayed", 1),
-              (tutorial_message, "str_tutorial_4_msg_4"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (ge, "$tutorial_num_total_dummies_destroyed", 2),
-            (val_add, "$tutorial_4_state", 1),
-            (entry_point_get_position, pos1, 8),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_4_state", 9),
-            (try_begin),
-              (eq, "$tutorial_4_msg_5_displayed", 0),
-              (assign, "$tutorial_4_msg_5_displayed", 1),
-              (tutorial_message, "str_tutorial_4_msg_5"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position, pos2, 8),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 200),
-            (val_add, "$tutorial_4_state", 1),
-            (entry_point_get_position, pos1, 20),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_4_state", 10),
-            (try_begin),
-              (eq, "$tutorial_4_msg_6_displayed", 0),
-              (assign, "$tutorial_4_msg_6_displayed", 1),
-              (tutorial_message, "str_tutorial_4_msg_6"),
-              (play_sound, "snd_tutorial_1"),
-              (assign, "$g_last_archery_point_earned", 0),
-              (assign, "$tutorial_num_arrows_hit", 0),
-            (try_end),
-            (try_begin),
-              (get_player_agent_no, ":player_agent"),
-              (agent_get_ammo, ":cur_ammo", ":player_agent"),
-              (le, ":cur_ammo", 0),
-              (agent_refill_ammo, ":player_agent"),
-              (tutorial_message, "str_tutorial_ammo_refilled"),
-            (try_end),
-            (gt, "$g_last_archery_point_earned", 0),
-            (assign, "$g_last_archery_point_earned", 0),
-            (val_add, "$tutorial_num_arrows_hit", 1),
-            (gt, "$tutorial_num_arrows_hit", 2),
-            (val_add, "$tutorial_4_state", 1),
-          (else_try),
-            (eq, "$tutorial_4_state", 11),
-            (eq, "$tutorial_4_msg_7_displayed", 0),
-            (assign, "$tutorial_4_msg_7_displayed", 1),
-            (tutorial_message, "str_tutorial_4_msg_7"),
-            (play_sound, "snd_tutorial_2"),
-            #(assign, "$tutorial_4_finished", 1),
-          (try_end),
-          ], []),
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-    ],
-  ),
-  
-  ("tutorial_5",mtf_arena_fight,-1,
-    "You enter the training ground.",
-    [
-      (0,mtef_visitor_source|mtef_team_0,af_override_everything,0,1,[itm_tutorial_sword,itm_tutorial_shield,itm_tutorial_short_bow,itm_tutorial_arrows,itm_tutorial_saddle_horse,itm_bl_tunic07,itm_carbatinae_6s]),
-      (1,mtef_visitor_source|mtef_team_0,0,aif_start_alarmed,1,[]),
-      (2,mtef_visitor_source|mtef_team_0,0,aif_start_alarmed,1,[]),
-      (3,mtef_visitor_source|mtef_team_0,0,aif_start_alarmed,1,[]),
-      (4,mtef_visitor_source|mtef_team_0,0,aif_start_alarmed,1,[]),
-      (8,mtef_visitor_source|mtef_team_0,0,aif_start_alarmed,1,[]),
-      (9,mtef_visitor_source|mtef_team_0,0,aif_start_alarmed,1,[]),
-      (10,mtef_visitor_source|mtef_team_0,0,aif_start_alarmed,1,[]),
-      (13,mtef_visitor_source|mtef_team_1,af_override_horse,aif_start_alarmed,1,[]),
-      (14,mtef_visitor_source|mtef_team_1,af_override_horse,aif_start_alarmed,1,[]),
-      (15,mtef_visitor_source|mtef_team_1,af_override_horse,aif_start_alarmed,1,[]),
-      (16,mtef_visitor_source|mtef_team_1,af_override_horse,aif_start_alarmed,1,[]),
-    ],
-    [
-      cannot_spawn_commoners,
-      (ti_tab_pressed, 0, 0, [],
-        [(try_begin),
-            (lt, "$tutorial_5_state", 5),
-            (question_box,"str_do_you_wish_to_leave_tutorial"),
-          (else_try),
-            (finish_mission,0),
-          (try_end),
-      ]),
-      (ti_question_answered, 0, 0, [],
-        [(store_trigger_param_1,":answer"),
-          (eq,":answer",0),
-          (finish_mission,0),
-      ]),
-      (ti_inventory_key_pressed, 0, 0, [(display_message,"str_cant_use_inventory_tutorial")], []),
-      
-      
-      (0, 0, ti_once, [
-          (store_mission_timer_a, ":cur_time"),
-          (gt, ":cur_time", 2),
-          (main_hero_fallen),
-          (assign, "$tutorial_5_state", 100),
-          ], []),
-      
-      (0, 0, ti_once, [
-          (tutorial_message_set_size, 17, 17),
-          (tutorial_message_set_position, 500, 650),
-          (tutorial_message_set_center_justify, 0),
-          
-          (assign, "$tutorial_5_state", 0),
-          (assign, "$tutorial_5_msg_1_displayed", 0),
-          (assign, "$tutorial_5_msg_2_displayed", 0),
-          (assign, "$tutorial_5_msg_3_displayed", 0),
-          (assign, "$tutorial_5_msg_4_displayed", 0),
-          (assign, "$tutorial_5_msg_5_displayed", 0),
-          (assign, "$tutorial_5_msg_6_displayed", 0),
-          ], []),
-      
-      (0, 0, ti_once, [(set_show_messages, 0),
-          (team_give_order, 0, grc_everyone, mordr_stand_ground),
-          (set_show_messages, 1),
-          (store_mission_timer_a, ":cur_time"),
-          (gt, ":cur_time", 3),
-          ], []),
-      
-      (0, 0, 0, [(call_script, "script_cf_turn_windmill_fans", 0)], []),
-      
-      (0, 0, 0, [(try_begin),
-            (eq, "$tutorial_5_state", 0),
-            (try_begin),
-              (eq, "$tutorial_5_msg_1_displayed", 0),
-              (store_mission_timer_a, ":cur_time"),
-              (gt, ":cur_time", 0),
-              (assign, "$tutorial_5_msg_1_displayed", 1),
-              (tutorial_message, "str_tutorial_5_msg_1"),
-              (entry_point_get_position, pos1, 5),
-              (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-              (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-            (try_end),
-            (call_script, "script_cf_team_get_average_position_of_agents_with_type_to_pos1", 0, grc_infantry),
-            (entry_point_get_position, pos2, 5),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 1000),
-            (val_add, "$tutorial_5_state", 1),
-            (entry_point_get_position, pos1, 6),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_red", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_5_state", 1),
-            (try_begin),
-              (eq, "$tutorial_5_msg_2_displayed", 0),
-              (assign, "$tutorial_5_msg_2_displayed", 1),
-              (tutorial_message, "str_tutorial_5_msg_2"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (call_script, "script_cf_team_get_average_position_of_agents_with_type_to_pos1", 0, grc_infantry),
-            (entry_point_get_position, pos2, 5),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 1000),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position, pos2, 6),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 500),
-            (val_add, "$tutorial_5_state", 1),
-            (entry_point_get_position, pos1, 7),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-            (entry_point_get_position, pos1, 30),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_red", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (else_try),
-            (eq, "$tutorial_5_state", 2),
-            (try_begin),
-              (eq, "$tutorial_5_msg_3_displayed", 0),
-              (assign, "$tutorial_5_msg_3_displayed", 1),
-              (tutorial_message, "str_tutorial_5_msg_3"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (get_player_agent_no, ":player_agent"),
-            (agent_get_position, pos1, ":player_agent"),
-            (entry_point_get_position, pos2, 7),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 500),
-            (val_add, "$tutorial_5_state", 1),
-            (modify_visitors_at_site,"scn_tutorial_5"),
-            (reset_visitors),
-            (set_visitor,5,"trp_saxon_level1_companion"),
-            (set_visitor,6,"trp_saxon_level1_companion"),
-            (set_visitor,7,"trp_saxon_level1_companion"),
-            (entry_point_get_position, pos1, 11),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-            (entry_point_get_position, pos1, 12),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_red", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-            (set_show_messages, 0),
-            (team_give_order, 0, grc_archers, mordr_stand_ground),
-            (set_show_messages, 1),
-          (else_try),
-            (eq, "$tutorial_5_state", 3),
-            (try_begin),
-              (eq, "$tutorial_5_msg_4_displayed", 0),
-              (assign, "$tutorial_5_msg_4_displayed", 1),
-              (tutorial_message, "str_tutorial_5_msg_4"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (call_script, "script_cf_team_get_average_position_of_agents_with_type_to_pos1", 0, grc_archers),
-            (entry_point_get_position, pos2, 11),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 1000),
-            (call_script, "script_cf_team_get_average_position_of_agents_with_type_to_pos1", 0, grc_infantry),
-            (entry_point_get_position, pos2, 12),
-            (get_distance_between_positions, ":cur_distance", pos1, pos2),
-            (le, ":cur_distance", 1000),
-            (val_add, "$tutorial_5_state", 1),
-            (entry_point_get_position, pos1, 30),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_red", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-            (modify_visitors_at_site,"scn_tutorial_5"),
-            (reset_visitors),
-            (set_visitor,8,"trp_bandit"),
-            (set_visitor,9,"trp_bandit"),
-            (set_visitor,10,"trp_bandit"),
-            (set_visitor,11,"trp_bandit"),
-            (team_give_order, 1, grc_everyone, mordr_charge),
-          (else_try),
-            (eq, "$tutorial_5_state", 4),
-            (try_begin),
-              (eq, "$tutorial_5_msg_5_displayed", 0),
-              (assign, "$tutorial_5_msg_5_displayed", 1),
-              (tutorial_message, "str_tutorial_5_msg_5"),
-              (play_sound, "snd_tutorial_1"),
-            (try_end),
-            (assign, ":enemy_count", 0),
-            (try_for_agents, ":cur_agent"),
-              (agent_is_human, ":cur_agent"),
-              (agent_is_alive, ":cur_agent"),
-              (agent_get_team, ":cur_team", ":cur_agent"),
-              (eq, ":cur_team", 1),
-              (val_add, ":enemy_count", 1),
-            (try_end),
-            (eq, ":enemy_count", 0),
-            (val_add, "$tutorial_5_state", 1),
-          (else_try),
-            (eq, "$tutorial_5_state", 5),
-            (eq, "$tutorial_5_msg_6_displayed", 0),
-            (assign, "$tutorial_5_msg_6_displayed", 1),
-            (tutorial_message, "str_tutorial_5_msg_6"),
-            (play_sound, "snd_tutorial_2"),
-            # (assign, "$tutorial_5_finished", 1),
-          (else_try),
-            (gt, "$tutorial_5_state", 30),
-            (tutorial_message, "str_tutorial_failed"),
-            (entry_point_get_position, pos1, 30),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_yellow", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-            (scene_prop_get_instance, ":flag_object", "spr_tutorial_flag_red", 0),
-            (prop_instance_animate_to_position, ":flag_object", pos1, 1),
-          (try_end),
-          ], []),
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-    ],
-  ),
-  
   ("quick_battle_battle",mtf_battle_mode,-1,
     "You lead your men to battle.",
     [
@@ -15106,20 +14322,6 @@ edited_native_mission_templates = [
       common_custom_battle_question_answered,
       common_inventory_not_available,
       common_after_mission_start,
-      
-      (0, 0, 0,
-        [
-          (key_clicked, key_u),
-        ],
-        [
-          (get_player_agent_no,":agent"),
-          (try_begin),
-            # (agent_is_active,":horse"),
-            (agent_set_animation,":agent","anim_berserker_trance",1),
-            # (else_try),
-            # (agent_set_animation,":agent","anim_berserker_trance",0),
-          (end_try),
-      ]),
       
       (ti_before_mission_start, 0, 0, [],
         [
@@ -18504,175 +17706,6 @@ edited_native_mission_templates = [
       dedal_item_fix_bwo,
   ]),
   
-  ("alley_fight", mtf_battle_mode,charge,
-    "Alley fight",
-    [
-      (0,mtef_team_0|mtef_use_exact_number,af_override_horse,aif_start_alarmed,7,[]),
-      (1,mtef_visitor_source|mtef_team_1,af_override_horse,aif_start_alarmed,20,[]),
-      (2,mtef_visitor_source|mtef_team_1,af_override_horse,aif_start_alarmed,20,[]),
-      (3,mtef_visitor_source|mtef_team_1,af_override_horse,aif_start_alarmed,20,[]),
-    ], vc_weather + slo_mo_death_cam + battle_mode_triggers +
-    [
-      cannot_spawn_commoners,
-      common_battle_init_banner,
-      
-      common_inventory_not_available,
-      
-      (ti_on_agent_spawn, 0, 0, [],
-        [
-          (store_trigger_param_1, ":agent_no"),
-          (get_player_agent_no, ":player_agent"),
-          (neq, ":agent_no", ":player_agent"),
-          (assign, "$g_main_attacker_agent", ":agent_no"),
-          (agent_ai_set_aggressiveness, ":agent_no", 199),
-          
-          (try_begin),
-            (agent_get_troop_id, ":troop_no", ":agent_no"),
-            (is_between, ":troop_no", "trp_swadian_merchant", "trp_startup_merchants_end"),
-            (agent_set_team, ":agent_no", 7),
-            (team_set_relation, 0, 7, 0),
-          (try_end),
-      ]),
-      
-      (0, 0, 0,
-        [
-          (eq, "$talked_with_merchant", 0),
-        ],
-        [
-          (get_player_agent_no, ":player_agent"),
-          (agent_get_position, pos0, ":player_agent"),
-          
-          (try_for_agents, ":agent_no"),
-            (agent_get_troop_id, ":troop_no", ":agent_no"),
-            (is_between, ":troop_no", "trp_swadian_merchant", "trp_startup_merchants_end"),
-            (agent_set_scripted_destination, ":agent_no", pos0),
-            (agent_get_position, pos1, ":agent_no"),
-            (get_distance_between_positions, ":dist", pos0, pos1),
-            (le, ":dist", 200),
-            (assign, "$talk_context", tc_back_alley),
-            (start_mission_conversation, ":troop_no"),
-          (try_end),
-      ]),
-      
-      (1, 0, 0, [],
-        [
-          (get_player_agent_no, ":player_agent"),
-          (ge, "$g_main_attacker_agent", 0),
-          (ge, ":player_agent", 0),
-          (agent_is_active, "$g_main_attacker_agent"),
-          (agent_is_active, ":player_agent"),
-          (agent_get_position, pos0, ":player_agent"),
-          (agent_get_position, pos1, "$g_main_attacker_agent"),
-          (get_distance_between_positions, ":dist", pos0, pos1),
-          (ge, ":dist", 5),
-          (agent_set_scripted_destination, "$g_main_attacker_agent", pos0),
-      ]),
-      
-      (ti_tab_pressed, 0, 0, [],
-        [
-          (display_message, "str_cannot_leave_now"),
-      ]),
-      
-      (0, 0, ti_once, [],
-        [
-          (call_script, "script_music_set_situation_with_culture", mtf_sit_ambushed),
-          (set_party_battle_mode),
-      ]),
-      
-      (0, 0, ti_once,
-        [
-          (neg|main_hero_fallen),
-          (num_active_teams_le, 1),
-        ],
-        [
-          (store_faction_of_party, ":starting_town_faction", "$g_starting_town"),
-          
-          (try_begin),
-            (eq, ":starting_town_faction", "fac_kingdom_1"),
-            (assign, ":troop_of_merchant", "trp_swadian_merchant"),
-          (else_try),
-            (eq, ":starting_town_faction", "fac_kingdom_2"),
-            (assign, ":troop_of_merchant", "trp_vaegir_merchant"),
-          (else_try),
-            (eq, ":starting_town_faction", "fac_kingdom_3"),
-            (assign, ":troop_of_merchant", "trp_khergit_merchant"),
-          (else_try),
-            (eq, ":starting_town_faction", "fac_kingdom_4"),
-            (assign, ":troop_of_merchant", "trp_nord_merchant"),
-          (else_try),
-            (eq, ":starting_town_faction", "fac_kingdom_5"),
-            (assign, ":troop_of_merchant", "trp_rhodok_merchant"),
-          (else_try),
-            #(eq, ":starting_town_faction", "fac_kingdom_6"),#VC-2754
-            (assign, ":troop_of_merchant", "trp_sarranid_merchant"),
-          (try_end),
-          
-          (add_visitors_to_current_scene, 3, ":troop_of_merchant", 1, 0),
-      ]),
-      
-      (1, 0, ti_once,
-        [
-          (eq, "$talked_with_merchant", 1),
-        ],
-        [
-          (try_begin),
-            (main_hero_fallen),
-            (assign, "$g_killed_first_bandit", 0),
-          (else_try),
-            (assign, "$g_killed_first_bandit", 1),
-          (try_end),
-          
-          (finish_mission),
-          (assign, "$g_main_attacker_agent", 0),
-          (assign, "$talked_with_merchant", 1),
-          
-          (assign, "$current_startup_quest_phase", 1),
-          
-          (change_screen_return),
-          (set_trigger_result, 1),
-          
-          (get_player_agent_no, ":player_agent"),
-          (store_agent_hit_points, ":hit_points", ":player_agent"),
-          
-          (try_begin),
-            (lt, ":hit_points", 90),
-            (agent_set_hit_points, ":player_agent", 90),
-          (try_end),
-      ]),
-      
-      (1, 3, ti_once,
-        [
-          (main_hero_fallen),
-        ],
-        [
-          (try_begin),
-            (main_hero_fallen),
-            (assign, "$g_killed_first_bandit", 0),
-          (else_try),
-            (assign, "$g_killed_first_bandit", 1),
-          (try_end),
-          
-          (finish_mission),
-          (assign, "$g_main_attacker_agent", 0),
-          (assign, "$talked_with_merchant", 1),
-          
-          (assign, "$current_startup_quest_phase", 1),
-          
-          (change_screen_return),
-          (set_trigger_result, 1),
-          
-          (get_player_agent_no, ":player_agent"),
-          (store_agent_hit_points, ":hit_points", ":player_agent"),
-          
-          (try_begin),
-            (lt, ":hit_points", 90),
-            (agent_set_hit_points, ":player_agent", 90),
-          (try_end),
-      ]),
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-  ]),
-  
   ("meeting_merchant", mtf_battle_mode,-1,
     "Meeting with the merchant",
     [
@@ -18702,15 +17735,6 @@ edited_native_mission_templates = [
             (team_set_relation, 0, 7, 0),
           (try_end),
       ]),
-      
-      # (0, 0, 0, #phaiak try fixing VC-336
-      # [
-      # (this_or_next|key_clicked, key_escape),
-      # (key_is_down, key_escape),
-      # ],
-      # [
-      # (change_screen_options),
-      # ]),
       
       (1, 0, ti_once, [],
         [
@@ -19996,91 +19020,6 @@ vc_mission_templates = [
     ]
   ),
   
-  ("monasterio_atacado2",0,-1,
-    "monasterio",
-    [
-      (0,mtef_team_0|mtef_use_exact_number,af_override_horse,aif_start_alarmed,12,[]),
-      (1,mtef_visitor_source|mtef_team_1,af_override_horse,aif_start_alarmed,12,[]),
-      (3,mtef_visitor_source|mtef_team_1,af_override_horse,aif_start_alarmed,12,[]),
-      (8,mtef_team_0|mtef_use_exact_number,af_override_horse,aif_start_alarmed,12,[]),
-    ],
-    [
-      cannot_spawn_commoners,
-      common_inventory_not_available,
-      
-      common_battle_init_banner,
-      
-      (ti_before_mission_start, 0, 0, [],
-        [
-          (assign,"$g_battle_result",0),
-      ]),
-      (ti_after_mission_start, 0, 0, [], [(call_script, "script_music_set_situation_with_culture", mtf_sit_monastery)]),
-      
-      ###corage empieza
-      (ti_on_agent_spawn, 0, 0, [],
-        [
-          (store_trigger_param_1, ":agent_no"),
-          (call_script, "script_agent_reassign_team", ":agent_no"),
-          (assign, ":initial_courage_score", 3000), #chief cambia a 3500, menos corage al principio
-          
-          (agent_get_troop_id, ":troop_id", ":agent_no"),
-          (store_character_level, ":troop_level", ":troop_id"),
-          (val_mul, ":troop_level", 15), #chief aumenta a 35 moral por nivel de tropa
-          (val_add, ":initial_courage_score", ":troop_level"), #average : 20 * 35 = 700
-          
-          (store_random_in_range, ":randomized_addition_courage", 0, 1500), #average : 1500 chief reduce a 2500
-          (val_add, ":initial_courage_score", ":randomized_addition_courage"),
-          
-          (agent_get_party_id, ":agent_party", ":agent_no"),
-          (try_begin),
-            (ge, ":agent_party", 0),
-            (party_is_active, ":agent_party"),
-            (party_get_morale, ":cur_morale", ":agent_party"),
-          (else_try),
-            (assign, ":cur_morale", 50),
-          (try_end),
-          #         (party_get_morale, ":cur_morale", ":agent_party"),
-          
-          (store_sub, ":morale_effect_on_courage", ":cur_morale", 70),
-          (val_mul, ":morale_effect_on_courage", 30), #this can effect morale with -2100..900
-          (val_add, ":initial_courage_score", ":morale_effect_on_courage"),
-          
-          (agent_set_slot, ":agent_no", slot_agent_courage_score, ":initial_courage_score"),
-      ]),
-      ###corage acaba
-      (ti_tab_pressed, 0, 0, [],
-        [(question_box,"str_do_you_want_to_retreat"),
-      ]),
-      (ti_question_answered, 0, 0, [],
-        [(store_trigger_param_1,":answer"),
-          (eq,":answer",0),
-          (jump_to_menu, "mnu_monasterio_saqueado"),
-          (finish_mission),]),
-      
-      (30,0,ti_once,[],
-        [
-          (play_sound, "snd_campanas", 1),
-      ]),
-      
-      (ti_tab_pressed, 0, 0, [(display_message,"str_cannot_leave_now")], []),
-      (ti_before_mission_start, 0, 0, [], [(call_script, "script_change_banners_and_chest")]),
-      
-      (1, 4, ti_once, [(this_or_next|main_hero_fallen),(num_active_teams_le,1)],
-        [
-          (try_begin),
-            (main_hero_fallen),
-            (jump_to_menu, "mnu_monasterio_saqueado"),
-          (else_try),
-            (jump_to_menu, "mnu_monasterio_saqueado"),
-          (try_end),
-          (finish_mission),
-      ]),
-      
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-    ]
-  ),
-  
   ("paganholysites_atacado", mtf_battle_mode,-1,
     "monasterio",
     [(1,mtef_team_0, 0,aif_start_alarmed,60,[]),
@@ -20481,349 +19420,210 @@ vc_mission_templates = [
     ]
   ),
   
-  ("ship_battle2",mtf_battle_mode,-1, #battle naval static - adorno scenes
-    "You close in and board the enemy ships",
-    [(0,mtef_attackers|mtef_team_1,af_override_horse,aif_start_alarmed,4,[]),
-      (1,mtef_attackers|mtef_team_1,af_override_horse,aif_start_alarmed,4,[]),
-      (2,mtef_attackers|mtef_team_1,af_override_horse,aif_start_alarmed,4,[]),
-      (3,mtef_attackers|mtef_team_1,af_override_horse,aif_start_alarmed,4,[]),
-      (4,mtef_attackers|mtef_team_1,af_override_horse,aif_start_alarmed,4,[]),
-      (5,mtef_attackers|mtef_team_1,af_override_horse,aif_start_alarmed,4,[]),
-      (6,mtef_attackers|mtef_team_1,af_override_horse,aif_start_alarmed,4,[]),
-      (7,mtef_attackers|mtef_team_1,af_override_horse,aif_start_alarmed,4,[]),
-      (10,mtef_defenders|mtef_team_0,af_override_horse,aif_start_alarmed,4,[]),
-      (11,mtef_defenders|mtef_team_0,af_override_horse,aif_start_alarmed,4,[]),
-      (8,mtef_defenders|mtef_team_0,af_override_horse,aif_start_alarmed,4,[]),
-      (9,mtef_defenders|mtef_team_0,af_override_horse,aif_start_alarmed,4,[]),
-      (12,mtef_defenders|mtef_team_0,af_override_horse,aif_start_alarmed,4,[]),
-      (13,mtef_defenders|mtef_team_0,af_override_horse,aif_start_alarmed,4,[]),
-      (14,mtef_defenders|mtef_team_0,af_override_horse,aif_start_alarmed,4,[]),
-      (15,mtef_defenders|mtef_team_0,af_override_horse,aif_start_alarmed,4,[]),
-    ], camera_controls + battle_mode_triggers +
-    [
-      cannot_spawn_commoners,
-      (ti_before_mission_start, 0, 0, [],
-        [
-          (call_script, "script_party_calculate_strength", "p_main_party", 1), #exclude player
-          (assign, ":player_party_strength", reg0),
-          (val_max, ":player_party_strength", 1),
-          (troop_get_slot, ":player_renown", "trp_player", slot_troop_renown),
-          (assign, "$temp3", ":player_renown"),
-          (call_script, "script_party_calculate_strength", "p_collective_enemy", 0),
-          (assign, ":enemy_party_strength", reg0),
-          (val_max, ":enemy_party_strength", 1),
-          (options_get_campaign_ai, ":reduce_campaign_ai"), #moto chief
-          (try_begin),
-            (eq, ":reduce_campaign_ai", 0), #hard
-            (assign, ":enemy_strength_mod", 75),
-          (else_try),
-            (eq, ":reduce_campaign_ai", 1), #medium
-            (assign, ":enemy_strength_mod", 120),
-          (else_try),
-            (eq, ":reduce_campaign_ai", 2), #easy
-            (assign, ":enemy_strength_mod", 150),
-          (try_end),
-          
-          (store_mul, "$temp_2", ":enemy_party_strength", ":enemy_strength_mod"),
-          #	  (party_collect_attachments_to_party, "p_main_party", "p_collective_ally"),
-          (call_script, "script_party_calculate_strength", "p_collective_ally", 1), #exclude player
-          (assign, ":total_player_and_followers_strength", reg0),
-          (val_max, ":total_player_and_followers_strength", 1),
-          (store_mul, ":str", ":player_party_strength", 100),
-          (val_div, ":str", ":total_player_and_followers_strength"),
-          (store_mul, "$temp2", ":str",  ":player_party_strength"),
-      ]),
-      
-      (ti_on_agent_spawn, 0, 0, [],
-        [
-          (store_trigger_param_1, ":agent_no"),
-          (call_script, "script_agent_reassign_team", ":agent_no"),
-      ]),
-      
-      common_battle_init_banner, #sets heraldry on shields and armor
-      common_after_mission_start,
-      
-      (ti_on_agent_killed_or_wounded, 0, 0, [],
-        [
-          (store_trigger_param_1, ":dead_agent_no"),
-          (store_trigger_param_2, ":killer_agent_no"),
-          (store_trigger_param_3, ":is_wounded"),
-          
-          (try_begin),
-            (ge, ":dead_agent_no", 0),
-            (neg|agent_is_ally, ":dead_agent_no"),
-            (agent_is_human, ":dead_agent_no"),
-            (agent_get_troop_id, ":dead_agent_troop_id", ":dead_agent_no"),
-            (str_store_troop_name, s6, ":dead_agent_troop_id"),
-            (assign, reg0, ":dead_agent_no"),
-            (assign, reg1, ":killer_agent_no"),
-            (assign, reg2, ":is_wounded"),
-            (agent_get_team, reg3, ":dead_agent_no"),
-            #(display_message, "@{!}dead agent no : {reg0} ; killer agent no : {reg1} ; is_wounded : {reg2} ; dead agent team : {reg3} ; {s6} is added"),
-            (party_add_members, "p_total_enemy_casualties", ":dead_agent_troop_id", 1), #addition_to_p_total_enemy_casualties
-            (eq, ":is_wounded", 1),
-            (party_wound_members, "p_total_enemy_casualties", ":dead_agent_troop_id", 1),
-          (try_end),
-      ]),
-      
-      (0, 0, ti_once, [], [
-          (assign,"$g_battle_won",0),
-          (assign,"$defender_reinforcement_stage",0),
-          (assign,"$attacker_reinforcement_stage",0),
-          #                           (assign,"$g_presentation_battle_active", 0),
-          (call_script, "script_place_player_banner_near_inventory"),
-          (call_script, "script_combat_music_set_situation_with_culture"),
-      ]),
-      common_music_situation_update,
-      common_battle_check_friendly_kills,
-      
-      (1, 0, 5, [(lt,"$defender_reinforcement_stage",2),
-          (store_mission_timer_a,":mission_time"),
-          (ge,":mission_time",10),
-          (store_normalized_team_count,":num_defenders", 0),
-          (lt,":num_defenders",6),
-          #                 (assign, reg2, ":num_defenders"),
-          #                 (display_message,"@num_defenders = {reg2}")
-        ],
-        [(add_reinforcements_to_entry,0,7),(val_add,"$defender_reinforcement_stage",1)]),
-      
-      (1, 0, 5, [(lt,"$attacker_reinforcement_stage",2),
-          (store_mission_timer_a,":mission_time"),
-          (ge,":mission_time",10),
-          (store_normalized_team_count,":num_attackers", 1),
-          (lt,":num_attackers",6),
-          #                 (assign, reg2, ":num_attackers"),
-          #                 (display_message,"@num_attackers = {reg2}")
-        ],
-        [(add_reinforcements_to_entry,3,7),(val_add,"$attacker_reinforcement_stage",1)]),
-      
-      common_battle_check_victory_condition,
-      common_battle_victory_display,
-      common_battle_tab_press,
-      common_battle_player_fallen,
-      #common_drowning,
-      
-      (ti_question_answered, 0, 0, [],
-        [(store_trigger_param_1,":answer"),
-          (eq,":answer",0),
-          (assign, "$pin_player_fallen", 0),
-          (try_begin),
-            (store_mission_timer_a, ":elapsed_time"),
-            (gt, ":elapsed_time", 20),
-            (str_store_string, s5, "str_retreat"),
-            (call_script, "script_simulate_retreat", 10, 20, 1),
-          (try_end),
-          (call_script, "script_count_mission_casualties_from_agents"),
-          (finish_mission,0),]),
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-    ],
-  ),
+  # ("port_visit",0,-1,
+  # "Port visit",
+  # [
+  # #Player/companions
+  # (0,mtef_scene_source|mtef_team_0,0,0,1,pilgrim_disguise),
+  # (1,mtef_scene_source|mtef_team_0,0,0,1,[]),
+  # (2,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
+  # (3,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
+  # (4,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
+  # (5,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
+  # (6,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
+  # (7,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
+  # (8,mtef_visitor_source,af_override_horse,0,1,[]),(9,mtef_visitor_source,af_override_horse,0,1,[]),(10,mtef_visitor_source,af_override_horse,0,1,[]),(11,mtef_visitor_source,af_override_horse,0,1,[]),(12,mtef_visitor_source,af_override_horse,0,1,[]),
+  # (13,mtef_visitor_source,af_override_horse,0,1,[]),
+  # (14,mtef_visitor_source,af_override_horse,0,1,[]),
+  # (15,mtef_visitor_source,af_override_horse,0,1,[]),(16,mtef_visitor_source,af_override_horse,0,1,[]),(17,mtef_visitor_source,af_override_horse,0,1,[]),(18,mtef_visitor_source,af_override_horse,0,1,[]),
+  # (19,mtef_visitor_source,af_override_horse,0,1,[]),
+  # (20,mtef_visitor_source|mtef_team_0,0,0,1,[]),(21,mtef_visitor_source,0,0,1,[]),(22,mtef_visitor_source,0,0,1,[]),(23,mtef_visitor_source,0,0,1,[]),
+  # (24,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(25,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(26,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(27,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(28,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(29,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),
+  # (30,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(31,mtef_visitor_source,af_override_horse,0,1,[]),
+  # (32,mtef_visitor_source,af_override_horse,0,1,[]),(33,mtef_visitor_source,af_override_horse,0,1,[]),(34,mtef_visitor_source,af_override_horse,0,1,[]),(35,mtef_visitor_source,af_override_horse,0,1,[]),(36,mtef_visitor_source,af_override_horse,0,1,[]),(37,mtef_visitor_source,af_override_horse,0,1,[]),(38,mtef_visitor_source,af_override_horse,0,1,[]),(39,mtef_visitor_source,af_override_horse,0,1,[]),
+  # (40,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(41,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(42,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(43|mtef_team_0,mtef_visitor_source,af_override_horse,aif_start_alarmed,1,[]),
+  # (44,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(45,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(46,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(47|mtef_team_0,mtef_visitor_source,af_override_horse,aif_start_alarmed,1,[]),
+  # (48,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(49,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),
   
-  ("port_visit",0,-1,
-    "Port visit",
-    [
-      #Player/companions
-      (0,mtef_scene_source|mtef_team_0,0,0,1,pilgrim_disguise),
-      (1,mtef_scene_source|mtef_team_0,0,0,1,[]),
-      (2,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
-      (3,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
-      (4,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
-      (5,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
-      (6,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
-      (7,mtef_scene_source|mtef_team_0,af_override_horse,0,1,pilgrim_disguise),
-      (8,mtef_visitor_source,af_override_horse,0,1,[]),(9,mtef_visitor_source,af_override_horse,0,1,[]),(10,mtef_visitor_source,af_override_horse,0,1,[]),(11,mtef_visitor_source,af_override_horse,0,1,[]),(12,mtef_visitor_source,af_override_horse,0,1,[]),
-      (13,mtef_visitor_source,af_override_horse,0,1,[]),
-      (14,mtef_visitor_source,af_override_horse,0,1,[]),
-      (15,mtef_visitor_source,af_override_horse,0,1,[]),(16,mtef_visitor_source,af_override_horse,0,1,[]),(17,mtef_visitor_source,af_override_horse,0,1,[]),(18,mtef_visitor_source,af_override_horse,0,1,[]),
-      (19,mtef_visitor_source,af_override_horse,0,1,[]),
-      (20,mtef_visitor_source|mtef_team_0,0,0,1,[]),(21,mtef_visitor_source,0,0,1,[]),(22,mtef_visitor_source,0,0,1,[]),(23,mtef_visitor_source,0,0,1,[]),
-      (24,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(25,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(26,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(27,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(28,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(29,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),
-      (30,mtef_visitor_source|mtef_team_0,af_override_horse,0,1,[]),(31,mtef_visitor_source,af_override_horse,0,1,[]),
-      (32,mtef_visitor_source,af_override_horse,0,1,[]),(33,mtef_visitor_source,af_override_horse,0,1,[]),(34,mtef_visitor_source,af_override_horse,0,1,[]),(35,mtef_visitor_source,af_override_horse,0,1,[]),(36,mtef_visitor_source,af_override_horse,0,1,[]),(37,mtef_visitor_source,af_override_horse,0,1,[]),(38,mtef_visitor_source,af_override_horse,0,1,[]),(39,mtef_visitor_source,af_override_horse,0,1,[]),
-      (40,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(41,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(42,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(43|mtef_team_0,mtef_visitor_source,af_override_horse,aif_start_alarmed,1,[]),
-      (44,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(45,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(46,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(47|mtef_team_0,mtef_visitor_source,af_override_horse,aif_start_alarmed,1,[]),
-      (48,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),(49,mtef_visitor_source|mtef_team_0,af_override_horse,aif_start_alarmed,1,[]),
-      
-    ],
-    [
-      can_spawn_commoners,
-      (ti_before_mission_start, 0, 0, [],
-        [
-          (call_script, "script_change_banners_and_chest"),
-          (call_script, "script_remove_siege_objects"),
-      ]),
-      (ti_on_agent_spawn, 0, 0, [],
-        [
-          (store_trigger_param_1, ":agent_no"),
-          (call_script, "script_init_town_agent", ":agent_no"),
-      ]),
-      
-      ### PHAIAK begin
-      (0, 0, ti_once, [],
-        [
-          (try_begin),
-            (store_sub, ":upper_bound_ship_slots", slot_party_ship_type_end, slot_party_1_ship_type),
-            (val_add, ":upper_bound_ship_slots", 1),
-            (try_for_range, ":current_slot", 1, ":upper_bound_ship_slots"),
-              (store_add, ":calculated_slot", ":current_slot", slot_party_1_ship_type),
-              (val_sub, ":calculated_slot", 1),
-              (party_get_slot, ":ship_type", "$current_town", ":calculated_slot"),
-              (try_begin),
-                (gt, ":ship_type", 0),
-                (store_add, ":current_entry_no", ":current_slot", 50),
-                (entry_point_get_position, pos34, ":current_entry_no"),
-                (call_script, "script_get_ship_properties", ":ship_type"),
-                (position_move_x, pos34, reg5),				# ship radius
-                (position_get_rotation_around_y, ":y_rotation", pos34),
-                (val_mul, ":y_rotation", -1),
-                (position_rotate_y, pos34, ":y_rotation"),
-                (position_rotate_z, pos34, 90),				# correkt angle
-                (set_spawn_position, pos34),
-                (call_script, "script_spawn_ship", ":ship_type"),
-                (store_random_in_range, ":beginning_wank_state", -4, 13),		# Randomize wank state
-                (val_mul, ":beginning_wank_state", 25),
-                (scene_prop_set_slot, reg0, scene_prop_wank_state, ":beginning_wank_state"), #!
-              (end_try),
-            (end_try),
-            
-            (try_begin),
-              (eq, "$ship_menu", 1),
-              (set_fixed_point_multiplier, 100),
-              (call_script, "script_save_cam_first_person_mode"),
-              (mission_cam_set_mode, 1, 0, 0),
-              (set_camera_in_first_person, 0),
-              (entry_point_get_position, pos8, 51),
-              (position_move_x, pos8, 200),
-              (position_get_rotation_around_y, ":y_rotation", pos8),
-              (val_mul, ":y_rotation", -1),
-              (position_rotate_y, pos8, ":y_rotation"),
-              (position_rotate_z, pos8, 110),		# correkt angle of 90 included (110 + 90)
-              (position_rotate_x, pos8, -20),
-              (position_move_y, pos8, -1500),
-              (position_move_x, pos8, 350),
-              (position_move_z, pos8, 350, 1),
-              (mission_cam_set_position, pos8),
-              (assign, "$ship_menu_state", 1), # 1-10
-              (start_presentation, "prsnt_vc_submenu_ships"),
-              (assign, "$ship_menu", 0),
-            (try_end),
-          (try_end),
-      ]),
-      
-      
-      (0.25, 0, 0, [],
-        [
-          (try_begin),
-            (set_fixed_point_multiplier, 100),
-            (call_script, "script_check_player_ship"),
-            (scene_prop_get_num_instances, ":number_of_ships", "spr_dyn_ship_substrate"),
-            (try_for_range,":ship_number", 0, ":number_of_ships"),
-              ### GET DATA
-              (scene_prop_get_instance, ":ship_instance", "spr_dyn_ship_substrate", ":ship_number"),
-              (prop_instance_get_position, pos1, ":ship_instance"),
-              (scene_prop_get_slot, ":ship_sail_off_instance", ":ship_instance", scene_prop_main_instance),
-              (scene_prop_get_slot, ":ship_sail_on_instance", ":ship_instance", scene_prop_boom_instance),
-              (scene_prop_get_slot, ":ship_collision_instance", ":ship_instance", scene_prop_collision_instance),
-              (scene_prop_get_slot, ":ship_planks_a", ":ship_instance", 18),
-              (scene_prop_get_slot, ":ship_planks_b", ":ship_instance", 19),
-              ### DELETE X-ROTATION AND Y-ROTATION OF POS1
-              (position_get_rotation_around_z, ":z-rotation", pos1),
-              (init_position, pos13),
-              (position_copy_rotation, pos1, pos13),
-              (position_rotate_z, pos1, ":z-rotation"),
-              ### WANK
-              (call_script, "script_calculate_wank_to_pos1", ":ship_number"),
-              (position_set_z, pos1, 0),															# high of the ship
-              ### MOVE THE MAIN-INSTANCES
-              (assign, ":animation_duration", 35),		# depends on frequennce of callinng trigger and the wanted smoothnes
-              (prop_instance_animate_to_position, ":ship_instance", pos1, ":animation_duration"),
-              (prop_instance_animate_to_position, ":ship_sail_off_instance", pos1, ":animation_duration"),
-              (prop_instance_animate_to_position, ":ship_sail_on_instance", pos1, ":animation_duration"),
-              (position_set_z, pos1, -1000),			# collision instances move under the ground tto prevent interaction with agents
-              (prop_instance_animate_to_position, ":ship_collision_instance", pos1, ":animation_duration"),
-              (position_set_z, pos1, -100),
-              ### MOVE THE OTHER INSTANCES
-              (position_move_z, pos1, -100),
-              (prop_instance_animate_to_position, ":ship_planks_a", pos1, ":animation_duration"),
-              (position_move_z, pos1, -1000),
-              (prop_instance_animate_to_position, ":ship_planks_b", pos1, ":animation_duration"),
-              (scene_prop_set_visibility, ":ship_planks_a", 0),
-            (try_end),
-          (try_end),
-      ]),
-      ### PHAIAK end
-      
-      (1, 0, ti_once, [],
-        [
-          (try_begin),
-            (eq, "$g_mt_mode", tcm_default),
-            (store_current_scene, ":cur_scene"),
-            (scene_set_slot, ":cur_scene", slot_scene_visited, 1),
-          (try_end),
-          (call_script, "script_init_town_walker_agents"),
-          (try_begin),
-            (eq, "$sneaked_into_town", 1),
-            (call_script, "script_music_set_situation_with_culture", mtf_sit_town_infiltrate),
-          (else_try),
-            (call_script, "script_music_set_situation_with_culture", mtf_sit_travel),
-          (try_end),
-      ]),
-      (ti_inventory_key_pressed, 0, 0,
-        [
-          (try_begin),
-            (eq, "$g_mt_mode", tcm_default),
-            (set_trigger_result,1),
-          (else_try),
-            (eq, "$g_mt_mode", tcm_disguised),
-            (display_message,"str_cant_use_inventory_disguised"),
-          (else_try),
-            (display_message, "str_cant_use_inventory_now"),
-          (try_end),
-          ], []),
-      (ti_tab_pressed, 0, 0,
-        [
-          (try_begin),
-            (this_or_next|eq, "$g_mt_mode", tcm_default),
-            (eq, "$g_mt_mode", tcm_disguised),
-            (set_trigger_result,1),
-          (else_try),
-            (display_message, "str_cannot_leave_now"),
-          (try_end),
-          ], []),
-      (ti_on_leave_area, 0, 0,
-        [
-          (try_begin),
-            (eq, "$g_defending_against_siege", 0),
-            (assign,"$g_leave_town",1),
-          (try_end),
-          ], []),
-      
-      (0, 0, ti_once, [],
-        [
-          (party_slot_eq, "$current_town", slot_party_type, spt_town),
-          (call_script, "script_town_init_doors", 0),
-          (try_begin),
-            (eq, "$town_nighttime", 0),
-            (play_sound, "snd_town_ambiance", sf_looping),
-          (try_end),
-      ]),
-      
-      ambient_scene_play_loop,
-      ambient_scene_play_random_sound,
-      ambient_set_agents_for_sounds,
-      ambient_agent_play_sound,
-      ambient_end_sound,
-      
-      (3, 0, 0, [
-          (call_script, "script_tick_town_walkers"),
-          ], []),
-      
-      
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-    ],
-  ),
+  # ],
+  # [
+  # can_spawn_commoners,
+  # (ti_before_mission_start, 0, 0, [],
+  # [
+  # (call_script, "script_change_banners_and_chest"),
+  # (call_script, "script_remove_siege_objects"),
+  # ]),
+  # (ti_on_agent_spawn, 0, 0, [],
+  # [
+  # (store_trigger_param_1, ":agent_no"),
+  # (call_script, "script_init_town_agent", ":agent_no"),
+  # ]),
+  
+  # ### PHAIAK begin
+  # (0, 0, ti_once, [],
+  # [
+  # (try_begin),
+  # (store_sub, ":upper_bound_ship_slots", slot_party_ship_type_end, slot_party_1_ship_type),
+  # (val_add, ":upper_bound_ship_slots", 1),
+  # (try_for_range, ":current_slot", 1, ":upper_bound_ship_slots"),
+  # (store_add, ":calculated_slot", ":current_slot", slot_party_1_ship_type),
+  # (val_sub, ":calculated_slot", 1),
+  # (party_get_slot, ":ship_type", "$current_town", ":calculated_slot"),
+  # (try_begin),
+  # (gt, ":ship_type", 0),
+  # (store_add, ":current_entry_no", ":current_slot", 50),
+  # (entry_point_get_position, pos34, ":current_entry_no"),
+  # (call_script, "script_get_ship_properties", ":ship_type"),
+  # (position_move_x, pos34, reg5),				# ship radius
+  # (position_get_rotation_around_y, ":y_rotation", pos34),
+  # (val_mul, ":y_rotation", -1),
+  # (position_rotate_y, pos34, ":y_rotation"),
+  # (position_rotate_z, pos34, 90),				# correkt angle
+  # (set_spawn_position, pos34),
+  # (call_script, "script_spawn_ship", ":ship_type"),
+  # (store_random_in_range, ":beginning_wank_state", -4, 13),		# Randomize wank state
+  # (val_mul, ":beginning_wank_state", 25),
+  # (scene_prop_set_slot, reg0, scene_prop_wank_state, ":beginning_wank_state"), #!
+  # (end_try),
+  # (end_try),
+  
+  # (try_begin),
+  # (eq, "$ship_menu", 1),
+  # (set_fixed_point_multiplier, 100),
+  # (call_script, "script_save_cam_first_person_mode"),
+  # (mission_cam_set_mode, 1, 0, 0),
+  # (set_camera_in_first_person, 0),
+  # (entry_point_get_position, pos8, 51),
+  # (position_move_x, pos8, 200),
+  # (position_get_rotation_around_y, ":y_rotation", pos8),
+  # (val_mul, ":y_rotation", -1),
+  # (position_rotate_y, pos8, ":y_rotation"),
+  # (position_rotate_z, pos8, 110),		# correkt angle of 90 included (110 + 90)
+  # (position_rotate_x, pos8, -20),
+  # (position_move_y, pos8, -1500),
+  # (position_move_x, pos8, 350),
+  # (position_move_z, pos8, 350, 1),
+  # (mission_cam_set_position, pos8),
+  # (assign, "$ship_menu_state", 1), # 1-10
+  # (start_presentation, "prsnt_vc_submenu_ships"),
+  # (assign, "$ship_menu", 0),
+  # (try_end),
+  # (try_end),
+  # ]),
+  
+  
+  # (0.25, 0, 0, [],
+  # [
+  # (try_begin),
+  # (set_fixed_point_multiplier, 100),
+  # (call_script, "script_check_player_ship"),
+  # (scene_prop_get_num_instances, ":number_of_ships", "spr_dyn_ship_substrate"),
+  # (try_for_range,":ship_number", 0, ":number_of_ships"),
+  # ### GET DATA
+  # (scene_prop_get_instance, ":ship_instance", "spr_dyn_ship_substrate", ":ship_number"),
+  # (prop_instance_get_position, pos1, ":ship_instance"),
+  # (scene_prop_get_slot, ":ship_sail_off_instance", ":ship_instance", scene_prop_main_instance),
+  # (scene_prop_get_slot, ":ship_sail_on_instance", ":ship_instance", scene_prop_boom_instance),
+  # (scene_prop_get_slot, ":ship_collision_instance", ":ship_instance", scene_prop_collision_instance),
+  # (scene_prop_get_slot, ":ship_planks_a", ":ship_instance", 18),
+  # (scene_prop_get_slot, ":ship_planks_b", ":ship_instance", 19),
+  # ### DELETE X-ROTATION AND Y-ROTATION OF POS1
+  # (position_get_rotation_around_z, ":z-rotation", pos1),
+  # (init_position, pos13),
+  # (position_copy_rotation, pos1, pos13),
+  # (position_rotate_z, pos1, ":z-rotation"),
+  # ### WANK
+  # (call_script, "script_calculate_wank_to_pos1", ":ship_number"),
+  # (position_set_z, pos1, 0),															# high of the ship
+  # ### MOVE THE MAIN-INSTANCES
+  # (assign, ":animation_duration", 35),		# depends on frequennce of callinng trigger and the wanted smoothnes
+  # (prop_instance_animate_to_position, ":ship_instance", pos1, ":animation_duration"),
+  # (prop_instance_animate_to_position, ":ship_sail_off_instance", pos1, ":animation_duration"),
+  # (prop_instance_animate_to_position, ":ship_sail_on_instance", pos1, ":animation_duration"),
+  # (position_set_z, pos1, -1000),			# collision instances move under the ground tto prevent interaction with agents
+  # (prop_instance_animate_to_position, ":ship_collision_instance", pos1, ":animation_duration"),
+  # (position_set_z, pos1, -100),
+  # ### MOVE THE OTHER INSTANCES
+  # (position_move_z, pos1, -100),
+  # (prop_instance_animate_to_position, ":ship_planks_a", pos1, ":animation_duration"),
+  # (position_move_z, pos1, -1000),
+  # (prop_instance_animate_to_position, ":ship_planks_b", pos1, ":animation_duration"),
+  # (scene_prop_set_visibility, ":ship_planks_a", 0),
+  # (try_end),
+  # (try_end),
+  # ]),
+  # ### PHAIAK end
+  
+  # (1, 0, ti_once, [],
+  # [
+  # (try_begin),
+  # (eq, "$g_mt_mode", tcm_default),
+  # (store_current_scene, ":cur_scene"),
+  # (scene_set_slot, ":cur_scene", slot_scene_visited, 1),
+  # (try_end),
+  # (call_script, "script_init_town_walker_agents"),
+  # (try_begin),
+  # (eq, "$sneaked_into_town", 1),
+  # (call_script, "script_music_set_situation_with_culture", mtf_sit_town_infiltrate),
+  # (else_try),
+  # (call_script, "script_music_set_situation_with_culture", mtf_sit_travel),
+  # (try_end),
+  # ]),
+  # (ti_inventory_key_pressed, 0, 0,
+  # [
+  # (try_begin),
+  # (eq, "$g_mt_mode", tcm_default),
+  # (set_trigger_result,1),
+  # (else_try),
+  # (eq, "$g_mt_mode", tcm_disguised),
+  # (display_message,"str_cant_use_inventory_disguised"),
+  # (else_try),
+  # (display_message, "str_cant_use_inventory_now"),
+  # (try_end),
+  # ], []),
+  # (ti_tab_pressed, 0, 0,
+  # [
+  # (try_begin),
+  # (this_or_next|eq, "$g_mt_mode", tcm_default),
+  # (eq, "$g_mt_mode", tcm_disguised),
+  # (set_trigger_result,1),
+  # (else_try),
+  # (display_message, "str_cannot_leave_now"),
+  # (try_end),
+  # ], []),
+  # (ti_on_leave_area, 0, 0,
+  # [
+  # (try_begin),
+  # (eq, "$g_defending_against_siege", 0),
+  # (assign,"$g_leave_town",1),
+  # (try_end),
+  # ], []),
+  
+  # (0, 0, ti_once, [],
+  # [
+  # (party_slot_eq, "$current_town", slot_party_type, spt_town),
+  # (call_script, "script_town_init_doors", 0),
+  # (try_begin),
+  # (eq, "$town_nighttime", 0),
+  # (play_sound, "snd_town_ambiance", sf_looping),
+  # (try_end),
+  # ]),
+  
+  # ambient_scene_play_loop,
+  # ambient_scene_play_random_sound,
+  # ambient_set_agents_for_sounds,
+  # ambient_agent_play_sound,
+  # ambient_end_sound,
+  
+  # (3, 0, 0, [
+  # (call_script, "script_tick_town_walkers"),
+  # ], []),
+  
+  
+  # dedal_leg_fix,
+  # dedal_item_fix_bwo,
+  # ],
+  # ),
   
   ("multiplayer_lbt",mtf_battle_mode,-1, #lords battle mode #lords battle chief capitan
     "You lead your men to battle.",
@@ -22206,10 +21006,10 @@ vc_mission_templates = [
           (team_set_relation, 2, 1, 0),
       ]),
       
-      (0, 0, 0,
-        [(this_or_next|key_clicked, key_escape),
-          (key_is_down, key_escape), (lt,"$circle_mystic",4),
-          ], [                   (assign,"$circle_mystic",0),
+      (ti_escape_pressed, 0, 0, [
+          (lt,"$circle_mystic",4),
+          ], [
+          (assign,"$circle_mystic",0),
           (jump_to_menu, "mnu_circle_mystic"),
           (finish_mission),
       ]),
@@ -22594,10 +21394,9 @@ vc_mission_templates = [
       ]),
       #################
       
-      (0, 0, 0,
-        [(this_or_next|key_clicked, key_escape),
-          (key_is_down, key_escape),
-          ], [                   (assign,"$battle_stones",0),
+      (ti_escape_pressed, 0, 0, [
+          ], [
+          (assign,"$battle_stones",0),
           (jump_to_menu, "mnu_battle_stones"),
           (finish_mission),
       ]),
@@ -22793,10 +21592,9 @@ vc_mission_templates = [
       ]),
       #################
       
-      (0, 0, 0,
-        [(this_or_next|key_clicked, key_escape),
-          (key_is_down, key_escape),
-          ], [                   (assign,"$farmland_ambush",0),
+      (ti_escape_pressed, 0, 0, [
+          ], [
+          (assign,"$farmland_ambush",0),
           (jump_to_menu, "mnu_farmland_menu"),
           (finish_mission),
       ]),
@@ -23086,14 +21884,6 @@ vc_mission_templates = [
             (change_screen_return),
           (try_end),
       ]),
-      
-      ##       (0, 0, 0,
-      ##      [(this_or_next|key_clicked, key_escape),
-      ##       (key_is_down, key_escape), (lt,"$circle_mystic",4),
-      ##      ], [                   (assign,"$circle_mystic",0),
-      ##                        (jump_to_menu, "mnu_circle_mystic"),
-      ##		                 (finish_mission),
-      ##         ]),
       
       dedal_leg_fix,
       dedal_item_fix_bwo,
@@ -24394,7 +23184,7 @@ vc_mission_templates = [
           (tutorial_message_set_size, 15, 15),
           (tutorial_message_set_position, 500, 650), #650 for tutorial or mission msg, 450 for dialogs
           (tutorial_message_set_center_justify, 0),
-          ]),
+      ]),
       
       (1,0,0,[
           (neg|conversation_screen_is_active),
@@ -25127,10 +23917,12 @@ vc_mission_templates = [
     "You go hunting.",
     [
       (0,mtef_leader_only,af_override_horse, 0,1,[]),		#|af_override_weapons|af_override_head	#[itm_practice_bow_2,itm_barbed_arrows,itm_practice_lance,itm_practice_dagger]
-    ], vc_weather +
+    ], vc_weather + creeping +
     [
       common_remove_banner_and_pole,
       cannot_spawn_commoners,
+      common_controller_keys_end,
+      common_controller_keys,
       #common_inventory_not_available,
       (ti_inventory_key_pressed, 0, 0, [],
         [
@@ -25140,8 +23932,6 @@ vc_mission_templates = [
       #1. Spawn the animals
       (ti_on_agent_spawn, 0, ti_once, [],
         [
-          (assign, "$animals_flee", 0),
-          
           (store_trigger_param, ":agent_no", 1),
           (set_fixed_point_multiplier, 100),
           (agent_get_position, pos1, ":agent_no"),
@@ -25355,86 +24145,6 @@ vc_mission_templates = [
           
       ]),
       
-      #Player can creep
-      (0, 0, 0,
-        [
-          (key_clicked, key_t),
-        ],
-        [
-          (get_player_agent_no, ":player_agent"),
-          (try_begin),
-            (eq, "$player_is_creeping", 1),
-            (assign, "$player_is_creeping", 0),
-            (call_script, "script_advanced_agent_set_speed_modifier", ":player_agent", 100),
-            (agent_set_accuracy_modifier, ":player_agent", 100),
-            (agent_set_crouch_mode, ":player_agent", 0),
-            # (agent_set_animation, ":player_agent", "anim_crouch_to_stand", 0),
-            (agent_set_stand_animation, ":player_agent", "anim_stand"),
-            (agent_set_walk_forward_animation, ":player_agent", "anim_walk_forward"),
-          (else_try),
-            (assign, "$player_is_creeping", 1),
-            #(agent_set_wielded_item, ":player_agent", -1),
-            (call_script, "script_advanced_agent_set_speed_modifier", ":player_agent", 40),
-            (agent_set_accuracy_modifier, ":player_agent", 125),
-            (agent_set_crouch_mode, ":player_agent", 1),
-            # (agent_set_animation, ":player_agent", "anim_stand_to_crouch", 0),
-            (agent_set_stand_animation, ":player_agent", "anim_crouch_unarmed"),
-            (agent_set_walk_forward_animation, ":player_agent", "anim_walk_forward_crouch"),
-          (end_try),
-      ]),
-      
-      #Go back to crouch after walk
-      (0, 0, 0,
-        [
-          (eq, "$player_is_creeping", 1),
-          (neg|game_key_is_down, gk_move_forward),
-          (neg|game_key_is_down, gk_move_backward),
-          (neg|game_key_is_down, gk_move_left),
-          (neg|game_key_is_down, gk_move_right),
-          (neg|game_key_is_down, gk_jump),
-          (neg|game_key_is_down, gk_attack),
-          (neg|game_key_is_down, gk_defend),
-          (neg|game_key_is_down, gk_kick),
-          (get_player_agent_no, ":player_agent"),
-          (agent_get_crouch_mode, reg1, ":player_agent"),
-          (eq, reg1, 0),
-        ],
-        [
-          (get_player_agent_no, ":player_agent"),
-          (agent_set_crouch_mode, ":player_agent", 1),
-          #(agent_set_wielded_item, ":player_agent", itm_practice_bow_2),
-      ]),
-      
-      #Remove weapon on walking
-      (0, 0, 0,
-        [
-          (eq, "$player_is_creeping", 1),
-          (game_key_is_down, gk_move_forward),
-          (get_player_agent_no, ":player_agent"),
-          (agent_get_wielded_item, reg1, ":player_agent", 0),
-          (gt, reg1, 0),
-          
-        ],
-        [
-          (get_player_agent_no, ":player_agent"),
-          (agent_set_wielded_item, ":player_agent", -1),
-      ]),
-      
-      
-      # Info
-      (1, 0, ti_once, [],
-        [
-          # (scene_prop_get_instance, reg1, "spr_inventory", 0),
-          # (prop_instance_set_scale, reg1, 1, 1, 1),
-          
-          (tutorial_message_set_size, 20, 20),
-          (tutorial_message_set_position, 500, 650),
-          (tutorial_message_set_center_justify, 1),
-          (tutorial_message_set_background, 1),
-          (tutorial_message, "@You can click ' T ' to toggle creeping.", 0xFFd6d3ce, 7),
-          #(tutorial_message, s1, 0xFFd6d3ce, 20),
-      ]),
-      
       # End
       (3, 0, ti_once,
         [
@@ -25455,18 +24165,6 @@ vc_mission_templates = [
           (set_trigger_result, 1),
       ]),
       
-      (0, 0, ti_once, [],
-        [
-          (assign, "$animals_flee", 0),
-          (assign, "$hunted_animals", 0),
-          (assign, "$player_is_creeping", 0),
-          
-          (play_sound,"snd_ambient_day_forest_loop"),
-          (assign,"$g_battle_won",0),
-          #(call_script, "script_music_set_situation_with_culture", mtf_sit_travel),
-          (music_set_situation, 0),
-      ]),
-      
       (ti_before_mission_start, 0, 0, [],
         [
           (team_set_relation, 0, 2, 1),
@@ -25474,10 +24172,17 @@ vc_mission_templates = [
           
           (party_clear, "p_routed_enemies"),
           
+          (assign, "$player_functions", player_func_creeping),
           (assign, "$g_latest_order_1", 1),
           (assign, "$g_latest_order_2", 1),
           (assign, "$g_latest_order_3", 1),
           (assign, "$g_latest_order_4", 1),
+          (assign, "$animals_flee", 0),
+          (assign, "$hunted_animals", 0),
+          (assign, "$g_battle_won", 0),
+          (assign, "$animals_flee", 0),
+          (play_sound,"snd_ambient_day_forest_loop"),
+          (music_set_situation, 0),
       ]),
       
     ]
@@ -25548,7 +24253,9 @@ vc_mission_templates = [
           (else_try),
             (quest_set_slot, "qst_blank_quest_7", slot_quest_current_state, 3),
             (call_script, "script_succeed_quest", "qst_blank_quest_7"),
+            (set_show_messages, 0),
             (call_script, "script_end_quest", "qst_blank_quest_7"),
+            (set_show_messages, 1),
             (call_script, "script_change_player_relation_with_center", ":village", 1),
             (add_xp_as_reward, 100),
           (end_try),
@@ -25602,10 +24309,15 @@ vc_sea_mission_templates = [
     [
       cannot_spawn_commoners,
       common_disable_ai_crouching,
+      common_controller_keys_end,
+      common_controller_keys,
       
       common_renown_loss,
       
-      (ti_before_mission_start, 0, 0, [],[(assign, "$coastal_battle", 0),]),
+      (ti_before_mission_start, 0, 0, [],[
+          (assign, "$coastal_battle", 0),
+          (assign, "$player_functions", player_func_trait),
+      ]),
       
       common_maritime_randomize_spawn_points,
       common_maritime_spawn,
@@ -25635,8 +24347,8 @@ vc_sea_mission_templates = [
       #common_music_situation_update,
       
       (0, 0, ti_once, [], [
-        (play_sound,"snd_ambient_sea_loop"),
-        (store_last_sound_channel, "$ambiance_channel"),
+          (play_sound,"snd_ambient_sea_loop"),
+          (store_last_sound_channel, "$ambiance_channel"),
       ]),
       
       (ti_question_answered, 0, 0, [],
@@ -25941,10 +24653,15 @@ vc_sea_mission_templates = [
       
       cannot_spawn_commoners,
       common_disable_ai_crouching,
+      common_controller_keys_end,
+      common_controller_keys,
       
       common_renown_loss,
       
-      (ti_before_mission_start, 0, 0, [], [(assign, "$coastal_battle", 1),]),
+      (ti_before_mission_start, 0, 0, [], [
+          (assign, "$coastal_battle", 1),
+          (assign, "$player_functions", player_func_trait),
+      ]),
       
       common_maritime_spawn,
       common_maritime_ui,
@@ -26168,124 +24885,6 @@ vc_sea_mission_templates = [
       dedal_item_fix_bwo,
   ]),
   
-  ("ship_menu", 0,-1,
-    "ship menu.",
-    [
-      (0,mtef_scene_source,af_override_horse, 0,1,[]),
-    ],
-    [
-      cannot_spawn_commoners,
-      
-      (ti_before_mission_start, 0, 0, [],
-        [(assign, "$coastal_battle", 0),]),
-      
-      
-      common_music_situation_update,
-      
-      (0, 0, ti_once, [],
-        [
-          (try_begin),
-            (store_sub, ":upper_bound_ship_slots", slot_party_ship_type_end, slot_party_1_ship_type),
-            (val_add, ":upper_bound_ship_slots", 1),
-            (try_for_range, ":current_slot", 1, ":upper_bound_ship_slots"),
-              (store_add, ":calculated_slot", ":current_slot", slot_party_1_ship_type),
-              (val_sub, ":calculated_slot", 1),
-              (party_get_slot, ":ship_type", "$current_town", ":calculated_slot"),
-              (try_begin),
-                (gt, ":ship_type", 0),
-                (store_add, ":current_entry_no", ":current_slot", 20),
-                (entry_point_get_position, pos34, ":current_entry_no"),
-                (call_script, "script_get_ship_properties", ":ship_type"),
-                (position_move_x, pos34, reg5),				# ship radius
-                (position_get_rotation_around_y, ":y_rotation", pos34),
-                (val_mul, ":y_rotation", -1),
-                (position_rotate_y, pos34, ":y_rotation"),
-                (position_rotate_z, pos34, 90),				# correkt angle
-                (set_spawn_position, pos34),
-                (call_script, "script_spawn_ship", ":ship_type"),
-                (store_random_in_range, ":beginning_wank_state", -4, 13),		# Randomize wank state
-                (val_mul, ":beginning_wank_state", 25),
-                (scene_prop_set_slot, reg0, scene_prop_wank_state, ":beginning_wank_state"), #!
-                
-              (end_try),
-            (end_try),
-            
-            (set_fixed_point_multiplier, 100),
-            (call_script, "script_save_cam_first_person_mode"),
-            (mission_cam_set_mode, 1, 0, 0),
-            (set_camera_in_first_person, 0),
-            (entry_point_get_position, pos8, 21),
-            (position_move_x, pos8, 200),
-            (position_get_rotation_around_y, ":y_rotation", pos8),
-            (val_mul, ":y_rotation", -1),
-            (position_rotate_y, pos8, ":y_rotation"),
-            (position_rotate_z, pos8, 110),		# correkt angle of 90 included (110 + 90)
-            (position_rotate_x, pos8, -20),
-            (position_move_y, pos8, -1500),
-            (position_move_x, pos8, 350),
-            (position_move_z, pos8, 350, 1),
-            (mission_cam_set_position, pos8),
-            
-            
-            (assign, "$ship_menu_state", 1), # 1-10
-            #(start_presentation, "prsnt_vc_submenu_ships"),
-          (try_end),
-      ]),
-      
-      
-      (0.25, 0, 0, [],
-        [
-          (try_begin),
-            (set_fixed_point_multiplier, 100),
-            #(call_script, "script_check_player_ship"),
-            (scene_prop_get_num_instances, ":number_of_ships", "spr_dyn_ship_substrate"),
-            (try_for_range,":ship_number", 0, ":number_of_ships"),
-              ### GET DATA
-              (scene_prop_get_instance, ":ship_instance", "spr_dyn_ship_substrate", ":ship_number"),
-              (prop_instance_get_position, pos1, ":ship_instance"),
-              (scene_prop_get_slot, ":ship_sail_off_instance", ":ship_instance", scene_prop_main_instance),
-              (scene_prop_get_slot, ":ship_sail_on_instance", ":ship_instance", scene_prop_boom_instance),
-              (scene_prop_get_slot, ":ship_collision_instance", ":ship_instance", scene_prop_collision_instance),
-              (scene_prop_get_slot, ":ship_planks_a", ":ship_instance", 18),
-              (scene_prop_get_slot, ":ship_planks_b", ":ship_instance", 19),
-              ### DELETE X-ROTATION AND Y-ROTATION OF POS1
-              (position_get_rotation_around_z, ":z-rotation", pos1),
-              (init_position, pos13),
-              (position_copy_rotation, pos1, pos13),
-              (position_rotate_z, pos1, ":z-rotation"),
-              ### WANK
-              (call_script, "script_calculate_wank_to_pos1", ":ship_number"),
-              (position_set_z, pos1, 0),															# high of the ship
-              ### MOVE THE MAIN-INSTANCES
-              (assign, ":animation_duration", 35),		# depends on frequennce of callinng trigger and the wanted smoothnes
-              (prop_instance_animate_to_position, ":ship_instance", pos1, ":animation_duration"),
-              (prop_instance_animate_to_position, ":ship_sail_off_instance", pos1, ":animation_duration"),
-              (prop_instance_animate_to_position, ":ship_sail_on_instance", pos1, ":animation_duration"),
-              (position_set_z, pos1, -1000),			# collision instances move under the ground tto prevent interaction with agents
-              (prop_instance_animate_to_position, ":ship_collision_instance", pos1, ":animation_duration"),
-              (position_set_z, pos1, -100),
-              ### MOVE THE OTHER INSTANCES
-              (position_move_z, pos1, -100),
-              (prop_instance_animate_to_position, ":ship_planks_a", pos1, ":animation_duration"),
-              (position_move_z, pos1, -1000),
-              (prop_instance_animate_to_position, ":ship_planks_b", pos1, ":animation_duration"),
-              (scene_prop_set_visibility, ":ship_planks_a", 0),
-            (try_end),
-          (try_end),
-      ]),
-      
-      (ti_tab_pressed, 0, 0, [],
-        [
-          (try_begin),
-            (finish_mission,0),
-          (try_end),
-      ]),
-      
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-    ],
-  ),
-  
   ("mutiny",mtf_battle_mode,charge,
     "You lead your men to mutiny.",
     [
@@ -26294,8 +24893,13 @@ vc_sea_mission_templates = [
     ], vc_weather + core_ship_system + player_trait + dedal_sp_triggers +	#dedal_sp_triggers is part of attle_mode triggers
     [
       cannot_spawn_commoners,
+      common_controller_keys_end,
+      common_controller_keys,
       (ti_before_mission_start, 0, 0, [],
-        [(assign, "$coastal_battle", 0),
+        [
+          (assign, "$coastal_battle", 0),
+          (assign, "$player_functions", player_func_trait),
+          
           (call_script, "script_party_calculate_strength", "p_main_party", 1), #exclude player
           (assign, ":player_party_strength", reg0),
           (val_max, ":player_party_strength", 1),
@@ -26380,8 +24984,8 @@ vc_sea_mission_templates = [
       ]),
       
       (0, 0, ti_once, [], [
-        (play_sound,"snd_ambient_sea_loop"),
-        (store_last_sound_channel, "$ambiance_channel"),
+          (play_sound,"snd_ambient_sea_loop"),
+          (store_last_sound_channel, "$ambiance_channel"),
       ]),
       
       (ti_question_answered, 0, 0, [],
@@ -26533,80 +25137,80 @@ vc_story_mission_templates = [
       
       
       (0, 0, ti_once, [], [
-        #(ti_after_mission_start, 0, ti_once, [], [
-        
-        #(call_script, "script_music_set_situation_with_culture", mtf_sit_travel),
-        (play_sound,"snd_ambient_sea_loop"),	#new!
-        (store_last_sound_channel, "$ambiance_channel"),
-        (try_begin),
-          (assign, "$block_ship_ai", 1),
-          (assign, "$block_player_ship_control", 1),
-          # first ship
-          (entry_point_get_position, pos0, 50),
-          (set_spawn_position, pos0),
-          (assign, ":wood", 2), (assign, ":sail", 1), (assign, ":finish", 0), (assign, ":cargo", 1),
-          (call_script, "script_encode_values_to_reg0", ":wood", ":sail", ":finish", 0, ":cargo"),
-          (call_script, "script_spawn_ship", ship_type_knorr, reg0),
-          (assign, "$dyn_ship1", reg0),
-          (scene_prop_set_slot, "$dyn_ship1", scene_prop_timer, 5),
-          (scene_prop_set_slot, "$dyn_ship1", scene_prop_quality, 70), ### in %
-          (scene_prop_set_slot, "$dyn_ship1", scene_prop_ship_number, 0),
+          #(ti_after_mission_start, 0, ti_once, [], [
           
-          # second ship
-          (entry_point_get_position, pos0, 51),
-          (set_spawn_position, pos0),
-          (assign, ":wood", 3), (assign, ":sail", 1), (assign, ":finish", 0), (assign, ":cargo", 1),
-          (call_script, "script_encode_values_to_reg0", ":wood", ":sail", ":finish", 0, ":cargo"),
-          (call_script, "script_spawn_ship", ship_type_byrding, reg0),
-          (assign, "$dyn_ship2", reg0),
-          (scene_prop_set_slot, "$dyn_ship2", scene_prop_timer, 5),
-          (scene_prop_set_slot, "$dyn_ship2", scene_prop_quality, 1), ### in %
-          (scene_prop_set_slot, "$dyn_ship2", scene_prop_ship_number, 1),
-          #even newer: Let water in ship
-          (scene_prop_get_slot, ":ship2_main_instance", "$dyn_ship2", scene_prop_main_instance),
-          (prop_instance_set_material, ":ship2_main_instance", 5, "@{!}alpha"),
-          #add fire
-          (set_fixed_point_multiplier, 100),
-          (position_set_x, pos1, -400),
-          (position_set_y, pos1, 90),
-          (position_set_z, pos1, 70),
-          (prop_instance_add_particle_system, "$dyn_ship2", "psys_war_smoke_tall", pos1),
-          (prop_instance_add_particle_system, "$dyn_ship2", "psys_fireplace_fire_big", pos1),
-          (position_set_x, pos1, -200),
-          (position_set_y, pos1, -120),
-          (position_set_z, pos1, 70),
-          (prop_instance_add_particle_system, "$dyn_ship2", "psys_war_smoke_tall", pos1),
-          
+          #(call_script, "script_music_set_situation_with_culture", mtf_sit_travel),
+          (play_sound,"snd_ambient_sea_loop"),	#new!
+          (store_last_sound_channel, "$ambiance_channel"),
+          (try_begin),
+            (assign, "$block_ship_ai", 1),
+            (assign, "$block_player_ship_control", 1),
+            # first ship
+            (entry_point_get_position, pos0, 50),
+            (set_spawn_position, pos0),
+            (assign, ":wood", 2), (assign, ":sail", 1), (assign, ":finish", 0), (assign, ":cargo", 1),
+            (call_script, "script_encode_values_to_reg0", ":wood", ":sail", ":finish", 0, ":cargo"),
+            (call_script, "script_spawn_ship", ship_type_knorr, reg0),
+            (assign, "$dyn_ship1", reg0),
+            (scene_prop_set_slot, "$dyn_ship1", scene_prop_timer, 5),
+            (scene_prop_set_slot, "$dyn_ship1", scene_prop_quality, 70), ### in %
+            (scene_prop_set_slot, "$dyn_ship1", scene_prop_ship_number, 0),
+            
+            # second ship
+            (entry_point_get_position, pos0, 51),
+            (set_spawn_position, pos0),
+            (assign, ":wood", 3), (assign, ":sail", 1), (assign, ":finish", 0), (assign, ":cargo", 1),
+            (call_script, "script_encode_values_to_reg0", ":wood", ":sail", ":finish", 0, ":cargo"),
+            (call_script, "script_spawn_ship", ship_type_byrding, reg0),
+            (assign, "$dyn_ship2", reg0),
+            (scene_prop_set_slot, "$dyn_ship2", scene_prop_timer, 5),
+            (scene_prop_set_slot, "$dyn_ship2", scene_prop_quality, 1), ### in %
+            (scene_prop_set_slot, "$dyn_ship2", scene_prop_ship_number, 1),
+            #even newer: Let water in ship
+            (scene_prop_get_slot, ":ship2_main_instance", "$dyn_ship2", scene_prop_main_instance),
+            (prop_instance_set_material, ":ship2_main_instance", 5, "@{!}alpha"),
+            #add fire
+            (set_fixed_point_multiplier, 100),
+            (position_set_x, pos1, -400),
+            (position_set_y, pos1, 90),
+            (position_set_z, pos1, 70),
+            (prop_instance_add_particle_system, "$dyn_ship2", "psys_war_smoke_tall", pos1),
+            (prop_instance_add_particle_system, "$dyn_ship2", "psys_fireplace_fire_big", pos1),
+            (position_set_x, pos1, -200),
+            (position_set_y, pos1, -120),
+            (position_set_z, pos1, 70),
+            (prop_instance_add_particle_system, "$dyn_ship2", "psys_war_smoke_tall", pos1),
+            
+            
+            (try_begin),
+              (neq, "$first_encuentro", 5),
+              (scene_prop_set_slot, "$dyn_ship1", scene_prop_boarding_right, "$dyn_ship2"),
+              (scene_prop_set_slot, "$dyn_ship2", scene_prop_boarding_right, "$dyn_ship1"),
+              (scene_prop_set_slot, "$dyn_ship1", scene_prop_boarding_wanted, 1),
+              (scene_prop_set_slot, "$dyn_ship2", scene_prop_boarding_wanted, 1),
+            (else_try),
+              (scene_prop_set_slot, "$dyn_ship1", scene_prop_boarding_wanted, -1),
+              (scene_prop_set_slot, "$dyn_ship2", scene_prop_boarding_wanted, -1),
+            (end_try),
+          (end_try),
           
           (try_begin),
-            (neq, "$first_encuentro", 5),
-            (scene_prop_set_slot, "$dyn_ship1", scene_prop_boarding_right, "$dyn_ship2"),
-            (scene_prop_set_slot, "$dyn_ship2", scene_prop_boarding_right, "$dyn_ship1"),
-            (scene_prop_set_slot, "$dyn_ship1", scene_prop_boarding_wanted, 1),
-            (scene_prop_set_slot, "$dyn_ship2", scene_prop_boarding_wanted, 1),
-          (else_try),
-            (scene_prop_set_slot, "$dyn_ship1", scene_prop_boarding_wanted, -1),
-            (scene_prop_set_slot, "$dyn_ship2", scene_prop_boarding_wanted, -1),
-          (end_try),
-        (end_try),
-        
-        (try_begin),
-          # In last part of mission all on one ship
-          (ge, "$first_encuentro", 5),
-          (try_for_agents, ":agent"),
-            (agent_get_troop_id, ":troop_id", ":agent"),
-            (this_or_next|eq, ":troop_id", "trp_sailors"),
-            (eq, ":troop_id", "trp_trainer_1"),
-            (prop_instance_get_position, pos1, "$dyn_ship1"),
-            (store_random_in_range, ":rand", -150, 150),
-            (position_move_y, pos1, ":rand"),
-            (store_random_in_range, ":rand", -300, 300),
-            (position_move_x, pos1, ":rand"),
-            (agent_set_position, ":agent", pos1),
-          (end_try),
-          # (call_script, "script_make_crew", "$dyn_ship1"),
-          # (call_script, "script_keep_crew_on_board", "$dyn_ship1"),
-        (try_end),
+            # In last part of mission all on one ship
+            (ge, "$first_encuentro", 5),
+            (try_for_agents, ":agent"),
+              (agent_get_troop_id, ":troop_id", ":agent"),
+              (this_or_next|eq, ":troop_id", "trp_sailors"),
+              (eq, ":troop_id", "trp_trainer_1"),
+              (prop_instance_get_position, pos1, "$dyn_ship1"),
+              (store_random_in_range, ":rand", -150, 150),
+              (position_move_y, pos1, ":rand"),
+              (store_random_in_range, ":rand", -300, 300),
+              (position_move_x, pos1, ":rand"),
+              (agent_set_position, ":agent", pos1),
+            (end_try),
+            # (call_script, "script_make_crew", "$dyn_ship1"),
+            # (call_script, "script_keep_crew_on_board", "$dyn_ship1"),
+          (try_end),
       ]),
       ambient_end_sound,
       
@@ -27643,6 +26247,21 @@ vc_story_mission_templates = [
       (ti_tab_pressed, 0, 0, [], [
           (val_or, "$first_time", first_time_doccinga),
           (set_trigger_result, 1),
+          (try_begin),
+            (troop_has_item_equipped, "trp_player", "itm_practice_bow"),
+            (troop_remove_item, "trp_player", "itm_practice_bow"),
+          (try_end),
+          (try_begin),
+            (troop_has_item_equipped, "trp_player", "itm_practice_arrows"),
+            (troop_remove_item, "trp_player", "itm_practice_arrows"),
+          (try_end),
+          (try_begin),
+            (troop_has_item_equipped, "trp_player", "itm_practice_javelin"),
+            (troop_remove_item, "trp_player", "itm_practice_javelin"),
+          (try_end),
+      ]),
+      
+      (ti_escape_pressed, 0, 0, [], [
           (try_begin),
             (troop_has_item_equipped, "trp_player", "itm_practice_bow"),
             (troop_remove_item, "trp_player", "itm_practice_bow"),
@@ -29331,17 +27950,49 @@ vc_story_mission_templates = [
       (39,mtef_scene_source|mtef_team_0,0,aif_start_alarmed,0,[]),
       # (60,mtef_visitor_source,af_override_horse,0,12,[]),
       (60,mtef_defenders|mtef_team_0,af_override_horse,0,0,[]),
-    ], vc_weather + core_ship_system + coastal_defender_formation + slo_mo_death_cam + battle_mode_triggers + battle_panel_triggers +
+    ], vc_weather + core_ship_system + coastal_defender_formation + slo_mo_death_cam + battle_mode_triggers + battle_panel_triggers + common_division_data + division_order_processing +
     [
       cannot_spawn_commoners,
-      (ti_before_mission_start, 0, 0, [],
-        [(assign, "$coastal_battle", 1),]),
       
+      (ti_before_mission_start, 0, 0, [], [
+          (assign, "$coastal_battle", 1),
+          (assign, "$block_ship_ai", 1), #para tiempos para dialogos chief en sea battles
+          (assign, "$block_player_ship_control", 1),
+          
+          # Phaiak begin
+          # info: scripting wind
+          # (prop_instance_get_position, pos2, "$wind_spr"),
+          # (init_position, pos13),
+          # (position_copy_rotation, pos2, pos13),
+          # (position_rotate_z, pos2, 180),
+          # (prop_instance_set_position, "$wind_spr",pos2),
+          (assign, "$wind_strenght", 75),	# to avoid agents falling out of ship only 75%
+          (assign, "$g_attacker_reinforcement_limit", 6),
+          # Phaiak end
+          
+          (mission_enable_talk),
+          (tutorial_message_set_size, 15, 15),
+          (tutorial_message_set_position, 500, 450),
+          (tutorial_message_set_center_justify, 0),
+      ]),
       
       (ti_on_agent_spawn, 0, 0, [],
         [
           (store_trigger_param_1, ":agent"),
+          
+          #have soldiers hold at SP 5
+          (agent_get_troop_id, ":troop_no", ":agent"),
           (try_begin),
+            (this_or_next|is_between, ":troop_no", "trp_norse_level1_landed", "trp_norse_priest"),
+            (eq, ":troop_no", "trp_village_150_elder"),
+            
+            (agent_set_team, ":agent", 2),  #show initially as allies
+            (agent_set_division, ":agent", grc_infantry),
+            (get_player_agent_no, ":player"),
+            (agent_add_relation_with_agent, ":agent", ":player", 1),
+            
+            #move village defenders to SP 50
+          (else_try),
             (agent_is_human,":agent"),
             (agent_is_non_player, ":agent"),
             (agent_get_team, ":agent_team", ":agent"),
@@ -29359,37 +28010,55 @@ vc_story_mission_templates = [
       common_maritime_drowning,
       #common_maritime_commands, #not needed
       
-      (ti_after_mission_start, 0, ti_once,
+      (1, 1, ti_once, #delay until after coastal_defender_formation
         [
         ],
         [
-          # Phaiak begin
-          # info: scripting wind
-          # (prop_instance_get_position, pos2, "$wind_spr"),
-          # (init_position, pos13),
-          # (position_copy_rotation, pos2, pos13),
-          # (position_rotate_z, pos2, 180),
-          # (prop_instance_set_position, "$wind_spr",pos2),
-          (assign, "$wind_strenght", 75),	# to avoid agents falling out of ship only 75%
-          (assign, "$g_attacker_reinforcement_limit", 6),
-          # Phaiak end
+          ##          (assign, "$g_battle_won", 0),
+          ##                           (assign, "$defender_reinforcement_stage", 0),
+          ##                           (assign, "$attacker_reinforcement_stage", 0),
+          (call_script, "script_combat_music_set_situation_with_culture"),
+          # (assign, "$g_defender_reinforcement_limit", 2),
           
           (store_current_scene, ":cur_scene"),
           (modify_visitors_at_site, ":cur_scene"),
           # (add_visitors_to_current_scene, reg0, ":selected_troop", 1, ":selected_team", -1),
-          (add_visitors_to_current_scene, 5, "trp_norse_level0_companion", 25, 0),
-          (add_visitors_to_current_scene, 5, "trp_norse_level1_landed", 10, 0),
-          (add_visitors_to_current_scene, 5, "trp_norse_standard_bearer", 1, 0),
-          (add_visitors_to_current_scene, 5, "trp_norse_level2_companion", 1, 0),
-          (add_visitors_to_current_scene, 5, "trp_village_150_elder", 1, 0),
+          (add_visitors_to_current_scene, 5, "trp_norse_level0_companion", 25),
+          (add_visitors_to_current_scene, 5, "trp_norse_level1_landed", 10),
+          (add_visitors_to_current_scene, 5, "trp_norse_standard_bearer", 1),
+          (add_visitors_to_current_scene, 5, "trp_norse_level2_companion", 1),
+          (add_visitors_to_current_scene, 5, "trp_village_150_elder", 1),
           
           (team_set_relation, 0, 2, 1),
           (team_set_relation, 1, 3, 1),
+          (team_give_order, 2, grc_everyone, mordr_stand_ground),
           
-          (assign, "$g_latest_order_1", 1),
-          (assign, "$g_latest_order_2", 1),
-          (assign, "$g_latest_order_3", 1),
-          (assign, "$g_latest_order_4", 1),
+          #default position of player troops for when movement is unscripted
+          (set_show_messages, 0),
+          (team_give_order, 0, grc_everyone, mordr_hold),
+          (entry_point_get_position, pos1, 50),
+          (team_set_order_position, 0, grc_everyone, pos1),
+          
+          (team_give_order, 0, grc_infantry, mordr_hold),
+          (entry_point_get_position, pos1, 39),
+          (team_set_order_position, 0, grc_infantry, pos1),
+          
+          (try_for_range, ":division", grc_archers, 9),
+            (call_script, "script_pick_native_formation", 0, ":division"),
+            (assign, ":formation", reg0),
+            (assign, ":ranks", reg1),
+            (store_add, ":slot", slot_team_d0_formation, ":division"),
+            (team_set_slot, 0, ":slot", ":formation"),
+            (store_add, ":slot", slot_team_d0_formation_num_ranks, ":division"),
+            (team_set_slot, 0, ":slot", ":ranks"),
+            (call_script, "script_formation_to_native_order", 0, ":division", ":formation"),
+          (try_end),
+          (set_show_messages, 1),
+          
+          # (assign, "$g_latest_order_1", 1),
+          # (assign, "$g_latest_order_2", 1),
+          # (assign, "$g_latest_order_3", 1),
+          # (assign, "$g_latest_order_4", 1),
           
           (quest_set_slot,"qst_doccinga_assault",slot_quest_current_state, 1), #status 0
       ]),
@@ -29417,19 +28086,16 @@ vc_story_mission_templates = [
       common_battle_init_banner,
       common_inventory_not_available,
       
-      (1, 0, 0, [], #Thonkrik viene a hablar chief
+      (1, 0, 0, [(quest_slot_eq,"qst_doccinga_assault",slot_quest_current_state, 1)], #Thonkrik viene a hablar chief
         [
-          (quest_slot_eq,"qst_doccinga_assault",slot_quest_current_state, 1),
-          (mission_enable_talk),
-          (assign, "$block_ship_ai", 1), #para tiempos para dialogos chief en sea battles
-          (assign, "$block_player_ship_control", 1),
-          
           (get_player_agent_no, ":player_agent"),
           (agent_get_position, pos0, ":player_agent"),
           
           (try_for_agents, ":agent_no"),
             (agent_get_troop_id, ":troop_no", ":agent_no"),
             (eq, ":troop_no", "trp_village_150_elder"),
+            
+            (agent_set_look_target_agent, ":agent_no", ":player_agent"),
             (agent_set_scripted_destination, ":agent_no", pos0),
             (agent_get_position, pos1, ":agent_no"),
             (get_distance_between_positions, ":dist", pos0, pos1),
@@ -29438,12 +28104,6 @@ vc_story_mission_templates = [
             #  (quest_set_slot,"qst_doccinga_assault",slot_quest_current_state, 3), #status 0
           (try_end),
       ]),
-      
-      (0, 0, ti_once, [
-          (tutorial_message_set_size, 15, 15),
-          (tutorial_message_set_position, 500, 450),
-          (tutorial_message_set_center_justify, 0),
-          ], []),
       
       (1, 0, ti_once,
         [
@@ -29456,11 +28116,11 @@ vc_story_mission_templates = [
           (assign, "$block_player_ship_control", 0),
       ]),
       
-      (0.25, 4, 0,
+      (0.25, 6, 0,
         [
           (neg|conversation_screen_is_active),
-          (neg|is_presentation_active, "prsnt_battle"),
-          (neg|is_presentation_active, "prsnt_order_display"),
+          # (neg|is_presentation_active, "prsnt_battle"),
+          # (neg|is_presentation_active, "prsnt_order_display"),
           (try_for_agents, ":agent_no"),
             (agent_get_troop_id, ":troop_no", ":agent_no"),
             (try_begin),
@@ -29478,8 +28138,9 @@ vc_story_mission_templates = [
         [
           (try_begin),
             (quest_slot_eq,"qst_doccinga_assault",slot_quest_current_state, 2), #status 0
+            (presentation_set_duration, 0),
             (tutorial_message_set_background, 1),
-            (tutorial_message, "@A huskarl shouts, 'Men! Listen! Hold the line, and we will win! Those who come are only Vikings. We are Danish warriors!'", 0xFFd6d3ce, 15),
+            (tutorial_message, "@A huskarl shouts, 'Men! Listen! Hold the line, and we will win! Those who come are only Vikings. We are Danish warriors!'", 0xFFd6d3ce, 5),
             (set_fixed_point_multiplier, 100),
             ###
             (entry_point_get_position, pos7, 30),
@@ -29492,34 +28153,40 @@ vc_story_mission_templates = [
             (quest_set_slot,"qst_doccinga_assault",slot_quest_current_state, 3), #status 0
           (else_try),
             (quest_slot_eq,"qst_doccinga_assault",slot_quest_current_state, 3), #status 0
+            (presentation_set_duration, 0),
             (tutorial_message_set_background, 1),
-            (tutorial_message, "@A huskarl shouts, 'Thor! Hear our battle cry and prepare the Valkyries! Tonight we dine in your halls!'", 0xFFd6d3ce, 15),
+            (tutorial_message, "@A huskarl shouts, 'Thor! Hear our battle cry and prepare the Valkyries! Tonight we dine in your halls!'", 0xFFd6d3ce, 5),
             (quest_set_slot,"qst_doccinga_assault",slot_quest_current_state, 4), #status 0
           (else_try),
             (quest_slot_eq,"qst_doccinga_assault",slot_quest_current_state, 4), #status 0
-            (tutorial_message, -1),
-            (tutorial_message_set_background, 0),
-            (presentation_set_duration, 0),	#clear F2 menu additions
+            # (tutorial_message, -1),
+            # (tutorial_message_set_background, 0),
             (call_script, "script_return_to_cam_first_person_mode_1_sec"),
-            (quest_set_slot,"qst_doccinga_assault",slot_quest_current_state, 5), #status 0
-          (else_try),
-            (quest_slot_eq,"qst_doccinga_assault",slot_quest_current_state, 5), #status 0
+            # (quest_set_slot,"qst_doccinga_assault",slot_quest_current_state, 5), #status 0
+            # (else_try),
+            # (quest_slot_eq,"qst_doccinga_assault",slot_quest_current_state, 5), #status 0
             
-            (get_player_agent_no, ":player"),
             (try_for_agents,":agent"),
-              (agent_is_alive,":agent"),
-              (agent_is_human,":agent"),
               (agent_get_troop_id, ":troop_no", ":agent"),
-              (try_begin),
-                (this_or_next|is_between, ":troop_no", "trp_norse_level1_landed", "trp_norse_priest"),
-                (eq, ":troop_no", "trp_village_150_elder"),
-                (agent_set_team, ":agent", 0),
-                (agent_add_relation_with_agent, ":agent", ":player", 1),
-                (agent_set_is_alarmed, ":agent", 1),
-                (agent_get_position, pos1, 39),
-                (agent_set_scripted_destination,":agent",pos1,0),
-              (try_end),
+              (this_or_next|is_between, ":troop_no", "trp_norse_level1_landed", "trp_norse_priest"),
+              (eq, ":troop_no", "trp_village_150_elder"),
+              (agent_set_team, ":agent", 0),
+              (agent_set_is_alarmed, ":agent", 1),
             (try_end),
+            
+            (store_add, ":slot", slot_team_d0_size, grc_infantry),
+            (team_get_slot, ":bg_size", 0, ":slot"),
+            (val_add, ":bg_size", 38),  #troops added above but not counted yet by script_store_battlegroup_data
+            (team_set_slot, 0, ":slot", ":bg_size"),
+            (call_script, "script_pick_native_formation", 0, grc_infantry),
+            (assign, ":formation", reg0),
+            (assign, ":ranks", reg1),
+            (store_add, ":slot", slot_team_d0_formation, grc_infantry),
+            (team_set_slot, 0, ":slot", ":formation"),
+            (store_add, ":slot", slot_team_d0_formation_num_ranks, grc_infantry),
+            (team_set_slot, 0, ":slot", ":ranks"),
+            (call_script, "script_formation_to_native_order", 0, grc_infantry, ":formation"),
+            
             (quest_set_slot,"qst_doccinga_assault",slot_quest_current_state, 6), #status 0
           (try_end),
       ]),
@@ -29543,14 +28210,6 @@ vc_story_mission_templates = [
           (try_end),
       ]),
       
-      
-      (0, 0, ti_once, [], [
-          ##          (assign, "$g_battle_won", 0),
-          ##                           (assign, "$defender_reinforcement_stage", 0),
-          ##                           (assign, "$attacker_reinforcement_stage", 0),
-          (call_script, "script_combat_music_set_situation_with_culture"),
-          # (assign, "$g_defender_reinforcement_limit", 2),
-      ]),
       
       # common_music_situation_update,
       common_battle_check_friendly_kills,
@@ -29639,10 +28298,9 @@ vc_story_mission_templates = [
           (display_message, "str_cannot_leave_now"),
       ]),
       
-      (0, 0, 0,
-        [(this_or_next|key_clicked, key_escape),
-          (key_is_down, key_escape),
-          ], [             (modify_visitors_at_site,"scn_doccinga_prison"),
+      (ti_escape_pressed, 0, 0, [
+          ], [
+          (modify_visitors_at_site,"scn_doccinga_prison"),
           (reset_visitors),
           (set_visitor, 41, "trp_sea_raider_prisoner"), #prisoner
           (set_visitor, 42, "trp_doccinga_torturador"), #torturador
@@ -30345,9 +29003,12 @@ vc_story_mission_templates = [
             (call_script, "script_count_mission_casualties_from_agents"),
             (finish_mission, 1),
             
-            (assign, "$g_next_menu", "mnu_svenlair_victory"),
-            #    (jump_to_menu, "mnu_svenlair_victory"),
-            #       (jump_to_menu, "mnu_battle_debrief"),
+            (try_begin),
+              (check_quest_active,"qst_sven_lair"),
+              (assign, "$g_next_menu", "mnu_svenlair_victory"),
+            (else_try),
+              (assign, "$g_next_menu", "mnu_svenlair_victory_conquista"),
+            (try_end),
           (try_end),
           (finish_mission, 1),
           #         (finish_mission),
@@ -30501,9 +29162,12 @@ vc_story_mission_templates = [
             (call_script, "script_count_mission_casualties_from_agents"),
             (finish_mission, 1),
             
-            (assign, "$g_next_menu", "mnu_svenlair_victory"),
-            #    (jump_to_menu, "mnu_svenlair_victory"),
-            #       (jump_to_menu, "mnu_battle_debrief"),
+            (try_begin),
+              (check_quest_active,"qst_sven_lair"),
+              (assign, "$g_next_menu", "mnu_svenlair_victory"),
+            (else_try),
+              (assign, "$g_next_menu", "mnu_svenlair_victory_conquista"),
+            (try_end),
           (try_end),
           (finish_mission, 1),
           #         (finish_mission),
@@ -30511,110 +29175,6 @@ vc_story_mission_templates = [
       
       dedal_leg_fix,
       dedal_item_fix_bwo,
-    ],
-  ),
-  
-  #NOT USED
-  ("sven_lair_conquista",mtf_battle_mode,charge,		#|mtf_synch_inventory
-    "You lead your men to battle.",
-    [
-      ##     (3,mtef_visitor_source|mtef_team_1,0,aif_start_alarmed,1,[]),
-      ##     (1,mtef_team_0|mtef_use_exact_number,0,aif_start_alarmed, 7,[]),
-      ##     (1,mtef_visitor_source|mtef_team_0,0,aif_start_alarmed,1,[]),
-      (1,mtef_defenders|mtef_team_0,af_override_horse,aif_start_alarmed,60,[]),		#Phaiak: @Idibil, You have to change into your visitors
-      (0,mtef_defenders|mtef_team_0,af_override_horse,aif_start_alarmed,0,[]),
-      (3,mtef_visitor_source|mtef_team_1,0,aif_start_alarmed,1,[]),
-      (4,mtef_attackers|mtef_team_1,af_override_horse,0,60,[]),
-      (4,mtef_attackers|mtef_team_1,af_override_horse,0,0,[]),
-      
-      (5,mtef_defenders|mtef_team_0,0,aif_start_alarmed,60,[]),
-      (38,mtef_visitor_source,af_override_horse,aif_start_alarmed, 16,[]),		#Phaiak: @Idibil, You have to change into your visitors
-      (39,mtef_scene_source|mtef_team_0,0,aif_start_alarmed,0,[]),
-      (60,mtef_defenders|mtef_team_0,af_override_horse,0,0,[]),
-    ], #vc_weather + vc_courage + slo_mo_death_cam + battle_mode_triggers + battle_panel_triggers +
-    [
-      # cannot_spawn_commoners,
-      # (ti_before_mission_start, 0, 0, [], [(call_script, "script_change_banners_and_chest")]),
-      
-      # common_battle_init_banner,
-      
-      # (ti_on_agent_killed_or_wounded, 0, 0, [],
-        # [
-          # (store_trigger_param_1, ":dead_agent_no"),
-          # (store_trigger_param_2, ":killer_agent_no"),
-          # (store_trigger_param_3, ":is_wounded"),
-          
-          # (try_begin),
-            # (ge, ":dead_agent_no", 0),
-            # (neg|agent_is_ally, ":dead_agent_no"),
-            # (agent_is_human, ":dead_agent_no"),
-            # (agent_get_troop_id, ":dead_agent_troop_id", ":dead_agent_no"),
-            # (party_add_members, "p_total_enemy_casualties", ":dead_agent_troop_id", 1), #addition_to_p_total_enemy_casualties
-            # (eq, ":is_wounded", 1),
-            # (party_wound_members, "p_total_enemy_casualties", ":dead_agent_troop_id", 1),
-          # (try_end),
-          
-          # (call_script, "script_apply_death_effect_on_courage_scores", ":dead_agent_no", ":killer_agent_no"),
-      # ]),
-      
-      # (ti_tab_pressed, 0, 0, [(display_message,"str_cannot_leave_now")], []),
-      
-      # (0, 0, ti_once, [], [(assign,"$g_battle_won",0),
-          # (assign,"$defender_reinforcement_stage",0),
-          # (assign,"$attacker_reinforcement_stage",0),
-          # (call_script, "script_place_player_banner_near_inventory"),
-          # (call_script, "script_combat_music_set_situation_with_culture"),
-          # (assign, "$g_defender_reinforcement_limit", 2),
-      # ]),
-      
-      # common_music_situation_update,
-      # common_battle_check_friendly_kills,
-      
-      # #  common_battle_check_victory_condition,
-      # common_battle_victory_display,
-      # common_battle_inventory,
-      
-      # #call 75 times over 3 seconds
-      # (.04, 0, 0, [
-          # (this_or_next|eq, "$battle_phase", BP_Fight),
-          # (eq, "$battle_phase", 0),
-          # (mission_tpl_are_all_agents_spawned),
-          # ],[
-          # (call_script, "script_apply_effect_of_other_people_on_courage_scores"),
-      # ]),
-      
-      # (1, 4, ti_once,
-        # [
-          # (store_mission_timer_a,":cur_time"),
-          # (ge, ":cur_time", 5),
-          # (this_or_next|main_hero_fallen),
-          # (all_enemies_defeated, 5),
-        # ],
-        # [
-          # (try_begin),
-            # (main_hero_fallen),
-            # (assign, "$g_campaign_death", 1),
-            # (jump_to_menu, "mnu_captivity_wilderness_taken_prisoner"),
-          # (else_try),
-            # (set_mission_result,1),
-            # (display_message,"str_msg_battle_won"),
-            # (assign,"$g_battle_won",1),
-            # (assign, "$g_battle_result", 1),
-            # (call_script, "script_play_victorious_sound"),
-            
-            # (call_script, "script_count_mission_casualties_from_agents"),
-            # (finish_mission, 1),
-            
-            # (assign, "$g_next_menu", "mnu_svenlair_victory_conquista"),
-            # #    (jump_to_menu, "mnu_svenlair_victory"),
-            # #       (jump_to_menu, "mnu_battle_debrief"),
-          # (try_end),
-          # (finish_mission, 1),
-          # #         (finish_mission),
-      # ]),
-      
-      # dedal_leg_fix,
-      # dedal_item_fix_bwo,
     ],
   ),
   
@@ -31442,16 +30002,6 @@ vc_story_mission_templates = [
           (mission_enable_talk),
       ]),
       
-      ##       (0, 0, 0,
-      ##      [(this_or_next|key_clicked, key_escape),
-      ##       (key_is_down, key_escape),
-      ##      ], [               (check_quest_active,"qst_douar_an_enez"),
-      ##                        (quest_set_slot,"qst_douar_an_enez",slot_quest_current_state, 2),
-      ##                        (jump_to_menu, "mnu_boar_grove"),
-      ##		                 (finish_mission),
-      ##         ]),
-      
-      
       (1, 4, ti_once,
         [(neg|check_quest_active,"qst_douar_an_enez"),
           (eq,"$g_hero_result",0),
@@ -31717,145 +30267,6 @@ vc_story_mission_templates = [
     ],
   ),
   
-  ("d_day2",mtf_battle_mode,charge,
-    "You lead your men to coastal battle.",
-    [
-      (1,mtef_defenders|mtef_team_0,0,aif_start_alarmed,60,[]),
-      (0,mtef_defenders|mtef_team_0,0,aif_start_alarmed,0,[]),
-      (4,mtef_attackers|mtef_team_1,af_override_horse,0,60,[]),
-      (4,mtef_attackers|mtef_team_1,af_override_horse,0,0,[]),
-    ],
-    [
-      cannot_spawn_commoners,
-      
-      (ti_before_mission_start, 0, 0, [],
-        [(assign, "$coastal_battle", 1),]),
-      
-      (2, 0, ti_once, [],		# Spawn fake ships
-        [
-          (try_begin),
-            (set_fixed_point_multiplier, 100),
-            (init_position, pos1),
-            (position_rotate_z, pos1, -90),				# correkt angle
-            (position_set_x, pos1, 2000),
-            (position_set_y, pos1, 70000),
-            (position_set_z, pos1, 0),
-            (assign, "$pattern", 0),
-            (try_for_range, reg7, 0, "$d_day_ships"),		# ships
-              (copy_position, pos2, pos1),
-              (store_random_in_range, ":x", -2000, 2000),
-              (store_random_in_range, ":y", -2000, 2000),
-              (position_move_x, pos2, ":x"),
-              (position_move_y, pos2, ":y"),
-              (set_spawn_position, pos2),
-              (spawn_scene_prop, "spr_dyn_ship_substrate_2"),
-              (assign, ":actual_ship_instance", reg0),
-              (store_random_in_range, ":ship_type", 1, 7),
-              (scene_prop_set_slot, ":actual_ship_instance", scene_prop_ship_type, ":ship_type"),
-              (store_sub, ":ship_type_minus_one", ":ship_type", 1),
-              (store_add, ":scn_prop", "spr_dyn_ship_main_busse_no_coll", ":ship_type_minus_one"),
-              (spawn_scene_prop, ":scn_prop"),
-              (scene_prop_set_slot, ":actual_ship_instance", scene_prop_main_instance, reg0), # assigns main instance to the other instance
-              (store_add, ":scn_prop", "spr_dyn_ship_boom_busse", ":ship_type_minus_one"),
-              (spawn_scene_prop, ":scn_prop"),
-              (scene_prop_set_slot, ":actual_ship_instance", scene_prop_boom_instance, reg0), # assigns boom instance to the other instance
-              #
-              (store_random_in_range, ":wood", 1, 4),
-              (store_random_in_range, ":finish", 0, 9),
-              (store_random_in_range, ":sail", 1, 10),
-              (call_script, "script_encode_values_to_reg0", ":wood",  ":sail", ":finish",0, 0),
-              (call_script, "script_set_ship_materials", ":actual_ship_instance", reg0),
-              #
-              (position_get_x, ":x_position", pos1),
-              (try_begin),
-                (gt, ":x_position", 60000),
-                (position_move_y, pos1, 8000, 1),
-                (try_begin),
-                  (eq, "$pattern", 0),
-                  (position_set_x, pos1, 6000),
-                  (assign, "$pattern", 1),
-                (else_try),
-                  (position_set_x, pos1, 2000),
-                  (assign, "$pattern", 0),
-                (end_try),
-              (else_try),
-                (position_move_x, pos1, 8000, 1),
-              (end_try),
-            (try_end),
-          (try_end),
-        ]
-      ),
-      
-      (5, 0, 1, [],		# moving the fake ships
-        [
-          (scene_prop_get_num_instances, ":number_of_fake_ships", "spr_dyn_ship_substrate_2"),
-          (try_for_range,":ship_number", 0, ":number_of_fake_ships"),
-            (scene_prop_get_instance, ":ship_instance", "spr_dyn_ship_substrate_2", ":ship_number"),
-            (prop_instance_is_valid, ":ship_instance"),
-            (prop_instance_get_position, pos3, ":ship_instance"),
-            #(position_get_distance_to_terrain, ":distance", pos3),
-            (try_begin),
-              #(gt, ":distance", 50),
-              (position_move_x, pos3, 750),
-              (scene_prop_get_slot, ":ship_main_instance", ":ship_instance", scene_prop_main_instance),
-              (scene_prop_get_slot, ":ship_boom_instance", ":ship_instance", scene_prop_boom_instance),
-              (prop_instance_animate_to_position, ":ship_instance", pos3, 600),
-              (prop_instance_animate_to_position, ":ship_main_instance", pos3, 600),
-              (prop_instance_animate_to_position, ":ship_boom_instance", pos3, 600),
-            (try_end),
-          (try_end),
-        ]
-      ),
-      
-      (ti_tab_pressed, 0, 0, [],
-        [
-          (try_begin),
-            (finish_mission,0),
-          (try_end),
-      ]),
-      
-      common_music_situation_update,
-      common_battle_init_banner,
-      
-      (ti_question_answered, 0, 0, [],
-        [(store_trigger_param_1,":answer"),
-          (eq,":answer",0),
-          (assign, "$pin_player_fallen", 0),
-          (try_begin),
-            (store_mission_timer_a, ":elapsed_time"),
-            (gt, ":elapsed_time", 20),
-            (str_store_string, s5, "str_retreat"),
-            (call_script, "script_simulate_retreat", 10, 20, 1),
-          (try_end),
-          (call_script, "script_count_mission_casualties_from_agents"),
-          (finish_mission,0),]),
-      
-      (ti_before_mission_start, 0, 0, [],
-        [
-          (team_set_relation, 0, 2, 1),
-          (team_set_relation, 1, 3, 1),
-          #(call_script, "script_place_player_banner_near_inventory_bms"),
-          
-          (party_clear, "p_routed_enemies"),
-          
-          (assign, "$g_latest_order_1", 1),
-          (assign, "$g_latest_order_2", 1),
-          (assign, "$g_latest_order_3", 1),
-          (assign, "$g_latest_order_4", 1),
-      ]),
-      
-      (0, 0, ti_once, [], [(assign,"$g_battle_won",0),
-          (assign,"$defender_reinforcement_stage",0),
-          (assign,"$attacker_reinforcement_stage",0),
-          #(call_script, "script_place_player_banner_near_inventory"),
-          (call_script, "script_combat_music_set_situation_with_culture"),
-          (assign, "$g_defender_reinforcement_limit", 2),
-      ]),
-      dedal_leg_fix,
-      dedal_item_fix_bwo,
-    ]
-  ),
-  
   ("d_day", 0,-1,
     "You lead your men to coastal battle.",
     [
@@ -31895,13 +30306,13 @@ vc_story_mission_templates = [
       ]),
       
       (0, 0, ti_once, [],[
-        (play_sound,"snd_ambient_sea_loop"),
-        (store_last_sound_channel, "$ambiance_channel"),
-        (get_player_agent_no, ":player_agent"),
-        (try_for_agents, ":agent"),
-          (neq, ":agent", ":player_agent"),
-          (agent_set_look_target_agent, ":agent", ":player_agent"),	#(agent_set_look_target_position, <agent_id>, <position_no>),
-        (end_try),
+          (play_sound,"snd_ambient_sea_loop"),
+          (store_last_sound_channel, "$ambiance_channel"),
+          (get_player_agent_no, ":player_agent"),
+          (try_for_agents, ":agent"),
+            (neq, ":agent", ":player_agent"),
+            (agent_set_look_target_agent, ":agent", ":player_agent"),	#(agent_set_look_target_position, <agent_id>, <position_no>),
+          (end_try),
       ]),
       ambient_end_sound,
       
@@ -33012,7 +31423,8 @@ vc_story_mission_templates = [
           (assign, "$cam_time", 0),
       ]),
       
-      (1, 4, ti_once, [                       (assign, ":continue", 0),
+      (1, 4, ti_once, [
+          (assign, ":continue", 0),
           (try_for_agents,":cur_agent"),
             (agent_get_troop_id,":cur_troop_id",":cur_agent"),
             (this_or_next|eq,":cur_troop_id","trp_npc2"),
@@ -33146,10 +31558,9 @@ vc_story_mission_templates = [
       # common_battle_tab_press,
       (ti_tab_pressed, 0, 0, [(display_message,"str_cannot_leave_now")], []),
       
-      (0, 0, 0,
-        [(this_or_next|key_clicked, key_escape),
-          (key_is_down, key_escape),
-          ], [               (check_quest_active,"qst_the_thing"),
+      (ti_escape_pressed, 0, 0, [
+          (check_quest_active,"qst_the_thing"),
+          ], [
           (quest_set_slot,"qst_the_thing",slot_quest_current_state, 2),
           (jump_to_menu, "mnu_the_thing"),
           (finish_mission),
@@ -35980,10 +34391,10 @@ vc_story_mission_templates = [
       ]),
       
       (ti_tab_pressed, 0, 0, [(display_message,"str_cannot_leave_now")], []),
-      (0, 0, 0,
-        [(this_or_next|key_clicked, key_escape),
-          (key_is_down, key_escape),
-          ], [               (check_quest_active,"qst_aescesdun"),
+      
+      (ti_escape_pressed, 0, 0, [
+          (check_quest_active,"qst_aescesdun"),
+          ], [
           (quest_set_slot,"qst_aescesdun",slot_quest_current_state, 4),
           (jump_to_menu, "mnu_the_speech_l"),
           (finish_mission),
@@ -36393,15 +34804,6 @@ vc_story_mission_templates = [
           (set_global_cloud_amount, 10),  ## 100 sets cloud amount to very very cloudy
           
           (call_script, "script_change_banners_and_chest"),]),
-      
-      # (0, 0, 0,
-      # [(this_or_next|key_clicked, key_escape),
-      # (key_is_down, key_escape),
-      # ], [               (check_quest_active,"qst_douar_an_enez"),
-      # (quest_set_slot,"qst_douar_an_enez",slot_quest_current_state, 12),
-      # (jump_to_menu, "mnu_way_to_douaranenez2"),
-      # (finish_mission),
-      # ]),
       
       (ti_on_agent_spawn, 0, 0, [],
         [
@@ -36829,8 +35231,8 @@ vc_story_mission_templates = [
       ]),
       #########
       
-      common_battle_check_victory_condition,
-      common_battle_victory_display,
+      # common_battle_check_victory_condition,
+      # common_battle_victory_display,
       #      common_battle_player_fallen,
       common_battle_inventory,
       
@@ -37301,11 +35703,9 @@ vc_story_mission_templates = [
           (mission_disable_talk), #ya no conversaciones
           ], []),
       
-      (0, 0, 0,
-        [(this_or_next|key_clicked, key_escape),
-          (key_is_down, key_escape),
-          ], [
+      (ti_escape_pressed, 0, 0, [
           (check_quest_active,"qst_svenbn_final"),
+          ], [
           (quest_set_slot,"qst_svenbn_final",slot_quest_current_state, 2),
           (jump_to_menu, "mnu_sven_bullneck_readingum"),
           (finish_mission),
@@ -38072,7 +36472,7 @@ vc_story_mission_templates = [
       (0,mtef_defenders|mtef_team_0,0,aif_start_alarmed,0,[]),
       (4,mtef_attackers|mtef_team_1,0,aif_start_alarmed,60,[]),
       (4,mtef_attackers|mtef_team_1,0,aif_start_alarmed,0,[]),
-    ], battle_mode_triggers + vc_weather + vc_courage + call_horse + ai_horn +
+    ], battle_mode_triggers + vc_weather + vc_courage + ai_horn +
     [
       cannot_spawn_commoners,
       common_battle_init_banner,
@@ -38318,7 +36718,7 @@ vc_story_mission_templates = [
       (0,mtef_defenders|mtef_team_0,0,aif_start_alarmed,0,[]),
       (4,mtef_attackers|mtef_team_1,0,aif_start_alarmed,60,[]),
       (4,mtef_attackers|mtef_team_1,0,aif_start_alarmed,0,[]),
-    ], battle_mode_triggers + vc_weather + vc_courage + call_horse + ai_horn +
+    ], battle_mode_triggers + vc_weather + vc_courage + ai_horn +
     [
       cannot_spawn_commoners,
       common_battle_init_banner,
@@ -38582,10 +36982,9 @@ vc_story_mission_templates = [
           (team_set_relation,0,1,0),
       ]),
       
-      (0, 0, 0,
-        [(this_or_next|key_clicked, key_escape),
-          (key_is_down, key_escape),
-          ], [                                 (quest_set_slot,"qst_blank_quest_23",slot_quest_current_state, 6), #
+      (ti_escape_pressed, 0, 0, [
+          ], [
+          (quest_set_slot,"qst_blank_quest_23",slot_quest_current_state, 6), #
           (jump_to_menu, "mnu_morrigan_lair_attack"),
           (finish_mission),
       ]),
@@ -39099,7 +37498,7 @@ vc_story_mission_templates = [
       (0,mtef_defenders|mtef_team_0,0,aif_start_alarmed,0,[]),
       (4,mtef_attackers|mtef_team_1,0,aif_start_alarmed,60,[]),
       (4,mtef_attackers|mtef_team_1,0,aif_start_alarmed,0,[]),
-    ], battle_mode_triggers + vc_weather + vc_courage + call_horse + ai_horn +
+    ], battle_mode_triggers + vc_weather + vc_courage + ai_horn +
     [
       cannot_spawn_commoners,
       common_battle_init_banner,
@@ -39310,10 +37709,11 @@ vc_story_mission_templates = [
           (team_set_relation, 2, 1, 0),
       ]),
       
-      (0, 0, 0,
-        [(this_or_next|key_clicked, key_escape),
-          (key_is_down, key_escape), (check_quest_active,"qst_blank_quest_26"),(quest_slot_eq,"qst_blank_quest_26",slot_quest_current_state,7),
-          ], [                                 (quest_set_slot,"qst_blank_quest_26",slot_quest_current_state, 6), #
+      (ti_escape_pressed, 0, 0, [
+          (check_quest_active,"qst_blank_quest_26"),
+          (quest_slot_eq,"qst_blank_quest_26",slot_quest_current_state,7),
+          ], [
+          (quest_set_slot,"qst_blank_quest_26",slot_quest_current_state, 6), #
           (jump_to_menu, "mnu_bresail_fort_visit"),
           (finish_mission),
       ]),

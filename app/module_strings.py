@@ -2753,7 +2753,7 @@ Location^Geschichtspark Barnau^^Logotype^Jason Brown^^Cover Art^Piotr Fox Wysock
   ("other_relations_s40_", "Other relations: {s40}^"),
   ("relation_with_liege_reg0_", "Relation with liege: {reg0}^"),
   ("sense_of_security_military_reg1_court_position_reg3_", "Sense of security: military {reg1}, court position {reg3}^"),
-  ("s46s45s44s48", "{!}{s46}^{s49}^{s45}^{s44}^{s48}"), #chief lord notes faction screen and character screen
+  ("s46s45s44s48", "{!}{s46}{s49}^{s45}{s44}{s48}"), #chief lord notes faction screen and character screen
   ("political_details_s47_", "Political details:^{s47}^"),
   ("checking_volunteer_availability_script", "{!}Checking volunteer availability script"),
   ("center_relation_at_least_zero", "{!}Center relation at least zero"),
@@ -4832,6 +4832,6 @@ from there the 'Game concepts' button."),
   
   ("weapon_break", "Damageable Equipment:"),
   ("no_suit_religion", "You can't possibly think of marrying into my family since you do not even believe in the same gods! Convert first, then we may discuss this topic again."),
-  ("modifications", " Modified"),
+  ("modifications", " + Tweaks Tool 1.2"),
   
 ]

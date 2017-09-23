@@ -1,0 +1,19 @@
+################################################################
+# VC Tweaks Tools 1.2
+################################################################
+
+1) update to VC 2.036 base code and Warband 1.171
+  -> for the base game changelog visit the forum
+
+2) replaced header_operations.py and header_triggers.py with Lav's based version
+  -> easier to read and use, it doesn't change code.
+
+3) update to run_app.bat
+  -> added comments
+
+4) header_common.py was not updated to Warband 1.171 code. It has incompatible multiplayer events for the new invasion mode (Warband).
+
+5) update for TWEAK_DISABLE_STATS_LOSS_757DAYS
+
+6) rename tweaks.py to tweaks.ini 
+  -> players tend to double click this file, instead of using a text editor. This should prevent this error. 

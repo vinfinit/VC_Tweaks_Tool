@@ -2597,34 +2597,34 @@ items = [
   [], [fac_kingdom_1, fac_kingdom_2, fac_kingdom_3,fac_kingdom_4,fac_kingdom_5, fac_kingdom_6, fac_kingdom_7,fac_kingdom_8]], #vikings
 #short swords vikings
 ["sword_5", "Short Sword", [("Sword04",0),("Scabbard04", ixmesh_carry)], itp_merchandise|itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
- 2790 , weight(1.25)|abundance(10)|difficulty(6)|spd_rtng(90) | weapon_length(91)|swing_damage(25 , cut) | thrust_damage(16 ,  pierce),imodbits_sword,
+ 1890 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(21 , cut) | thrust_damage(20 ,  pierce),imodbits_sword,
   [], [fac_kingdom_1, fac_kingdom_2, fac_kingdom_3,fac_kingdom_4, fac_kingdom_5, fac_kingdom_6, fac_kingdom_7, fac_kingdom_8]], #frisa, saxons and vikings
 ["sword_6", "Short Sword", [("Sword09",0),("Scabbard09", ixmesh_carry)], itp_merchandise|itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
- 2790 , weight(1.25)|abundance(10)|difficulty(6)|spd_rtng(90) | weapon_length(91)|swing_damage(25 , cut) | thrust_damage(16 ,  pierce),imodbits_sword,
+ 1890 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(21 , cut) | thrust_damage(20 ,  pierce),imodbits_sword,
   [], [fac_kingdom_1, fac_kingdom_2, fac_kingdom_3,fac_kingdom_4, fac_kingdom_5, fac_kingdom_6, fac_kingdom_7, fac_kingdom_8]], #frisa, saxons and vikings
  ["sword_7", "Short Sword", [("Sword14",0),("Scabbard14", ixmesh_carry)], itp_merchandise|itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
- 2790 , weight(1.25)|abundance(10)|difficulty(6)|spd_rtng(90) | weapon_length(91)|swing_damage(25 , cut) | thrust_damage(16 ,  pierce),imodbits_sword,
+ 1890 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(21 , cut) | thrust_damage(20 ,  pierce),imodbits_sword,
   [], [fac_kingdom_1, fac_kingdom_2, fac_kingdom_3,fac_kingdom_4, fac_kingdom_5, fac_kingdom_6, fac_kingdom_7, fac_kingdom_8]], #frisa, saxons and vikings
 ["sword_8", "Short Sword", [("Sword19",0),("Scabbard19", ixmesh_carry)], itp_merchandise|itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
- 2790 , weight(1.25)|abundance(10)|difficulty(6)|spd_rtng(90) | weapon_length(91)|swing_damage(25 , cut) | thrust_damage(16 ,  pierce),imodbits_sword,
+ 1890 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(21 , cut) | thrust_damage(20 ,  pierce),imodbits_sword,
   [], [fac_kingdom_1, fac_kingdom_2, fac_kingdom_3,fac_kingdom_4, fac_kingdom_5, fac_kingdom_6, fac_kingdom_7, fac_kingdom_8]], #frisa, saxons and vikings
 
 ["new_sword1", "Short Sword", [("Sword24",0),("Scabbard24", ixmesh_carry)],  itp_merchandise|itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
- 2790 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(18 , cut) | thrust_damage(23 ,  pierce),imodbits_sword,
+ 1890 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(18 , cut) | thrust_damage(23 ,  pierce),imodbits_sword,
   [], [fac_kingdom_1, fac_kingdom_2, fac_kingdom_3,fac_kingdom_4, fac_kingdom_8]], #frisa, saxons and vikings
 ["new_sword2", "Short Sword", [("Sword29",0),("Scabbard29", ixmesh_carry)],  itp_merchandise|itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
- 2790 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(18 , cut) | thrust_damage(23 ,  pierce),imodbits_sword,
+ 1890 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(18 , cut) | thrust_damage(23 ,  pierce),imodbits_sword,
   [], [fac_kingdom_1, fac_kingdom_2, fac_kingdom_3,fac_kingdom_4, fac_kingdom_8]], #frisa, saxons and vikings
  ["new_sword3", "Short Sword", [("Sword34",0),("Scabbard34", ixmesh_carry)],  itp_merchandise|itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
- 2790 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(18 , cut) | thrust_damage(23 ,  pierce),imodbits_sword,
+ 1890 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(18 , cut) | thrust_damage(23 ,  pierce),imodbits_sword,
   [], [fac_kingdom_1, fac_kingdom_2, fac_kingdom_3,fac_kingdom_4, fac_kingdom_8]], #frisa, saxons and vikings
  ["new_sword4", "Short Sword", [("Sword39",0),("Scabbard39", ixmesh_carry)],  itp_merchandise|itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
- 2790 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(18 , cut) | thrust_damage(23 ,  pierce),imodbits_sword,
+ 1890 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(18 , cut) | thrust_damage(23 ,  pierce),imodbits_sword,
   [], [fac_kingdom_1, fac_kingdom_2, fac_kingdom_3,fac_kingdom_4, fac_kingdom_8]], #frisa, saxons and vikings
 ["new_sword5", "Short Sword", [("Sword44",0),("Scabbard44", ixmesh_carry)],  itp_merchandise|itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
- 2790 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(18 , cut) | thrust_damage(23 ,  pierce),imodbits_sword,
+ 1890 , weight(1.05)|abundance(10)|difficulty(6)|spd_rtng(93) | weapon_length(76)|swing_damage(18 , cut) | thrust_damage(23 ,  pierce),imodbits_sword,
   [], [fac_kingdom_1, fac_kingdom_2, fac_kingdom_3,fac_kingdom_4, fac_kingdom_8]], #frisa, saxons and vikings
- ["new_sword6", "Short Sword", [("Sword32",0),("Scabbard32", ixmesh_carry)],  itp_merchandise|itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
+ ["new_sword6", "Sword", [("Sword32",0),("Scabbard32", ixmesh_carry)],  itp_merchandise|itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
  2790 , weight(1.15)|abundance(10)|difficulty(6)|spd_rtng(92) | weapon_length(81)|swing_damage(25 , cut) | thrust_damage(16 ,  pierce),imodbits_sword,
   [], [fac_kingdom_1, fac_kingdom_2, fac_kingdom_3,fac_kingdom_4, fac_kingdom_8]], #frisa, saxons and vikings
 
@@ -2707,10 +2707,10 @@ items = [
 ["noble_swordv4", "Ulfberth Sword", [("Sword50_Ulfberht",0),("Scabbard50", ixmesh_carry)],  itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
  6960 , weight(1.15)|abundance(10)|difficulty(7)|spd_rtng(92) | weapon_length(90)|swing_damage(31 , cut) | thrust_damage(22 ,  pierce),imodbits_sword,
  [], [fac_kingdom_9, fac_kingdom_10, fac_kingdom_11, fac_kingdom_12, fac_kingdom_13]], #frisa, saxons and britons
-["noble_swordv5", "Sword", [("Sword35",0),("Scabbard35", ixmesh_carry)],  itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
+["noble_swordv5", "Rich Sword", [("Sword35",0),("Scabbard35", ixmesh_carry)],  itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
  4960 , weight(1.15)|abundance(10)|difficulty(7)|spd_rtng(92) | weapon_length(81)|swing_damage(30 , cut) | thrust_damage(18 ,  pierce),imodbits_sword,
  [], [fac_kingdom_9, fac_kingdom_10, fac_kingdom_11, fac_kingdom_12, fac_kingdom_13]], #frisa, saxons and britons
- ["noble_swordv6", "Sword", [("Sword37",0),("Scabbard37", ixmesh_carry)],  itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
+ ["noble_swordv6", "Rich Sword", [("Sword37",0),("Scabbard37", ixmesh_carry)],  itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
  4960 , weight(1.15)|abundance(10)|difficulty(7)|spd_rtng(92) | weapon_length(81)|swing_damage(30 , cut) | thrust_damage(18 ,  pierce),imodbits_sword,
  [], [fac_kingdom_9, fac_kingdom_10, fac_kingdom_11, fac_kingdom_12, fac_kingdom_13]], #frisa, saxons and britons
  ["noble_swordv7", "Rich Sword", [("Sword27",0),("Scabbard27", ixmesh_carry)],  itp_type_one_handed_wpn|itp_primary|itp_no_blur, itc_longsword|itcf_carry_sword_left_hip|itcf_show_holster_when_drawn,
@@ -3010,10 +3010,8 @@ items = [
     # ])]],
 # quick fix for dragon Standard:
   ["standard_dragon","Dragon Standard", [("standard_dragon2",0)], itp_merchandise|itp_type_two_handed_wpn|itp_two_handed|itp_primary|itp_cant_use_on_horseback, itc_greatsword, 780, abundance(5)|weight(4.3)|difficulty(2)|spd_rtng(85)|weapon_length(220)|swing_damage(16,blunt)|thrust_damage(16,blunt), imodbits_none],
-  
-# ["standard", "Army Standard", [("standard_extra207",0)], itp_type_two_handed_wpn| itp_two_handed|itp_primary|itp_cant_use_on_horseback, itc_greatsword, 780 , weight(4.3)|difficulty(2)|spd_rtng(70) | weapon_length(220)|swing_damage(18 , cut) | thrust_damage(0 ,  pierce),imodbits_none ], #chief cambiado
-# ["standard_dragon", "Dragon Standard", [("standard_dragon7",0)], itp_type_two_handed_wpn| itp_two_handed|itp_primary|itp_cant_use_on_horseback, itc_greatsword, 780 , weight(4.3)|difficulty(2)|spd_rtng(70) | weapon_length(220)|swing_damage(18 , cut) | thrust_damage(0 ,  pierce),imodbits_none ], #chief cambiado
 #####estandartes finales acaba####
+
  ##############################
 ###############lanzas chief acaba #######################################
 ###########################################################################

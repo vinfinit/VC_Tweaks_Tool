@@ -567,7 +567,7 @@ parties = [
 ###places destroyed for player in mainquest. Plazas destruidas chief
      ("destroy1","Thiaderd's Hideout, Destroyed",icon_village_burnt_a|pf_disabled|pf_is_static|pf_always_visible|pf_hide_defenders, no_menu, pt_none, fac_neutral,0,ai_bhvr_hold,0,(218.509,-250.265),[]),
      ("destroy2","Sven's Lair, Destroyed",icon_village_burnt_a|pf_disabled|pf_is_static|pf_always_visible|pf_hide_defenders, no_menu, pt_none, fac_neutral,0,ai_bhvr_hold,0,(245.14,-156.91),[]),
-     ("destroy3","Aescesdun Battlefield",icon_village_burnt_a|pf_disabled|pf_is_static|pf_always_visible|pf_hide_defenders, no_menu, pt_none, fac_neutral,0,ai_bhvr_hold,0,(252.88,-76.22),[]),
+     ("destroy3","Aescesdun Battlefield",icon_village_burnt_a|pf_disabled|pf_is_static|pf_always_visible|pf_hide_defenders, no_menu, pt_none, fac_neutral,0,ai_bhvr_hold,0,(5.86,-206.64),[]),
 ###followers camp party  
   ("followers_camp","Followers Camp",pf_disabled, no_menu, pt_none, fac_commoners,0,ai_bhvr_hold,0,(0,0),[]),
 ###
